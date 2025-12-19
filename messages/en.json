@@ -1,0 +1,15 @@
+{
+  "Main": {
+    "songs": "Songs",
+    "playlists": "Playlists",
+    "selectedPlaylist": "Selected Playlist",
+    "schedules": "Schedules",
+    "selectedSchedule": "Selected Schedule",
+    "exceptions": "Exceptions",
+    "users": "Users",
+    "logs": "Logs",
+    "admin": "Admin",
+    "title": "Radio Management",
+    "unauthorized": "Unauthorized"
+  }
+}
