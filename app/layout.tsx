@@ -8,6 +8,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import AuthorizationProvider from "@/Providers/AuthorizationProvider";
 import { NextIntlClientProvider } from "next-intl";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default async function RootLayout({
                   <SidebarProvider>
                     <AppSidebar />
                       <SidebarInset>
+                        <Toaster />
                         {children}
                       </SidebarInset>
                   </SidebarProvider>

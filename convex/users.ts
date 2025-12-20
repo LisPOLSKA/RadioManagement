@@ -45,7 +45,7 @@ export const deleteFromClerk = internalMutation({
   },
 });
 
-export const getUserRole = query({
+export const getUser = query({
   args: { clerkId: v.string() },
   handler: async (ctx, { clerkId }) => {
     const user = await ctx.db

@@ -1,11 +1,12 @@
+import SongsList from '@/components/SongsList'
 import React from 'react'
 
-type Props = {}
-
-const page = (props: Props) => {
+const songsPage = () => {
   return (
-    <div>page</div>
+    <div className='flex flex-col gap-6 p-6'>
+      <SongsList />
+    </div>
   )
 }
 
-export default page
+export default songsPage

@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 const AuthorizationProvider = ({children}: {children: React.ReactNode}) => {
     const t = useTranslations("Main");
     const { isSignedIn, userId, isLoaded } = useAuth();
-    const user = useQuery(api.users.getUserRole, userId ? {clerkId: userId} : "skip");
+    const user = useQuery(api.users.getUser, userId ? {clerkId: userId} : "skip");
     console.log(user, isSignedIn, userId, isLoaded, (!isSignedIn || !userId || user == null || user.role <= 0) && isLoaded);
     if (isLoaded && (!isSignedIn || !userId || user === null || user?.role <= 0)){
         console.log("redirecting to sign in");
