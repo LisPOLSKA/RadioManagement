@@ -43,4 +43,33 @@ export default defineSchema({
     .index("by_priority", ["priority"])
     .index("by_active_period", ["startDate", "endDate"])
     .index("by_createdBy", ["createdBy"]),
+  scheduleGroups: defineTable({
+    name: v.string(),
+    description: v.string(),
+    createdBy: v.id("users"),
+  })
+    .index("by_createdBy", ["createdBy"]),
+  scheduleEvents: defineTable({
+    groupId: v.id("scheduleGroups"),
+    startHour: v.number(),
+    startMinute: v.number(),
+    endHour: v.number(),
+    endMinute: v.number(),
+    createdBy: v.id("users"),
+  })
+    .index("by_groupId", ["groupId"])
+    .index("by_createdBy", ["createdBy"]),
+  selectedSchedules: defineTable({
+    scheduleId: v.id("scheduleGroups"),
+    priority: v.number(),
+    schedule: v.optional(v.array(v.number())),
+    startDate: v.optional(v.number()), // timestamp w ms
+    endDate: v.optional(v.number()),   // timestamp w ms
+    createdBy: v.id("users"),
+  })
+    .index("by_startDate", ["startDate"])
+    .index("by_endDate", ["endDate"])
+    .index("by_priority", ["priority"])
+    .index("by_createdBy", ["createdBy"]),
+
 });
