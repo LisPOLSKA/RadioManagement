@@ -1,6 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
+import { internal } from "./_generated/api";
 
 export const upsertSchedule = mutation({
     args: {
@@ -80,11 +81,33 @@ export const upsertSchedule = mutation({
                 name: args.name,
                 description: args.description,
             });
+
+            await ctx.runMutation(internal.logs.logAdminAction, {
+                userId: user._id,
+                action: "UPDATE_SCHEDULE_GROUP",
+                targetTable: "scheduleGroups",
+                targetId: groupId,
+                details: JSON.stringify({
+                    name: args.name,
+                    description: args.description,
+                }),
+            });
         } else {
             groupId = await ctx.db.insert("scheduleGroups", {
                 name: args.name,
                 description: args.description,
                 createdBy: user._id,
+            });
+
+            await ctx.runMutation(internal.logs.logAdminAction, {
+                userId: user._id,
+                action: "CREATE_SCHEDULE_GROUP",
+                targetTable: "scheduleGroups",
+                targetId: groupId,
+                details: JSON.stringify({
+                    name: args.name,
+                    description: args.description,
+                }),
             });
         }
 
@@ -133,6 +156,14 @@ export const upsertSchedule = mutation({
             } else {
                 await ctx.db.insert("scheduleEvents", data);
             }
+
+            await ctx.runMutation(internal.logs.logAdminAction, {
+                userId: user._id,
+                action: "UPDATE_SCHEDULE_EVENT",
+                targetTable: "scheduleEvents",
+                targetId: ev.id,
+                details: JSON.stringify(data),
+            });
         }
 
         return groupId;
@@ -241,6 +272,13 @@ export const deleteSchedule = mutation({
 
     // 🗑 usuń grupę
     await ctx.db.delete(args.groupId);
+
+    await ctx.runMutation(internal.logs.logAdminAction, {
+      userId: user._id,
+      action: "DELETE_SCHEDULE_GROUP",
+      targetTable: "scheduleGroups",
+      targetId: args.groupId,
+    });
   },
 });
 
@@ -277,6 +315,21 @@ export const upsertSelectedSchedule = mutation({
                 endDate: args.endDate,
                 schedule: args.schedule,
             });
+
+            await ctx.runMutation(internal.logs.logAdminAction, {
+                userId: user._id,
+                action: "UPDATE_SELECTED_SCHEDULE",
+                targetTable: "selectedSchedules",
+                targetId: args.selectedScheduleId,
+                details: JSON.stringify({
+                    scheduleId: args.scheduleId,
+                    priority: args.priority,
+                    startDate: args.startDate,
+                    endDate: args.endDate,
+                    schedule: args.schedule,
+                }),
+            });
+
             return args.selectedScheduleId;
         } else {
             const newId = await ctx.db.insert("selectedSchedules", {
@@ -287,6 +340,21 @@ export const upsertSelectedSchedule = mutation({
                 createdBy: user._id,
                 schedule: args.schedule,
             });
+
+            await ctx.runMutation(internal.logs.logAdminAction, {
+                userId: user._id,
+                action: "CREATE_SELECTED_SCHEDULE",
+                targetTable: "selectedSchedules",
+                targetId: newId,
+                details: JSON.stringify({
+                    scheduleId: args.scheduleId,
+                    priority: args.priority,
+                    startDate: args.startDate,
+                    endDate: args.endDate,
+                    schedule: args.schedule,
+                }),
+            });
+
             return newId;
         }
     }
@@ -348,5 +416,135 @@ export const deleteSelectedSchedule = mutation({
         }
 
         await ctx.db.delete(args.selectedScheduleId);
+
+        await ctx.runMutation(internal.logs.logAdminAction, {
+            userId: user._id,
+            action: "DELETE_SELECTED_SCHEDULE",
+            targetTable: "selectedSchedules",
+            targetId: args.selectedScheduleId,
+        });
     }
+});
+
+export const getScheduleForDay = query({
+    args: {
+        date: v.number(), // timestamp (ms)
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthorized");
+
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
+            .first();
+        if (!user || user.role <= 0) throw new Error("Forbidden");
+
+        const date = new Date(args.date);
+        const dayOfWeek = date.getDay(); // 0-6
+        const ts = args.date;
+
+        // ======================================
+        // 1️⃣ POBIERZ ACTIVE SELECTED SCHEDULES Z UŻYCIEM INDEXU
+        // ======================================
+        const selected = await ctx.db
+            .query("selectedSchedules")
+            .withIndex("by_endDate", q => q.gte("endDate", args.date))
+            .collect();
+
+        // filtrujemy po endDate + startDate
+        const active = selected
+            .filter(ss => {
+                if (ss.startDate && ts < ss.startDate) return false;
+                if (ss.schedule && !ss.schedule.includes(dayOfWeek)) return false;
+                return true;
+            })
+            .sort((a, b) => b.priority - a.priority);
+
+        if (active.length === 0) {
+            return {
+                schedule: null,
+                events: [],
+            };
+        }
+
+        // 👉 WYGRYWA NAJWYŻSZY PRIORITY
+        const selectedSchedule = active[0];
+
+        // ======================================
+        // 2️⃣ POBIERZ BASE SCHEDULE + EVENTY
+        // ======================================
+        const group = await ctx.db.get(selectedSchedule.scheduleId);
+        if (!group) throw new Error("Schedule not found");
+
+        const baseEvents = await ctx.db
+            .query("scheduleEvents")
+            .withIndex("by_groupId", q => q.eq("groupId", group._id))
+            .order("asc")
+            .collect();
+
+        // ======================================
+        // 3️⃣ POBIERZ WYJĄTKI
+        // ======================================
+        const exceptions = await ctx.db
+            .query("exceptions")
+            .withIndex("by_groupId", q => q.eq("groupId", group._id))
+            .collect();
+
+        const activeExceptions = exceptions.filter(ex => {
+            if (ts < ex.startDate) return false;
+            if (ex.endDate && ts > ex.endDate) return false;
+            if (ex.dayOfWeek !== undefined && !ex.dayOfWeek.includes(dayOfWeek)) return false;
+            return true;
+        });
+
+        // sort by priority (jeśli dodasz priority)
+        activeExceptions.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+
+        // ======================================
+        // 4️⃣ SKIP DAY?
+        // ======================================
+        if (
+            activeExceptions.some(ex => ex.action === "SKIP_DAY")
+        ) {
+            return {
+                schedule: group,
+                events: [],
+            };
+        }
+
+        // ======================================
+        // 5️⃣ RESOLVE EVENTY
+        // ======================================
+        const resolvedEvents = baseEvents
+            .filter(ev => {
+                // SKIP_EVENT
+                return !activeExceptions.some(ex =>
+                    ex.action === "SKIP_EVENT" &&
+                    ex.eventId === ev._id
+                );
+            })
+            .map(ev => {
+                const mod = activeExceptions.find(ex =>
+                    ex.action === "MODIFY_EVENT" &&
+                    ex.eventId === ev._id
+                );
+
+                if (!mod) return ev;
+
+                return {
+                    ...ev,
+                    startHour: mod.startHour ?? ev.startHour,
+                    startMinute: mod.startMinute ?? ev.startMinute,
+                    endHour: mod.endHour ?? ev.endHour,
+                    endMinute: mod.endMinute ?? ev.endMinute,
+                };
+            });
+
+        return {
+            schedule: group,
+            selectedSchedule,
+            events: resolvedEvents,
+        };
+    },
 });

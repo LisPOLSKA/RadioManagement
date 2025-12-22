@@ -8,7 +8,9 @@
  * @module
  */
 
+import type * as exceptions from "../exceptions.js";
 import type * as http from "../http.js";
+import type * as logs from "../logs.js";
 import type * as playlists from "../playlists.js";
 import type * as schedules from "../schedules.js";
 import type * as songs from "../songs.js";
@@ -21,7 +23,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  exceptions: typeof exceptions;
   http: typeof http;
+  logs: typeof logs;
   playlists: typeof playlists;
   schedules: typeof schedules;
   songs: typeof songs;

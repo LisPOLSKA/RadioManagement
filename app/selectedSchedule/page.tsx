@@ -1,10 +1,9 @@
-import SelectedSchedulesList from "@/components/schedules/Se;ectedScheduleList";
-
+import SelectedSchedulesList from "@/components/schedules/SelectedScheduleList";
 
 export default function SelectedSchedulePage() {
   return (
-    <div className="p-6 space-y-6">
+    <main className="p-6">
       <SelectedSchedulesList />
-    </div>
+    </main>
   );
 }

@@ -71,5 +71,48 @@ export default defineSchema({
     .index("by_endDate", ["endDate"])
     .index("by_priority", ["priority"])
     .index("by_createdBy", ["createdBy"]),
+  exceptions: defineTable({
+    groupId: v.id("scheduleGroups"),
+    title: v.optional(v.string()),
 
+    startDate: v.number(), // timestamp w ms
+    endDate: v.number(),   // timestamp w ms
+
+    dayOfWeek: v.array(v.number()), // 0-6
+
+    eventId: v.optional(v.id("scheduleEvents")),
+
+    action: v.union(
+      v.literal("MODIFY_EVENT"),
+      v.literal("SKIP_EVENT"),
+      v.literal("SKIP_DAY")
+    ),
+
+    startHour: v.optional(v.number()),
+    startMinute: v.optional(v.number()),
+    endHour: v.optional(v.number()),
+    endMinute: v.optional(v.number()),
+
+    priority: v.optional(v.number()),
+
+    createdBy: v.id("users"),
+  })
+    .index("by_groupId", ["groupId"])
+    .index("by_eventId", ["eventId"])
+    .index("by_dateRange", ["startDate", "endDate"]),
+  logs: defineTable({
+    createdBy: v.id("users"),
+    action: v.string(),
+    targetTable: v.optional(v.string()),
+    targetId: v.optional(v.string()),
+    details: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_createdBy", ["createdBy"])
+    .index("by_action", ["action"])
+    .index("by_targetTable", ["targetTable"])
+    .index("by_targetId", ["targetId"])
+    .index("by_createdBy_action", ["createdBy", "action"])
+    .index("by_targetTable_targetId", ["targetTable", "targetId"])
+    .index("by_createdAt", ["createdAt"]),
 });

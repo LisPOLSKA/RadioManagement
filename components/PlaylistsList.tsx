@@ -39,58 +39,58 @@ export default function PlaylistsList() {
 
     return (
         <div className="space-y-6">
-        <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold">Playlists</h1>
-            <PlaylistDialog />
-        </div>
-
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Songs</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {playlists.length === 0 && status === "LoadingFirstPage" && (
-                    <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground">
-                            Loading playlists…
-                        </TableCell>
-                    </TableRow>
-                    )}
-
-                    {playlists.length === 0 && status !== "LoadingFirstPage" && (
-                    <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground">
-                            No playlists found
-                        </TableCell>
-                    </TableRow>
-                    )}
-
-                    {playlists.map((pl) => (
-                    <TableRow key={pl._id}>
-                            <TableCell className="font-medium">{pl.title}</TableCell>
-                            <TableCell>{pl.description}</TableCell>
-                            <TableCell>{pl.songs.length}</TableCell>
-                            <TableCell className="text-right">
-                            <Button variant="ghost" size="sm" onClick={() => setEditingPlaylist(pl)}>Edit</Button>
-                            <Button variant="destructive" size="sm" onClick={() => handleDelete(pl._id)}>Delete</Button>
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
-
-        {status === "CanLoadMore" && (
-            <div className="flex justify-center">
-             <Button variant="outline" onClick={() => loadMore(10)}>Load more</Button>
+            <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-semibold">Playlists</h1>
+                <PlaylistDialog />
             </div>
-        )}
+
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead>Songs</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {playlists.length === 0 && status === "LoadingFirstPage" && (
+                        <TableRow>
+                            <TableCell colSpan={4} className="text-center text-muted-foreground">
+                                Loading playlists…
+                            </TableCell>
+                        </TableRow>
+                        )}
+
+                        {playlists.length === 0 && status !== "LoadingFirstPage" && (
+                        <TableRow>
+                            <TableCell colSpan={4} className="text-center text-muted-foreground">
+                                No playlists found
+                            </TableCell>
+                        </TableRow>
+                        )}
+
+                        {playlists.map((pl) => (
+                        <TableRow key={pl._id}>
+                                <TableCell className="font-medium">{pl.title}</TableCell>
+                                <TableCell>{pl.description}</TableCell>
+                                <TableCell>{pl.songs.length}</TableCell>
+                                <TableCell className="text-right">
+                                <Button variant="ghost" size="sm" onClick={() => setEditingPlaylist(pl)}>Edit</Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDelete(pl._id)}>Delete</Button>
+                            </TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {status === "CanLoadMore" && (
+                <div className="flex justify-center">
+                <Button variant="outline" onClick={() => loadMore(10)}>Load more</Button>
+                </div>
+            )}
 
             {editingPlaylist && (
                 <PlaylistDialog

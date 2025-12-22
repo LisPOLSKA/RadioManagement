@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
+import { internal } from "./_generated/api";
 
 export const upsertPlaylist = mutation({
     args: {
@@ -34,21 +35,37 @@ export const upsertPlaylist = mutation({
         };
 
         if (args.playlistId) {
-            // ✏️ EDIT: tylko właściciel lub admin
-            const playlist = await ctx.db.get(args.playlistId);
-            if (!playlist) throw new Error("Playlist not found");
+          // ✏️ EDIT: tylko właściciel lub admin
+          const playlist = await ctx.db.get(args.playlistId);
+          if (!playlist) throw new Error("Playlist not found");
 
-            const isOwner = user._id === playlist.createdBy;
-            const isAdmin = user.role >= 2;
+          const isOwner = user._id === playlist.createdBy;
+          const isAdmin = user.role >= 2;
 
-            if (!isOwner && !isAdmin) {
-                throw new Error("Forbidden");
-            }
+          if (!isOwner && !isAdmin) {
+              throw new Error("Forbidden");
+          }
 
-            await ctx.db.patch(args.playlistId, data);
+          await ctx.db.patch(args.playlistId, data);
+
+          await ctx.runMutation(internal.logs.logAdminAction, {
+              userId: user._id,
+              action: "UPDATE_PLAYLIST",
+              targetTable: "playlists",
+              targetId: args.playlistId,
+              details: JSON.stringify(data),
+          });
         } else {
-            // ➕ CREATE
-            await ctx.db.insert("playlists", data);
+          // ➕ CREATE
+          const id = await ctx.db.insert("playlists", data);
+
+          await ctx.runMutation(internal.logs.logAdminAction, {
+              userId: user._id,
+              action: "CREATE_PLAYLIST",
+              targetTable: "playlists",
+              targetId: id,
+              details: JSON.stringify(data),
+          });
         }
     },
 });
@@ -82,6 +99,13 @@ export const deletePlaylist = mutation({
         }
 
         await ctx.db.delete(args.playlistId);
+
+        await ctx.runMutation(internal.logs.logAdminAction, {
+            userId: user._id,
+            action: "DELETE_PLAYLIST",
+            targetTable: "playlists",
+            targetId: args.playlistId,
+        });
     },
 });
 
@@ -177,9 +201,25 @@ export const upsertSelectedPlaylist = mutation({
       }
 
       await ctx.db.patch(args.selectedPlaylistId, data);
+
+      await ctx.runMutation(internal.logs.logAdminAction, {
+        userId: user._id,
+        action: "UPDATE_SELECTED_PLAYLIST",
+        targetTable: "selectedPlaylists",
+        targetId: args.selectedPlaylistId,
+        details: JSON.stringify(data),
+      });
     } else {
       // Tworzenie nowego
       await ctx.db.insert("selectedPlaylists", data);
+
+      await ctx.runMutation(internal.logs.logAdminAction, {
+        userId: user._id,
+        action: "CREATE_SELECTED_PLAYLIST",
+        targetTable: "selectedPlaylists",
+        targetId: args.selectedPlaylistId,
+        details: JSON.stringify(data),
+      });
     }
   },
 });
@@ -205,6 +245,13 @@ export const deleteSelectedPlaylist = mutation({
     }
 
     await ctx.db.delete(args.selectedPlaylistId);
+
+    await ctx.runMutation(internal.logs.logAdminAction, {
+      userId: user._id,
+      action: "DELETE_SELECTED_PLAYLIST",
+      targetTable: "selectedPlaylists",
+      targetId: args.selectedPlaylistId,
+    });
   },
 });
 

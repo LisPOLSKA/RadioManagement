@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
+import { internal } from "./_generated/api";
 
 export const upsertSong = mutation({
     args: {
@@ -44,13 +45,29 @@ export const upsertSong = mutation({
             }
 
             await ctx.db.patch(args.songId, data);
+
+            await ctx.runMutation(internal.logs.logAdminAction, {
+              userId: user._id,
+              action: "UPDATE_SONG",
+              targetTable: "songs",
+              targetId: args.songId,
+              details: JSON.stringify(data),
+            });
         } else {
         // ➕ CREATE
             const song  = await ctx.db.query("songs").withIndex("by_spotifyLink", q => q.eq("spotifyLink", args.spotifyLink)).first();
             if (song) {
                 throw new Error("Song already exists");
             }
-            await ctx.db.insert("songs", data);
+            const id = await ctx.db.insert("songs", data);
+
+            await ctx.runMutation(internal.logs.logAdminAction, {
+              userId: user._id,
+              action: "CREATE_SONG",
+              targetTable: "songs",
+              targetId: id,
+              details: JSON.stringify(data),
+            });
         }
     },
 });
@@ -124,5 +141,12 @@ export const deleteSong = mutation({
 
     // Usuwanie piosenki
     await ctx.db.delete(args.songId);
+
+    await ctx.runMutation(internal.logs.logAdminAction, {
+      userId: user._id,
+      action: "DELETE_SONG",
+      targetTable: "songs",
+      targetId: args.songId,
+    });
   },
 });
