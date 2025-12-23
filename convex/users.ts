@@ -1,4 +1,4 @@
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const upsertFromClerk = internalMutation({
@@ -54,5 +54,85 @@ export const getUser = query({
       .first();
 
     return user ?? null;
+  },
+});
+
+export const getUsers = query({
+  args: {
+    search: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!me || me.role < 2) throw new Error("Forbidden");
+
+    // brak filtra → ostatni users
+    if (!args.search) {
+      return await ctx.db
+        .query("users")
+        .order("desc")
+        .take(50);
+    }
+
+    const search = args.search.toLowerCase();
+
+    // Convex nie ma OR indexów → robimy dwa query
+    const byEmail = await ctx.db
+      .query("users")
+      .withIndex("by_email", q =>
+        q.gte("email", search).lte("email", search + "\uffff")
+      )
+      .take(50);
+
+    const byName = await ctx.db
+      .query("users")
+      .withIndex("by_displayName", q =>
+        q.gte("displayName", search).lte("displayName", search + "\uffff")
+      )
+      .take(50);
+
+    // deduplikacja
+    const map = new Map();
+    [...byEmail, ...byName].forEach(u => map.set(u._id, u));
+
+    return Array.from(map.values());
+  },
+});
+
+export const setUserRole = mutation({
+  args: {
+    userId: v.id("users"),
+    role: v.number(), // 0 | 1 | 2
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!me || me.role < 2) throw new Error("Forbidden");
+
+    await ctx.db.patch(args.userId, {
+      role: args.role,
+    });
+  },
+});
+
+export const findUserById = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const id = ctx.db.normalizeId("users", args.userId);
+    if (!id) return undefined;
+    const user = await ctx.db.get(id);
+    return user ?? undefined;
   },
 });

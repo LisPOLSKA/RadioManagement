@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Plus } from "lucide-react";
 
 type Props = {
   groups: Doc<"scheduleGroups">[];
@@ -107,7 +108,7 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
   return (
     <Dialog open={!!exception || undefined} onOpenChange={(open) => { if (!open) onClose?.(); }}>
       <DialogTrigger asChild hidden={hideTrigger}>
-        <Button>{exception ? "Edit Exception" : "Add Exception"}</Button>
+        <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{exception ? "Edit Exception" : "Add Exception"}</Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">

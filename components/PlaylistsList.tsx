@@ -97,6 +97,7 @@ export default function PlaylistsList() {
                     playlist={editingPlaylist}
                     open={!!editingPlaylist}
                     onOpenChange={(open) => { if (!open) setEditingPlaylist(null); }}
+                    hideTrigger
                 />
             )}
         </div>

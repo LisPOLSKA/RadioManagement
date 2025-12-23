@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Plus } from "lucide-react";
 
 type Props = {
   selectedSchedule?: Doc<"selectedSchedules">;
@@ -61,7 +62,7 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
   return (
     <Dialog open={!!selectedSchedule || undefined} onOpenChange={(open) => { if (!open) onClose?.(); }}>
       <DialogTrigger asChild hidden={hideTrigger}>
-        <Button>{selectedSchedule ? "Edit Selected Schedule" : "Add Selected Schedule"}</Button>
+        <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{selectedSchedule ? "Edit Selected Schedule" : "Add Selected Schedule"}</Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">

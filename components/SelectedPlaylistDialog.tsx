@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Plus } from "lucide-react";
 
 type Props = {
     selectedPlaylist?: Doc<"selectedPlaylists">;
@@ -73,7 +74,7 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
     return (
         <Dialog open={!!selectedPlaylist || undefined} onOpenChange={(open) => { if (!open) onClose?.() }}>
             <DialogTrigger asChild hidden={hideTrigger}>
-                <Button>{selectedPlaylist ? "Edit Selected Playlist" : "Add Selected Playlist"}</Button>
+                <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{selectedPlaylist ? "Edit Selected Playlist" : "Add Selected Playlist"}</Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-lg">

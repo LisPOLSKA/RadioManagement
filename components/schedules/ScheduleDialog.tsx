@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
 type EventForm = {
     id?: Id<"scheduleEvents">;
@@ -126,7 +127,7 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
         <Dialog open={!!schedule || undefined} onOpenChange={o => !o && onClose?.()}>
             {!hideTrigger && (
                 <DialogTrigger asChild>
-                    <Button>{schedule ? "Edit schedule" : "Add schedule"}</Button>
+                    <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{schedule ? "Edit schedule" : "Add schedule"}</Button>
                 </DialogTrigger>
             )}
 
