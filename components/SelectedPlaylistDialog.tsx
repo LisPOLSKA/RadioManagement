@@ -54,13 +54,18 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
             return;
         }
 
+        if(!startDate || !endDate) {
+            toast.error("Start and end date are required");
+            return;
+        }
+
         try {
             await upsertSP({
                 selectedPlaylistId: selectedPlaylist?._id,
                 playlistId,
                 priority,
-                startDate: startDate ? new Date(startDate).getTime() : undefined,
-                endDate: endDate ? new Date(endDate).getTime() : undefined,
+                startDate: new Date(startDate).getTime(),
+                endDate: new Date(endDate).getTime(),
                 schedule
             });
             toast.success("Saved successfully");
@@ -74,7 +79,10 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
     return (
         <Dialog open={!!selectedPlaylist || undefined} onOpenChange={(open) => { if (!open) onClose?.() }}>
             <DialogTrigger asChild hidden={hideTrigger}>
-                <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{selectedPlaylist ? "Edit Selected Playlist" : "Add Selected Playlist"}</Button>
+                <Button variant="outline">
+                    <Plus className="mr-2 h-4 w-4" />
+                    {selectedPlaylist ? "Edit Selected Playlist" : "Add Selected Playlist"}
+                </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-lg">
@@ -83,60 +91,48 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
                 </DialogHeader>
 
                 <form className="grid gap-4 py-2" onSubmit={handleSubmit}>
-                    {/* Wybór playlisty */}
                     <div className="grid gap-2">
                         <Label>Playlist</Label>
                         <Select value={playlistId} onValueChange={(v: Id<"playlists">) => setPlaylistId(v)}>
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select a playlist" />
                             </SelectTrigger>
-                            <SelectContent>
-                                {playlists.map((pl) => (
-                                    <SelectItem key={pl._id} value={pl._id}>
-                                        {pl.title}
-                                    </SelectItem>
+                            <SelectContent className="max-h-60 overflow-y-auto">
+                                {playlists.map(pl => (
+                                    <SelectItem key={pl._id} value={pl._id}>{pl.title}</SelectItem>
                                 ))}
-
                                 {status === "CanLoadMore" && (
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => loadMore(20)}
-                                        className="w-full"
-                                    >
-                                        Load more
-                                    </Button>
+                                    <div className="p-2 sticky bottom-0 bg-background">
+                                        <Button variant="ghost" size="sm" onClick={() => loadMore(20)} className="w-full">Load more</Button>
+                                    </div>
                                 )}
                             </SelectContent>
                         </Select>
                     </div>
 
-                    {/* Priorytet */}
                     <div className="grid gap-2">
                         <Label>Priority</Label>
-                        <Input type="number" value={priority} onChange={(e) => setPriority(Number(e.target.value))} />
+                        <Input type="number" value={priority} onChange={e => setPriority(Number(e.target.value))} />
                     </div>
 
-                    {/* Daty */}
                     <div className="grid gap-2">
                         <Label>Start Date</Label>
-                        <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                        <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
                     </div>
                     <div className="grid gap-2">
                         <Label>End Date</Label>
-                        <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                        <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
                     </div>
 
-                    {/* Dni tygodnia */}
                     <div className="grid gap-2">
                         <Label>Days of week</Label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             {daysOfWeek.map((d, i) => (
                                 <Button
                                     key={i}
                                     size="sm"
                                     variant={schedule.includes(i) ? "default" : "outline"}
-                                    onClick={(e) => { e.preventDefault(); toggleDay(i); }}
+                                    onClick={e => { e.preventDefault(); toggleDay(i); }}
                                 >
                                     {d}
                                 </Button>

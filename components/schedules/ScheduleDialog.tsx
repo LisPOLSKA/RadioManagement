@@ -131,7 +131,7 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
                 </DialogTrigger>
             )}
 
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="w-[min(90%,32rem)] sm:mx-auto max-h-[90vh] overflow-y-auto p-4">
                 <DialogHeader>
                     <DialogTitle>{schedule ? "Edit schedule" : "New schedule"}</DialogTitle>
                 </DialogHeader>

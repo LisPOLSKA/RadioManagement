@@ -25,7 +25,7 @@ export const logAdminAction = internalMutation({
 export const getLogs = query({
   args: {
     paginationOpts: paginationOptsValidator,
-    userId: v.optional(v.string()),
+    userId: v.optional(v.id("users")),
     action: v.optional(v.string()),
     targetTable: v.optional(v.string()),
     targetId: v.optional(v.string()),

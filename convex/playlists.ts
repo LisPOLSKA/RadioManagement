@@ -143,19 +143,16 @@ export const getActivePlaylists = query({
     const now = Date.now();
     const today = new Date().getDay();
 
-    // Pobieramy playlisty, które mają startDate <= now i endDate >= now
+    // Pobieramy playlisty, które jeszcze nie wygasły (endDate >= now)
     const playlists = await ctx.db
       .query("selectedPlaylists")
-      .withIndex("by_active_period", (q) =>
-        q
-          .lte("startDate", now)
-          .gte("endDate", now)
-      )
+      .withIndex("by_endDate", (q) => q.gte("endDate", now))
       .collect();
 
-    // Filtrowanie po dniu tygodnia i sortowanie po priorytecie
+    // Filtrujemy po startDate i dniu tygodnia, sortujemy po priorytecie
     const activePlaylists = playlists
-      .filter(pl => !pl.schedule || pl.schedule.includes(today))
+      .filter(pl => pl.startDate <= now)  // startDate <= teraz
+      .filter(pl => !pl.schedule || pl.schedule.includes(today)) // filtr po dniu tygodnia
       .sort((a, b) => b.priority - a.priority);
 
     return activePlaylists[0] ? [activePlaylists[0]] : [];
@@ -168,8 +165,8 @@ export const upsertSelectedPlaylist = mutation({
     playlistId: v.id("playlists"),
     priority: v.number(),
     schedule: v.optional(v.array(v.number())), // dni tygodnia 0-6
-    startDate: v.optional(v.number()), // timestamp ms
-    endDate: v.optional(v.number()),   // timestamp ms
+    startDate: v.number(), // timestamp ms
+    endDate: v.number(),   // timestamp ms
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();

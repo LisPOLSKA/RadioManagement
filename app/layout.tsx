@@ -4,7 +4,7 @@ import "./globals.css";
 import ConvexClientProvider from "@/Providers/ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import AuthorizationProvider from "@/Providers/AuthorizationProvider";
 import { NextIntlClientProvider } from "next-intl";
@@ -47,10 +47,16 @@ export default async function RootLayout({
                 <AuthorizationProvider>
                   <SidebarProvider>
                     <AppSidebar />
-                      <SidebarInset>
+                    <SidebarInset>
+                      <header className="flex h-14 items-center gap-2 border-b px-4">
+                        <SidebarTrigger className="md:hidden" />
+                      </header>
+
+                      <div>
                         <Toaster />
                         {children}
-                      </SidebarInset>
+                      </div>
+                    </SidebarInset>
                   </SidebarProvider>
                 </AuthorizationProvider>
               </NextIntlClientProvider>

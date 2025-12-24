@@ -1,3 +1,4 @@
+import { paginationOptsValidator } from "convex/server";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -20,12 +21,14 @@ export const upsertFromClerk = internalMutation({
         email,
         displayName,
         role,
+        searchKey: displayName.toLowerCase() + email.toLowerCase(),
       });
     } else {
       await ctx.db.patch(existing._id, {
         email,
         displayName,
         role,
+        searchKey: displayName.toLowerCase() + email.toLowerCase(),
       });
     }
   },
@@ -60,6 +63,7 @@ export const getUser = query({
 export const getUsers = query({
   args: {
     search: v.optional(v.string()),
+    paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -77,31 +81,19 @@ export const getUsers = query({
       return await ctx.db
         .query("users")
         .order("desc")
-        .take(50);
+        .paginate(args.paginationOpts);
     }
 
     const search = args.search.toLowerCase();
 
     // Convex nie ma OR indexów → robimy dwa query
-    const byEmail = await ctx.db
+    
+    return ctx.db
       .query("users")
-      .withIndex("by_email", q =>
-        q.gte("email", search).lte("email", search + "\uffff")
+      .withIndex("by_searchKey", q =>
+        q.gte("searchKey", search).lte("searchKey", search + "\uffff")
       )
-      .take(50);
-
-    const byName = await ctx.db
-      .query("users")
-      .withIndex("by_displayName", q =>
-        q.gte("displayName", search).lte("displayName", search + "\uffff")
-      )
-      .take(50);
-
-    // deduplikacja
-    const map = new Map();
-    [...byEmail, ...byName].forEach(u => map.set(u._id, u));
-
-    return Array.from(map.values());
+      .paginate(args.paginationOpts);
   },
 });
 

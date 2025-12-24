@@ -26,7 +26,7 @@ http.route({
         await ctx.runMutation(internal.users.upsertFromClerk, {
           clerkId: user.id,
           email,
-          displayName: user.first_name ?? email,
+          displayName: user.username ?? user.first_name ?? email ?? "",
           role: 0,
         });
         break;

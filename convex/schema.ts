@@ -7,10 +7,12 @@ export default defineSchema({
     email: v.string(),
     displayName: v.string(),
     role: v.number(),
+    searchKey: v.string(),
   })
     .index("by_clerkId", ["clerkId"])
     .index("by_email", ["email"])
-    .index("by_displayName", ["displayName"]),
+    .index("by_displayName", ["displayName"])
+    .index("by_searchKey", ["searchKey"]),
   songs: defineTable({
     title: v.string(),
     artist: v.string(),
@@ -34,8 +36,8 @@ export default defineSchema({
     playlistId: v.id("playlists"),
     priority: v.number(),
     schedule: v.optional(v.array(v.number())), // dni tygodnia (0-6)
-    startDate: v.optional(v.number()), // timestamp w ms
-    endDate: v.optional(v.number()),   // timestamp w ms
+    startDate: v.number(), // timestamp w ms
+    endDate: v.number(),   // timestamp w ms
     createdBy: v.id("users"),
   })
     .index("by_startDate", ["startDate"])

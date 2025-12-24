@@ -10,6 +10,7 @@
     "logs": "Logs",
     "admin": "Admin",
     "title": "Radio Management",
-    "unauthorized": "Unauthorized"
+    "unauthorized": "Unauthorized",
+    "loading": "Loading…"
   }
 }

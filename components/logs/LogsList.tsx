@@ -20,26 +20,24 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import ActionSelect from "./ActionSelect";
 import TargetTableSelect from "./TargetTableSelect";
 import { useAuth } from "@clerk/nextjs";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export default function LogsList() {
   const [action, setAction] = useState<string | undefined>();
   const [targetTable, setTargetTable] = useState<string | undefined>();
   const [targetId, setTargetId] = useState("");
-  const [userInput, setUserInput] = useState(""); // input jako string
-  const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | undefined>(); // ID dla Convex
+  const [userInput, setUserInput] = useState(""); 
+  const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | undefined>();
+  const [filtersOpen, setFiltersOpen] = useState(true); // collapse toggle
 
   const { userId: clerkId } = useAuth();
-
-  // Pobranie aktualnego użytkownika i jego roli
   const user = useQuery(api.users.getUser, clerkId ? { clerkId: clerkId } : "skip");
 
-  // Pobranie usera po ID wprowadzonego w polu
   const lookedUpUser = useQuery(
     api.users.findUserById,
     userInput.trim() ? { userId: userInput.trim() } : "skip"
   );
 
-  // Kiedy `lookedUpUser` się pojawi, ustawiamy ID do filtrowania
   if (lookedUpUser?._id && lookedUpUser._id !== selectedUserId) {
     setSelectedUserId(lookedUpUser._id);
   }
@@ -67,33 +65,51 @@ export default function LogsList() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <h1 className="text-2xl font-semibold">Logs</h1>
 
-      {/* Filters */}
-      <div className="flex gap-4 items-end">
-        <ActionSelect value={action} onChange={setAction} />
-        <TargetTableSelect value={targetTable} onChange={setTargetTable} />
+      {/* Filters panel */}
+      <div className="border rounded-md p-2">
+        <button
+          className="flex justify-between w-full font-medium mb-2"
+          onClick={() => setFiltersOpen(prev => !prev)}
+        >
+          <span>Filters</span>
+          {filtersOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
 
-        {/* Target ID */}
-        <Input
-          placeholder="Target ID"
-          value={targetId}
-          onChange={(e) => setTargetId(e.target.value)}
-          className="w-64"
-        />
+        {filtersOpen && (
+          <div className="flex flex-wrap gap-4">
+            <ActionSelect value={action} onChange={setAction} />
+            <TargetTableSelect value={targetTable} onChange={setTargetTable} />
 
-        {/* User ID / input */}
-        <Input
-          placeholder="User ID"
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          className="w-64"
-        />
+            <Input
+              placeholder="Target ID"
+              value={targetId}
+              onChange={(e) => setTargetId(e.target.value)}
+              className="w-64"
+            />
+            <Input
+              placeholder="User ID"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              className="w-64"
+            />
+
+            <Button variant="outline" size="sm" onClick={() => {
+              setAction(undefined);
+              setTargetTable(undefined);
+              setTargetId("");
+              setUserInput("");
+              setSelectedUserId(undefined);
+            }}>
+              Reset Filters
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -142,7 +158,6 @@ export default function LogsList() {
         </Table>
       </div>
 
-      {/* Pagination */}
       {status === "CanLoadMore" && (
         <div className="flex justify-center">
           <Button variant="outline" onClick={() => loadMore(10)}>

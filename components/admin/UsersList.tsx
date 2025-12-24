@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 import {
@@ -25,6 +25,7 @@ import {
 
 import { toast } from "sonner";
 import { Doc } from "@/convex/_generated/dataModel";
+import { useAuth } from "@clerk/nextjs";
 
 const ROLES = [
   { value: "0", label: "Banned" },
@@ -35,11 +36,29 @@ const ROLES = [
 export default function UsersList() {
   const [search, setSearch] = useState("");
 
-  const users = useQuery(api.users.getUsers, {
-    search: search || undefined,
-  });
+  const { userId: clerkId } = useAuth();
+  const me = useQuery(
+    api.users.getUser,
+    clerkId ? { clerkId } : "skip"
+  );
+
+  const {
+    results: users,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.users.getUsers,
+    me && me.role >= 2
+      ? { search: search.trim() || undefined }
+      : "skip",
+    { initialNumItems: 20 }
+  );
 
   const setRole = useMutation(api.users.setUserRole);
+
+  if (me && me.role < 2) {
+    return <h1 className="text-red-500">Unauthorized</h1>;
+  }
 
   async function changeRole(userId: Doc<"users">["_id"], role: number) {
     try {
@@ -80,15 +99,15 @@ export default function UsersList() {
           </TableHeader>
 
           <TableBody>
-            {!users && (
+            {status === "LoadingFirstPage" && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center">
-                  Loading…
+                  Loading users…
                 </TableCell>
               </TableRow>
             )}
 
-            {users?.length === 0 && (
+            {status !== "LoadingFirstPage" && users.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center">
                   No users found
@@ -96,7 +115,7 @@ export default function UsersList() {
               </TableRow>
             )}
 
-            {users?.map((user) => (
+            {users.map((user) => (
               <TableRow key={user._id}>
                 <TableCell className="font-medium">
                   {user.displayName}
@@ -141,6 +160,18 @@ export default function UsersList() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {status === "CanLoadMore" && (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            onClick={() => loadMore(20)}
+          >
+            Load more
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

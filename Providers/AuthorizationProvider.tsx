@@ -20,6 +20,14 @@ const AuthorizationProvider = ({children}: {children: React.ReactNode}) => {
         )
     }
 
+    if(!isLoaded){
+        return (
+            <div className='w-screen h-screen flex items-center justify-center'>
+                <h1 className='text-6xl'>{t("loading")}</h1>
+            </div>
+        )
+    }
+
     return children;
 }
 

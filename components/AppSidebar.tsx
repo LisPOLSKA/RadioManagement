@@ -17,9 +17,24 @@ import {
 import { Radio } from 'lucide-react';
 import {getTranslations} from 'next-intl/server';
 import { UserButton } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
+import { fetchQuery } from 'convex/nextjs'
+import { api } from '@/convex/_generated/api';
 
 export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const t = await getTranslations('Main');
+
+    const { userId } = await auth();
+
+    let isAdmin = false;
+
+    if (userId) {
+        const user = await fetchQuery(api.users.getUser, {
+        clerkId: userId,
+        });
+
+        isAdmin = !!user && user.role >= 2;
+    }
 
     const data  = {
         navMain: [
@@ -59,6 +74,11 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 title: t('exceptions'),
                 url: "/exceptions",
             },
+        ]
+    }
+
+    const adminData = {
+        navMain: [
             {
                 title: t('admin'),
                 url: "/users",
@@ -74,11 +94,11 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 ]
             }
         ]
-    }
+    };
 
 
     return (
-        <Sidebar {...props}>
+        <Sidebar collapsible='icon' {...props}>
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -100,6 +120,26 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 <SidebarGroup>
                     <SidebarMenu>
                         {data.navMain.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton asChild>
+                                    <a href={item.url} className='font-medium'>
+                                        {item.title}
+                                    </a>
+                                </SidebarMenuButton>
+                                {item.items?.length ? (
+                                    <SidebarMenuSub>
+                                        {item.items.map((subItem) => (
+                                            <SidebarMenuSubItem key={subItem.title}>
+                                                <SidebarMenuSubButton asChild isActive={false}>
+                                                    <a href={subItem.url}>{subItem.title}</a>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        ))}
+                                    </SidebarMenuSub>
+                                ) : null}
+                            </SidebarMenuItem>
+                        ))}
+                        {isAdmin && adminData.navMain.map((item) => (
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton asChild>
                                     <a href={item.url} className='font-medium'>
@@ -143,7 +183,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                     />
                 </div>
             </SidebarFooter>
-            <SidebarRail />
+            <SidebarRail className="hidden md:flex" />
         </Sidebar>
     )
 }
