@@ -117,4 +117,13 @@ export default defineSchema({
     .index("by_createdBy_action", ["createdBy", "action"])
     .index("by_targetTable_targetId", ["targetTable", "targetId"])
     .index("by_createdAt", ["createdAt"]),
+  devices: defineTable({
+    name: v.string(),
+    tokenHash: v.string(),
+    active: v.boolean(),
+    createdAt: v.number(),
+    lastSeenAt: v.optional(v.number()),
+  })
+    .index("by_tokenHash", ["tokenHash"])
+    .index("by_active", ["active"]),
 });

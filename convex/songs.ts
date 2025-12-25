@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
 
@@ -148,5 +148,28 @@ export const deleteSong = mutation({
       targetTable: "songs",
       targetId: args.songId,
     });
+  },
+});
+
+export const getSong = internalQuery({
+  args: {
+    songId: v.id("songs"),
+  },
+  handler: async (ctx, args) => {
+    const song = await ctx.db.get(args.songId);
+    if (!song) throw new Error("Song not found");
+
+    return song;
+  },
+});
+
+export const getSongsBulk = internalQuery({
+  args: {
+    ids: v.array(v.id("songs")),
+  },
+  handler: async (ctx, args) => {
+    const songs = await Promise.all(args.ids.map(id => ctx.db.get(id)));
+    // Filtrujemy null-e w razie brakujących
+    return songs.filter(Boolean);
   },
 });

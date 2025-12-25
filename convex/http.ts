@@ -1,9 +1,10 @@
 // convex/http.ts
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import type { WebhookEvent } from "@clerk/backend";
 import { Webhook } from "svix";
+import { requireDeviceFromRequest } from "./utils/requireDevice";
 
 const http = httpRouter();
 
@@ -47,6 +48,136 @@ http.route({
     return new Response(null, { status: 200 });
   }),
 });
+
+
+http.route({
+  path: "/player/active-playlist",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    try {
+      // 🔐 AUTH – jedno miejsce prawdy
+      const device = await requireDeviceFromRequest(ctx, req);
+
+      // 🎵 BIZNES
+      const playlist = await ctx.runQuery(
+        internal.playlists.getActivePlaylists,
+        { deviceId: device._id }
+      );
+
+      return Response.json(playlist);
+    } catch (err) {
+      console.error(err);
+      return new Response("Unauthorized", { status: 401 });
+    }
+  }),
+});
+
+http.route({
+  path: "/player/schedule-for-day",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    try {
+      // 🔐 AUTH – device token
+      const device = await requireDeviceFromRequest(ctx, req);
+
+      if(!device || !device.active) {
+        return new Response("Device is not active", { status: 400 });
+      }
+
+      const body = await req.json();
+      const date = body?.date;
+
+      if (!date || typeof date !== "number") {
+        return new Response("Missing date", { status: 400 });
+      }
+
+      // 🗓 BIZNES
+      const schedule = await ctx.runQuery(
+        internal.schedules.getScheduleForDay,
+        { date }
+      );
+
+      return Response.json(schedule);
+    } catch (err) {
+      console.error(err);
+      return new Response("Unauthorized", { status: 401 });
+    }
+  }),
+});
+
+http.route({
+  path: "/player/playlist",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    try {
+      const device = await requireDeviceFromRequest(ctx, req);
+
+      const body = await req.json();
+      const playlistId = body?.playlistId;
+      if (!playlistId) return new Response("Missing playlistId", { status: 400 });
+
+      const playlist = await ctx.runQuery(
+        internal.playlists.getPlaylistById,
+        { playlistId }
+      );
+
+      return Response.json(playlist);
+    } catch (err) {
+      console.error(err);
+      return new Response("Unauthorized", { status: 401 });
+    }
+  }),
+});
+
+// Pobiera pełne dane wielu utworów naraz
+http.route({
+  path: "/player/songs",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    try {
+      const device = await requireDeviceFromRequest(ctx, req);
+
+      const body = await req.json();
+      const songIds = body?.ids;
+      if (!Array.isArray(songIds)) return new Response("Missing ids", { status: 400 });
+
+      const songs = await ctx.runQuery(
+        internal.songs.getSongsBulk,
+        { ids: songIds }
+      );
+
+      return Response.json(songs);
+    } catch (err) {
+      console.error(err);
+      return new Response("Unauthorized", { status: 401 });
+    }
+  }),
+});
+
+http.route({
+  path: "/player/song",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    try {
+      const device = await requireDeviceFromRequest(ctx, req);
+
+      const body = await req.json();
+      const songId = body?.id;
+      if (!songId) return new Response("Missing id", { status: 400 });
+
+      const song = await ctx.runQuery(
+        internal.songs.getSong,
+        { songId: songId }
+      );
+
+      return Response.json(song);
+    } catch (err) {
+      console.error(err);
+      return new Response("Unauthorized", { status: 401 });
+    }
+  }),
+});
+
 
 async function validateRequest(req: Request): Promise<WebhookEvent | null> {
   const payloadString = await req.text();

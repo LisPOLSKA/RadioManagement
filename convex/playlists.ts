@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
 
@@ -138,7 +138,10 @@ export const getPlaylists = query({
 
 
 
-export const getActivePlaylists = query({
+export const getActivePlaylists = internalQuery({
+  args: {
+    deviceId: v.id("devices"),
+  },
   handler: async (ctx) => {
     const now = Date.now();
     const today = new Date().getDay();
@@ -288,5 +291,17 @@ export const getSelectedPlaylists = query({
         ...playlistsPage,
         page: resultsWithNames,
     };
+  },
+});
+
+export const getPlaylistById = internalQuery({
+  args: {
+    playlistId: v.id("playlists"),
+  },
+  handler: async (ctx, args) => {
+    const playlist = await ctx.db.get(args.playlistId);
+    if (!playlist) throw new Error("Playlist not found");
+
+    return playlist;
   },
 });

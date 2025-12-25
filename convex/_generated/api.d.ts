@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as devices from "../devices.js";
 import type * as exceptions from "../exceptions.js";
 import type * as http from "../http.js";
 import type * as logs from "../logs.js";
@@ -15,6 +16,8 @@ import type * as playlists from "../playlists.js";
 import type * as schedules from "../schedules.js";
 import type * as songs from "../songs.js";
 import type * as users from "../users.js";
+import type * as utils_hash from "../utils/hash.js";
+import type * as utils_requireDevice from "../utils/requireDevice.js";
 
 import type {
   ApiFromModules,
@@ -23,6 +26,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  devices: typeof devices;
   exceptions: typeof exceptions;
   http: typeof http;
   logs: typeof logs;
@@ -30,6 +34,8 @@ declare const fullApi: ApiFromModules<{
   schedules: typeof schedules;
   songs: typeof songs;
   users: typeof users;
+  "utils/hash": typeof utils_hash;
+  "utils/requireDevice": typeof utils_requireDevice;
 }>;
 
 /**

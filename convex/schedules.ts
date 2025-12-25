@@ -1,5 +1,5 @@
 import { paginationOptsValidator } from "convex/server";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 
@@ -426,20 +426,11 @@ export const deleteSelectedSchedule = mutation({
     }
 });
 
-export const getScheduleForDay = query({
+export const getScheduleForDay = internalQuery({
     args: {
         date: v.number(), // timestamp (ms)
     },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthorized");
-
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-            .first();
-        if (!user || user.role <= 0) throw new Error("Forbidden");
-
         const date = new Date(args.date);
         const dayOfWeek = date.getDay(); // 0-6
         const ts = args.date;
