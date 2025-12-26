@@ -103,7 +103,7 @@ export default defineSchema({
     .index("by_eventId", ["eventId"])
     .index("by_dateRange", ["startDate", "endDate"]),
   logs: defineTable({
-    createdBy: v.id("users"),
+    createdBy: v.optional(v.id("users")),
     action: v.string(),
     targetTable: v.optional(v.string()),
     targetId: v.optional(v.string()),

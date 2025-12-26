@@ -31,6 +31,7 @@ const logActions = [
     "UPDATE_SELECTED_SCHEDULE",
     "DELETE_SELECTED_SCHEDULE",
     "UPSERT_EXCEPTION",
+    "REGISTER_DEVICE",
 ] as const;
 
 export default function ActionSelect({ value, onChange }: Props) {

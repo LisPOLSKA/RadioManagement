@@ -1,6 +1,7 @@
 import { internalMutation, internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { sha256 } from "./utils/hash";
+import { internal } from "./_generated/api";
 
 export const registerDevice = mutation({
   args: {
@@ -22,6 +23,24 @@ export const registerDevice = mutation({
       paused: false,
       volume: 100,
       updatedAt: Date.now(),
+    });
+
+    const identity = await ctx.auth.getUserIdentity();
+
+    let userId;
+
+    if (identity) {
+      const user = await ctx.db.query("users").withIndex("by_clerkId", q => q.eq("clerkId", identity.subject)).first();
+      if (user) {
+        userId = user._id;
+      }
+    }
+
+    await ctx.runMutation(internal.logs.logAdminAction, {
+      userId: userId,
+      action: "REGISTER_DEVICE",
+      targetTable: "devices",
+      targetId: deviceId,
     });
 
     return deviceId;

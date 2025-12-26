@@ -4,7 +4,7 @@ import { paginationOptsValidator } from "convex/server";
 
 export const logAdminAction = internalMutation({
   args: {
-    userId: v.id("users"),
+    userId: v.optional(v.id("users")),
     action: v.string(),
     targetTable: v.optional(v.string()),
     targetId: v.optional(v.string()),
