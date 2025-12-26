@@ -174,15 +174,16 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                                 colorTextSecondary: "#e0e7ff",
                             },
                             elements: {
-                                userButtonAvatarBox: "h-10 w-10 rounded-full border border-white",
+                                userButtonAvatarBox: "!h-8 !w-8 rounded-full border border-white",
                                 userButtonBox: "flex !flex-row-reverse items-center !gap-3 px-3 py-2 rounded-lg hover:bg-indigo-600 transition",
-                                userButtonName: "text-sm font-medium",
+                                userButtonOuterIdentifier: "!text-base font-medium",
                             },
                             layout: {logoPlacement: "inside"}
                         }}
                     />
+                    <div className='bg-muted-foreground w-full h-[0.1] mt-1'></div>
                     <div>
-                        <a href="https://yolo-services.pl/" className='text-sm'>© YoloServices 2026</a>
+                        <a href="https://yolo-services.pl/" className='text-xs text-muted-foreground'>© YoloServices 2026</a>
                     </div>
                 </div>
             </SidebarFooter>
