@@ -163,7 +163,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="flex justify-center items-end p-4">
-                <div className="w-full flex justify-center">
+                <div className="w-full flex justify-center flex-col items-center">
                     <UserButton
                         showName
                         appearance={{
@@ -181,6 +181,9 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                             layout: {logoPlacement: "inside"}
                         }}
                     />
+                    <div>
+                        <a href="https://yolo-services.pl/" className='text-sm'>© YoloServices 2026</a>
+                    </div>
                 </div>
             </SidebarFooter>
             <SidebarRail className="hidden md:flex" />
