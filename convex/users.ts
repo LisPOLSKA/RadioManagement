@@ -100,7 +100,7 @@ export const getUsers = query({
 export const setUserRole = mutation({
   args: {
     userId: v.id("users"),
-    role: v.number(), // 0 | 1 | 2
+    role: v.number(), // 0 | 1 | 2 | 3
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -111,7 +111,34 @@ export const setUserRole = mutation({
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
 
-    if (!me || me.role < 2) throw new Error("Forbidden");
+    if (!me || me.role < 2) {
+      throw new Error("Forbidden");
+    }
+
+    // 🚫 nie można zmieniać własnej roli
+    if (me._id === args.userId) {
+      throw new Error("Cannot change own role");
+    }
+
+    const target = await ctx.db.get(args.userId);
+    if (!target) {
+      throw new Error("User not found");
+    }
+
+    // 🚫 admin nie może ruszać adminów ani superadminów
+    if (me.role === 2 && target.role >= 2) {
+      throw new Error("Forbidden");
+    }
+
+    // 🚫 admin nie może nadawać admina ani superadmina
+    if (me.role === 2 && args.role >= 2) {
+      throw new Error("Forbidden");
+    }
+
+    // ✅ opcjonalnie: walidacja zakresu
+    if (![0, 1, 2, 3].includes(args.role)) {
+      throw new Error("Invalid role");
+    }
 
     await ctx.db.patch(args.userId, {
       role: args.role,

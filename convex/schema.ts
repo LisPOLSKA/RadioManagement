@@ -126,4 +126,11 @@ export default defineSchema({
   })
     .index("by_tokenHash", ["tokenHash"])
     .index("by_active", ["active"]),
+  players: defineTable({
+    deviceId: v.id("devices"),
+    paused: v.boolean(),
+    volume: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_deviceId", ["deviceId"]),
 });

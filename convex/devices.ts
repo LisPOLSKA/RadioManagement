@@ -10,12 +10,21 @@ export const registerDevice = mutation({
   handler: async (ctx, { name, token }) => {
     const tokenHash = await sha256(token);
 
-    return ctx.db.insert("devices", {
+    const deviceId = await ctx.db.insert("devices", {
       name,
       tokenHash,
       active: true,
       createdAt: Date.now(),
     });
+
+    await ctx.db.insert("players", {
+      deviceId,
+      paused: false,
+      volume: 100,
+      updatedAt: Date.now(),
+    });
+
+    return deviceId;
   },
 });
 

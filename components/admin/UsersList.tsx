@@ -31,6 +31,7 @@ const ROLES = [
   { value: "0", label: "Banned" },
   { value: "1", label: "User" },
   { value: "2", label: "Admin" },
+  { value: "3", label: "Super admin" },
 ];
 
 export default function UsersList() {
@@ -73,6 +74,22 @@ export default function UsersList() {
     navigator.clipboard.writeText(id);
     toast.success("User ID copied");
   }
+
+  if(me === undefined) {
+    return "Loading...";
+  }else if(me === null){
+    return <h1 className="text-red-500">Unauthorized</h1>;
+  }
+
+  function canAssignRole(meRole: number, targetUserRole: number, newRole: number) {
+    if (meRole === 3) return true; // superadmin
+    if (meRole === 2) {
+      if (targetUserRole >= 2) return false;
+      return newRole <= 1;
+    }
+    return false;
+  }
+
 
   return (
     <div className="space-y-6">
@@ -135,7 +152,11 @@ export default function UsersList() {
                     </SelectTrigger>
                     <SelectContent>
                       {ROLES.map((r) => (
-                        <SelectItem key={r.value} value={r.value}>
+                        <SelectItem
+                          key={r.value}
+                          value={r.value}
+                          disabled={!canAssignRole(me.role, user.role, Number(r.value))}
+                        >
                           {r.label}
                         </SelectItem>
                       ))}
