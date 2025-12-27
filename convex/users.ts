@@ -140,6 +140,10 @@ export const setUserRole = mutation({
       throw new Error("Invalid role");
     }
 
+    if(target.deviceId){
+      throw new Error("Cannot change role of device user");
+    }
+
     await ctx.db.patch(args.userId, {
       role: args.role,
     });

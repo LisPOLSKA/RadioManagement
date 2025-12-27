@@ -8,6 +8,8 @@ export default defineSchema({
     displayName: v.string(),
     role: v.number(),
     searchKey: v.string(),
+    deviceId: v.optional(v.id("devices")),
+    type: v.optional(v.union(v.literal("player"), v.literal("user"))),
   })
     .index("by_clerkId", ["clerkId"])
     .index("by_email", ["email"])
