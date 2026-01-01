@@ -17,7 +17,7 @@ type Props = {
     title: string;
     artist: string;
     category: string;
-    spotifyLink: string;
+    ytLink: string;
   };
   onClose: () => void;
 };
@@ -26,7 +26,7 @@ export default function EditSongDialog({ song, onClose }: Props) {
   const [title, setTitle] = useState(song.title);
   const [artist, setArtist] = useState(song.artist);
   const [category, setCategory] = useState(song.category);
-  const [spotifyLink, setSpotifyLink] = useState(song.spotifyLink);
+  const [ytLink, setYtLink] = useState(song.ytLink);
 
   const upsertSong = useMutation(api.songs.upsertSong);
 
@@ -35,13 +35,13 @@ export default function EditSongDialog({ song, onClose }: Props) {
         setTitle(song.title);
         setArtist(song.artist);
         setCategory(song.category);
-        setSpotifyLink(song.spotifyLink);
+        setYtLink(song.ytLink);
     }, [song]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!title || !artist || !category || !spotifyLink) {
+        if (!title || !artist || !category || !ytLink) {
         toast.error("Please fill in all fields");
         return;
         }
@@ -52,7 +52,7 @@ export default function EditSongDialog({ song, onClose }: Props) {
                 title,
                 artist,
                 category,
-                spotifyLink,
+                ytLink,
             });
             toast.success("Song updated");
             onClose();
@@ -101,8 +101,8 @@ export default function EditSongDialog({ song, onClose }: Props) {
             <Label htmlFor="spotifyLink">Spotify Link</Label>
             <Input
               id="spotifyLink"
-              value={spotifyLink}
-              onChange={(e) => setSpotifyLink(e.target.value)}
+              value={ytLink}
+              onChange={(e) => setYtLink(e.target.value)}
               placeholder="https://..."
             />
           </div>

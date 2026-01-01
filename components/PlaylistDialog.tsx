@@ -39,6 +39,7 @@ export default function PlaylistDialog({ playlist, open, onOpenChange, hideTrigg
         title,
         description,
         songs: selectedSongs,
+        playlistId: playlist?._id || undefined,
       });
       toast.success("Playlist saved");
       onOpenChange?.(false); // zamyka dialog po submit

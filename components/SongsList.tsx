@@ -91,7 +91,7 @@ export default function SongsList() {
                     <TableHead>Title</TableHead>
                     <TableHead>Artist</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Spotify</TableHead>
+                    <TableHead>YouTube</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -120,7 +120,7 @@ export default function SongsList() {
                         <TableCell>{song.category}</TableCell>
                         <TableCell>
                         <a
-                            href={song.spotifyLink}
+                            href={song.ytLink}
                             target="_blank"
                             rel="noreferrer"
                             className="underline underline-offset-4 text-sm"

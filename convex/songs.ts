@@ -9,7 +9,7 @@ export const upsertSong = mutation({
         title: v.string(),
         artist: v.string(),
         category: v.string(),
-        spotifyLink: v.string(),
+        ytLink: v.string(),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -21,15 +21,15 @@ export const upsertSong = mutation({
         .first();
 
         if (!user || user.role <= 0) {
-            throw new Error("Forbidden");
+          throw new Error("Forbidden");
         }
 
         const data = {
-            title: args.title,
-            artist: args.artist,
-            category: args.category,
-            spotifyLink: args.spotifyLink,
-            createdBy: user._id,
+          title: args.title,
+          artist: args.artist,
+          category: args.category,
+          ytLink: args.ytLink,
+          createdBy: user._id,
         };
 
         if (args.songId) {
@@ -55,7 +55,7 @@ export const upsertSong = mutation({
             });
         } else {
         // ➕ CREATE
-            const song  = await ctx.db.query("songs").withIndex("by_spotifyLink", q => q.eq("spotifyLink", args.spotifyLink)).first();
+            const song  = await ctx.db.query("songs").withIndex("by_ytLink", q => q.eq("ytLink", args.ytLink)).first();
             if (song) {
                 throw new Error("Song already exists");
             }

@@ -16,7 +16,7 @@ type SongFormProps = {
     title: string;
     artist: string;
     category: string;
-    spotifyLink: string;
+    ytLink: string;
   };
   onSuccess?: () => void;
 };
@@ -25,7 +25,7 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
     const [title, setTitle] = useState(song?.title ?? "");
     const [artist, setArtist] = useState(song?.artist ?? "");
     const [category, setCategory] = useState(song?.category ?? "");
-    const [spotifyLink, setSpotifyLink] = useState(song?.spotifyLink ?? "");
+    const [ytLink, setYtLink] = useState(song?.ytLink ?? "");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const saveSong = useMutation(api.songs.upsertSong);
@@ -33,7 +33,7 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        if (!title || !artist || !category || !spotifyLink) {
+        if (!title || !artist || !category || !ytLink) {
         toast.error("Please fill in all fields");
         return;
         }
@@ -46,7 +46,7 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
                 title,
                 artist,
                 category,
-                spotifyLink,
+                ytLink,
             });
 
             toast.success(song ? "Song updated" : "Song added");
@@ -55,7 +55,7 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
                 setTitle("");
                 setArtist("");
                 setCategory("");
-                setSpotifyLink("");
+                setYtLink("");
             }
 
             onSuccess?.();
@@ -95,12 +95,12 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
         />
 
         <div className="grid gap-2">
-            <Label htmlFor="spotifyLink">Spotify link</Label>
+            <Label htmlFor="ytLink">YouTube link</Label>
             <Input
-            id="spotifyLink"
-            value={spotifyLink}
-            onChange={(e) => setSpotifyLink(e.target.value)}
-            placeholder="https://open.spotify.com/..."
+            id="ytLink"
+            value={ytLink}
+            onChange={(e) => setYtLink(e.target.value)}
+            placeholder="https://www.youtube.com/watch"
             />
         </div>
 

@@ -19,13 +19,13 @@ export default defineSchema({
     title: v.string(),
     artist: v.string(),
     category: v.string(),
-    spotifyLink: v.string(),
+    ytLink: v.string(),
     createdBy: v.id("users"),
   })
     .index("by_title", ["title"])
     .index("by_artist", ["artist"])
     .index("by_category", ["category"])
-    .index("by_spotifyLink", ["spotifyLink"])
+    .index("by_ytLink", ["ytLink"])
     .index("by_category_artist", ["category", "artist"]),
   playlists: defineTable({
     title: v.string(),
