@@ -432,7 +432,8 @@ export const getScheduleForDay = internalQuery({
     },
     handler: async (ctx, args) => {
         const date = new Date(args.date);
-        const dayOfWeek = date.getDay(); // 0-6
+        const todayJs = date.getDay();
+        const dayOfWeek = (todayJs - 1)%7;
         const ts = args.date;
 
         // ======================================
