@@ -97,7 +97,7 @@ export default function ExceptionsList() {
                 <TableCell>{new Date(ex.endDate).toLocaleDateString()}</TableCell>
                 <TableCell>
                     {ex.dayOfWeek && ex.dayOfWeek.length > 0
-                        ? ex.dayOfWeek.map(d => ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d]).join(", ")
+                        ? ex.dayOfWeek.sort().map(d => ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][d]).join(", ")
                         : "-"}
                 </TableCell>
                 <TableCell>{ex.priority ?? "-"}</TableCell>

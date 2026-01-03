@@ -433,7 +433,7 @@ export const getScheduleForDay = internalQuery({
     handler: async (ctx, args) => {
         const date = new Date(args.date);
         const todayJs = date.getDay();
-        const dayOfWeek = (todayJs - 1)%7;
+        const dayOfWeek = (todayJs + 6)%7;
         const ts = args.date;
 
         // ======================================
@@ -485,7 +485,7 @@ export const getScheduleForDay = internalQuery({
 
         const activeExceptions = exceptions.filter(ex => {
             if (ts < ex.startDate) return false;
-            if (ex.endDate && ts > ex.endDate) return false;
+            if ((ex.endDate && ts > ex.endDate) && ex.startDate !== ex.endDate) return false;
             if (ex.dayOfWeek !== undefined && !ex.dayOfWeek.includes(dayOfWeek)) return false;
             return true;
         });

@@ -35,7 +35,7 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
 
   const schedule = useQuery(api.schedules.getSchedule, selectedGroup ? { groupId: selectedGroup } : "skip");
   const upsert = useMutation(api.exceptions.upsertException);
-  const allDays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const allDays = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();

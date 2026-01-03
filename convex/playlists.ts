@@ -145,7 +145,7 @@ export const getActivePlaylists = internalQuery({
   handler: async (ctx) => {
     const now = Date.now();
     const todayJs = new Date().getDay();
-    const today = (todayJs - 1)%7;
+    const today = (todayJs + 6)%7;
 
     // Pobieramy playlisty, które jeszcze nie wygasły (endDate >= now)
     const playlists = await ctx.db
