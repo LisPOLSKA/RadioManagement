@@ -143,23 +143,44 @@ export const getActivePlaylists = internalQuery({
     deviceId: v.id("devices"),
   },
   handler: async (ctx) => {
-    const now = Date.now();
-    const todayJs = new Date().getDay();
-    const today = (todayJs + 6)%7;
+    const now = new Date();
 
-    // Pobieramy playlisty, które jeszcze nie wygasły (endDate >= now)
+    // 🟢 NORMALIZACJA DNIA
+    const dayStart = new Date(now);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const dayEnd = new Date(now);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const dayStartTs = dayStart.getTime();
+    const dayEndTs = dayEnd.getTime();
+
+    // 🟢 PONIEDZIAŁEK = 0
+    const todayJs = now.getDay();
+    const today = (todayJs + 6) % 7;
+
+    // 🟢 INDEX: endDate >= start dnia
     const playlists = await ctx.db
       .query("selectedPlaylists")
-      .withIndex("by_endDate", (q) => q.gte("endDate", now))
+      .withIndex("by_endDate", q => q.gte("endDate", dayStartTs))
       .collect();
 
-    // Filtrujemy po startDate i dniu tygodnia, sortujemy po priorytecie
     const activePlaylists = playlists
-      .filter(pl => pl.startDate <= now)  // startDate <= teraz
-      .filter(pl => !pl.schedule || pl.schedule.includes(today)) // filtr po dniu tygodnia
+      .filter(pl => {
+        // 📅 zakres dni
+        if (pl.startDate && pl.startDate > dayEndTs) return false;
+        if (pl.endDate && pl.endDate < dayStartTs) return false;
+
+        // 📆 dni tygodnia
+        if (pl.schedule && !pl.schedule.includes(today)) return false;
+
+        return true;
+      })
       .sort((a, b) => b.priority - a.priority);
 
-    return activePlaylists[0] ? [activePlaylists[0]] : [];
+    return activePlaylists.length > 0
+      ? [activePlaylists[0]]
+      : [];
   },
 });
 
