@@ -434,20 +434,30 @@ export const getScheduleForDay = internalQuery({
         const date = new Date(args.date);
         const todayJs = date.getDay();
         const dayOfWeek = (todayJs + 6)%7;
-        const ts = args.date;
+        const ts = date.getTime();
+
+        const dayStart = new Date(date);
+        dayStart.setHours(0, 0, 0, 0);
+
+        const dayEnd = new Date(date);
+        dayEnd.setHours(23, 59, 59, 999);
+
+        const dayStartTs = dayStart.getTime();
+        const dayEndTs = dayEnd.getTime();
 
         // ======================================
         // 1️⃣ POBIERZ ACTIVE SELECTED SCHEDULES Z UŻYCIEM INDEXU
         // ======================================
         const selected = await ctx.db
             .query("selectedSchedules")
-            .withIndex("by_endDate", q => q.gte("endDate", args.date))
+            .withIndex("by_endDate", q => q.gte("endDate", dayStartTs))
             .collect();
 
         // filtrujemy po endDate + startDate
         const active = selected
             .filter(ss => {
-                if (ss.startDate && ts < ss.startDate) return false;
+                if (ss.startDate && dayEndTs < ss.startDate) return false;
+                if (ss.endDate && ss.endDate < dayStartTs) return false;
                 if (ss.schedule && !ss.schedule.includes(dayOfWeek)) return false;
                 return true;
             })
@@ -484,9 +494,9 @@ export const getScheduleForDay = internalQuery({
             .collect();
 
         const activeExceptions = exceptions.filter(ex => {
-            if (ts < ex.startDate) return false;
-            if ((ex.endDate && ts > ex.endDate) && ex.startDate !== ex.endDate) return false;
-            if (ex.dayOfWeek !== undefined && !ex.dayOfWeek.includes(dayOfWeek)) return false;
+            if (ex.startDate && ex.startDate > dayEndTs) return false;
+            if (ex.endDate && ex.endDate < dayStartTs) return false;
+            if (ex.dayOfWeek && !ex.dayOfWeek.includes(dayOfWeek)) return false;
             return true;
         });
 
