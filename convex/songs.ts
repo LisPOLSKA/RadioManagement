@@ -87,7 +87,7 @@ export const getSongs = query({
         .query("songs")
         .withIndex("by_category_artist", (q) =>
           q.eq("category", args.category!)
-           .eq("artist", args.artist!)
+           .gte("artist", args.artist!).lte("artist", args.artist! + "\uf8ff")
         );
     } else if (args.category) {
       q = ctx.db
@@ -99,7 +99,7 @@ export const getSongs = query({
       q = ctx.db
         .query("songs")
         .withIndex("by_artist", (q) =>
-          q.eq("artist", args.artist!)
+          q.gte("artist", args.artist!).lte("artist", args.artist! + "\uf8ff")
         );
     } else {
       q = ctx.db.query("songs");
