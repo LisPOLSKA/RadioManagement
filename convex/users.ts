@@ -63,6 +63,7 @@ export const getUser = query({
 export const getUsers = query({
   args: {
     search: v.optional(v.string()),
+    searchUserId: v.optional(v.string()),
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
@@ -77,7 +78,29 @@ export const getUsers = query({
     if (!me || me.role < 2) throw new Error("Forbidden");
 
     // brak filtra → ostatni users
-    if (!args.search) {
+    if (!args.search && !args.searchUserId) {
+      return await ctx.db
+        .query("users")
+        .order("desc")
+        .paginate(args.paginationOpts);
+    }
+    if (args.searchUserId) {
+      const id = ctx.db.normalizeId("users", args.searchUserId);
+      if (!id) {
+        return await ctx.db
+          .query("users")
+          .order("desc")
+          .paginate(args.paginationOpts);
+      }else {
+        const user = await ctx.db.query("users").withIndex("by_id", q => q.eq("_id", id)).paginate(args.paginationOpts);
+        if(!user){
+          return await ctx.db.query("users").order("desc").paginate(args.paginationOpts);
+        }
+        return user;
+      }
+    }
+
+    if(!args.search){
       return await ctx.db
         .query("users")
         .order("desc")

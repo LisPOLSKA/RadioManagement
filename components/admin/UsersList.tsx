@@ -36,6 +36,7 @@ const ROLES = [
 
 export default function UsersList() {
   const [search, setSearch] = useState("");
+  const [searchUserId, setSearchUserId] = useState("");
 
   const { userId: clerkId } = useAuth();
   const me = useQuery(
@@ -50,7 +51,10 @@ export default function UsersList() {
   } = usePaginatedQuery(
     api.users.getUsers,
     me && me.role >= 2
-      ? { search: search.trim() || undefined }
+      ? { 
+        search: search.trim() || undefined ,
+        searchUserId: searchUserId.trim() || undefined
+      }
       : "skip",
     { initialNumItems: 20 }
   );
@@ -95,13 +99,22 @@ export default function UsersList() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Users</h1>
 
+      <div className="flex gap-3 flex-wrap">
       {/* Search */}
-      <Input
-        placeholder="Search by email or username"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="max-w-md"
-      />
+        <Input
+          placeholder="Search by email"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-md"
+        />
+
+        <Input
+          placeholder="Search by userId"
+          value={searchUserId}
+          onChange={(e) => setSearchUserId(e.target.value)}
+          className="max-w-md"
+        />
+      </div>
 
       {/* Table */}
       <div className="rounded-md border">

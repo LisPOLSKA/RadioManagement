@@ -2,6 +2,18 @@ import { paginationOptsValidator } from "convex/server";
 import { internalQuery, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
+import { Doc } from "./_generated/dataModel";
+import { ResolvedEvent } from "./players";
+import dayjs from "dayjs"
+import isoWeek from "dayjs/plugin/isoWeek"
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(isoWeek);
+
+dayjs.tz.setDefault("Europe/Warsaw");
 
 export const upsertSchedule = mutation({
     args: {
@@ -431,19 +443,23 @@ export const getScheduleForDay = internalQuery({
         date: v.number(), // timestamp (ms)
     },
     handler: async (ctx, args) => {
-        const date = new Date(args.date);
-        const todayJs = date.getDay();
-        const dayOfWeek = (todayJs + 6)%7;
-        const ts = date.getTime();
+        const date = dayjs.tz(args.date, "Europe/Warsaw");
+        const dayOfWeek = date.isoWeekday()-1;
 
-        const dayStart = new Date(date);
-        dayStart.setHours(0, 0, 0, 0);
+        const dayStart = date.clone()
+            .hour(0)
+            .minute(0)
+            .second(0)
+            .millisecond(0);
 
-        const dayEnd = new Date(date);
-        dayEnd.setHours(23, 59, 59, 999);
+        const dayEnd = date.clone()
+            .hour(23)
+            .minute(59)
+            .second(59)
+            .millisecond(999);
 
-        const dayStartTs = dayStart.getTime();
-        const dayEndTs = dayEnd.getTime();
+        const dayStartTs = dayStart.valueOf();
+        const dayEndTs = dayEnd.valueOf();
 
         // ======================================
         // 1️⃣ POBIERZ ACTIVE SELECTED SCHEDULES Z UŻYCIEM INDEXU
@@ -541,6 +557,10 @@ export const getScheduleForDay = internalQuery({
                     endHour: mod.endHour ?? ev.endHour,
                     endMinute: mod.endMinute ?? ev.endMinute,
                 };
+            }).sort((a, b) => {
+                const aStart = a.startHour * 60 + a.startMinute;
+                const bStart = b.startHour * 60 + b.startMinute;
+                return aStart - bStart;
             });
 
         return {
@@ -550,3 +570,19 @@ export const getScheduleForDay = internalQuery({
         };
     },
 });
+
+export const getAdminSchedule = query({
+    args: {
+        date: v.number(), // timestamp (ms)
+    },
+    handler: async (ctx, args): Promise<{
+        schedule: Doc<"scheduleGroups"> | null;
+        selectedSchedule?: Doc<"selectedSchedules">;
+        events: ResolvedEvent[];
+    }> => {
+        console.log(args.date);
+        return await ctx.runQuery(internal.schedules.getScheduleForDay, {
+            date: args.date,
+        });
+    }
+})

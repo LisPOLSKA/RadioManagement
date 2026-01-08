@@ -44,7 +44,11 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
             setName(scheduleData.name);
             setDescription(scheduleData.description);
             setEvents(
-                scheduleData.events.map(ev => ({
+                scheduleData.events.sort((a, b) => {
+                    const aStart = a.startHour * 60 + a.startMinute;
+                    const bStart = b.startHour * 60 + b.startMinute;
+                    return aStart - bStart;
+                }).map(ev => ({
                     id: ev._id,
                     startHour: ev.startHour,
                     startMinute: ev.startMinute,

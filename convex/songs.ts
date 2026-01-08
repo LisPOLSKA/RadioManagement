@@ -30,6 +30,7 @@ export const upsertSong = mutation({
           category: args.category,
           ytLink: args.ytLink,
           createdBy: user._id,
+          searchKey: args.title + " " + args.artist + " " + args.category + " " + args.ytLink,
         };
 
         if (args.songId) {
@@ -74,38 +75,55 @@ export const upsertSong = mutation({
 
 export const getSongs = query({
   args: {
-    artist: v.optional(v.string()),
+    search: v.optional(v.string()),
     category: v.optional(v.string()),
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
-    let q;
 
-    if (args.category && args.artist) {
-      // 👉 compound index (NAJLEPSZE)
-      q = ctx.db
+    if(!args.search){
+      return await ctx.db
         .query("songs")
-        .withIndex("by_category_artist", (q) =>
-          q.eq("category", args.category!)
-           .gte("artist", args.artist!).lte("artist", args.artist! + "\uf8ff")
-        );
-    } else if (args.category) {
-      q = ctx.db
-        .query("songs")
-        .withIndex("by_category", (q) =>
-          q.eq("category", args.category!)
-        );
-    } else if (args.artist) {
-      q = ctx.db
-        .query("songs")
-        .withIndex("by_artist", (q) =>
-          q.gte("artist", args.artist!).lte("artist", args.artist! + "\uf8ff")
-        );
-    } else {
-      q = ctx.db.query("songs");
+        .order("desc")
+        .paginate(args.paginationOpts);
     }
 
-    return q.order("desc").paginate(args.paginationOpts);
+    if(args.search){
+      if(args.category){
+        // Szukaj z filtrem kategorii
+        return await ctx.db
+          .query("songs")
+          .withSearchIndex("search_by_title_artist", q =>
+            q.search("searchKey", args.search!).eq("category", args.category!)
+          )
+          .paginate(args.paginationOpts);
+      }else {
+        // Szukaj bez filtra kategorii
+        return await ctx.db
+          .query("songs")
+          .withSearchIndex("search_by_title_artist", q =>
+            q.search("searchKey", args.search!)
+          )
+          .paginate(args.paginationOpts);
+      }
+    }else{
+      if(args.category){
+        // Szukaj z filtrem kategorii
+        return await ctx.db
+          .query("songs")
+          .withIndex("by_category", (q) =>
+            q.eq("category", args.category!)
+          )
+          .order("desc")
+          .paginate(args.paginationOpts);
+      }else {
+        // Szukaj bez filtra kategorii
+        return await ctx.db
+          .query("songs")
+          .order("desc")
+          .paginate(args.paginationOpts);
+      }
+    }
   },
 });
 

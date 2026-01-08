@@ -21,12 +21,14 @@ export default defineSchema({
     category: v.string(),
     ytLink: v.string(),
     createdBy: v.id("users"),
+    searchKey: v.string(),
   })
-    .index("by_title", ["title"])
-    .index("by_artist", ["artist"])
     .index("by_category", ["category"])
     .index("by_ytLink", ["ytLink"])
-    .index("by_category_artist", ["category", "artist"]),
+    .searchIndex("search_by_title_artist", {
+      searchField: "searchKey",
+      filterFields: ["category"],
+    }),
   playlists: defineTable({
     title: v.string(),
     songs: v.array(v.id("songs")),

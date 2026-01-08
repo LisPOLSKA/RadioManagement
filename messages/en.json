@@ -11,6 +11,7 @@
     "admin": "Admin",
     "title": "Radio Management",
     "unauthorized": "Unauthorized",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "checkSchedule": "Check schedule"
   }
 }

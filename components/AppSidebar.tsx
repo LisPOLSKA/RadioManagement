@@ -90,6 +90,10 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                     {
                         title: t('logs'),
                         url: "/logs",
+                    },
+                    {
+                        title: t('checkSchedule'),
+                        url: "/checkSchedule",
                     }
                 ]
             }

@@ -2,6 +2,16 @@ import { v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
+import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek"
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(isoWeek);
+
+dayjs.tz.setDefault("Europe/Warsaw");
 
 export const upsertPlaylist = mutation({
     args: {
@@ -143,21 +153,27 @@ export const getActivePlaylists = internalQuery({
     deviceId: v.id("devices"),
   },
   handler: async (ctx) => {
-    const now = new Date();
+    const now = dayjs.tz(Date.now(), "Europe/Warsaw");
 
-    // 🟢 NORMALIZACJA DNIA
-    const dayStart = new Date(now);
-    dayStart.setHours(0, 0, 0, 0);
+    // 🟢 NORMALIZACJA DNIA (CET)
+    const dayStart = now.clone()
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .millisecond(0);
 
-    const dayEnd = new Date(now);
-    dayEnd.setHours(23, 59, 59, 999);
+    const dayEnd = now.clone()
+      .hour(23)
+      .minute(59)
+      .second(59)
+      .millisecond(999);
 
-    const dayStartTs = dayStart.getTime();
-    const dayEndTs = dayEnd.getTime();
+    const dayStartTs = dayStart.valueOf();
+    const dayEndTs = dayEnd.valueOf();
 
     // 🟢 PONIEDZIAŁEK = 0
-    const todayJs = now.getDay();
-    const today = (todayJs + 6) % 7;
+    // isoWeekday(): 1 = Mon ... 7 = Sun
+    const today = now.isoWeekday() - 1;
 
     // 🟢 INDEX: endDate >= start dnia
     const playlists = await ctx.db

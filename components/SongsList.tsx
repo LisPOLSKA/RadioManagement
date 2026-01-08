@@ -30,7 +30,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import CategoryDropdown from "./CategoryDropdown";
 
 export default function SongsList() {
-    const [artist, setArtist] = useState("");
+    const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
     const [editingSong, setEditingSong] = useState<Doc<"songs"> | null>(null);
 
@@ -40,7 +40,7 @@ export default function SongsList() {
         loadMore,
     } = usePaginatedQuery(
         api.songs.getSongs,
-        { artist: artist || undefined, category: category || undefined },
+        { search: search || undefined, category: category || undefined },
         { initialNumItems: 20 }
     );
 
@@ -69,9 +69,9 @@ export default function SongsList() {
             <div className="flex gap-4 items-end">
                 <div className="flex-3 min-w-50">
                     <Input
-                        placeholder="Filter by artist"
-                        value={artist}
-                        onChange={(e) => setArtist(e.target.value)}
+                        placeholder="Search by title or artist"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
                 <div className="flex-1 min-w-37.5">

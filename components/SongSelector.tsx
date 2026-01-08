@@ -21,7 +21,7 @@ const SongSelector: React.FC<Props> = ({ selectedSongs, onChange }) => {
     const { results: songs } = usePaginatedQuery(
         api.songs.getSongs,
         { 
-            artist: search || undefined,
+            search: search || undefined,
             category: category || undefined
         },
         { initialNumItems: 50 }
@@ -41,7 +41,7 @@ const SongSelector: React.FC<Props> = ({ selectedSongs, onChange }) => {
             <div className="flex gap-2 flex-wrap items-end">
                 <div className="flex-1 min-w-50">
                     <Input
-                        placeholder="Search by artist"
+                        placeholder="Search by title or artist"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
