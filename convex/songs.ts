@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
+import { Doc } from "./_generated/dataModel";
 
 export const upsertSong = mutation({
     args: {
@@ -191,3 +192,13 @@ export const getSongsBulk = internalQuery({
     return songs.filter(Boolean);
   },
 });
+
+export const getSongsByIds = query({
+  args: {
+    ids: v.array(v.id("songs")),
+  },
+  handler: async (ctx, args): Promise<(Doc<"songs"> | null)[]> => {
+    const songs = await ctx.runQuery(internal.songs.getSongsBulk, { ids: args.ids });
+    return songs;
+  },
+})

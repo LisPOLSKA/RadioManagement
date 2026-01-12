@@ -42,28 +42,22 @@ export const getPlayerState = query({
 });
 
 export const setPaused = mutation({
-  args: { token: v.string(), paused: v.boolean() },
+  args: { paused: v.boolean() },
   handler: async (ctx, args) => {
-    const device = await requireDevice(ctx, args.token);
+    const players = await ctx.db.query("players").collect();
 
-    const existing = await ctx.db
-      .query("players")
-      .withIndex("by_deviceId", q => q.eq("deviceId", device._id))
-      .first();
-
-    if (existing) {
-      await ctx.db.patch(existing._id, {
-        paused: args.paused,
-        updatedAt: Date.now(),
-      });
-    } else {
-      await ctx.db.insert("players", {
-        deviceId: device._id,
-        paused: args.paused,
-        volume: 1,
-        updatedAt: Date.now(),
-      });
+    if(players.length === 0) {
+      throw new Error("No players found");
     }
+
+    players.forEach(player => {
+      if (player) {
+        ctx.db.patch(player._id, {
+          paused: args.paused,
+          updatedAt: Date.now(),
+        });
+      }
+    });
   },
 });
 

@@ -16,9 +16,11 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import PlaylistPreview from "./PlaylistPreview";
 
 export default function PlaylistsList() {
     const [editingPlaylist, setEditingPlaylist] = useState<Doc<"playlists"> | null>(null);
+    const [showingPlaylistDialog, setShowingPlaylistDialog] = useState<Doc<"playlists"> | null>(null);
 
     const { results: playlists, status, loadMore } = usePaginatedQuery(
         api.playlists.getPlaylists, {} , { initialNumItems: 20 }
@@ -77,9 +79,10 @@ export default function PlaylistsList() {
                                 <TableCell>{pl.description}</TableCell>
                                 <TableCell>{pl.songs.length}</TableCell>
                                 <TableCell className="text-right">
-                                <Button variant="ghost" size="sm" onClick={() => setEditingPlaylist(pl)}>Edit</Button>
-                                <Button variant="destructive" size="sm" onClick={() => handleDelete(pl._id)}>Delete</Button>
-                            </TableCell>
+                                    <Button variant="ghost" size="sm" onClick={() => setShowingPlaylistDialog(pl)}>Show</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => setEditingPlaylist(pl)}>Edit</Button>
+                                    <Button variant="destructive" size="sm" onClick={() => handleDelete(pl._id)}>Delete</Button>
+                                </TableCell>
                         </TableRow>
                         ))}
                     </TableBody>
@@ -97,6 +100,15 @@ export default function PlaylistsList() {
                     playlist={editingPlaylist}
                     open={!!editingPlaylist}
                     onOpenChange={(open) => { if (!open) setEditingPlaylist(null); }}
+                    hideTrigger
+                />
+            )}
+
+            {showingPlaylistDialog && (
+                <PlaylistPreview
+                    playlist={showingPlaylistDialog}
+                    open={!!showingPlaylistDialog}
+                    onOpenChange={(open) => { if (!open) setShowingPlaylistDialog(null); }}
                     hideTrigger
                 />
             )}

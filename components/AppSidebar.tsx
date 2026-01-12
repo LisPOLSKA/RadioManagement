@@ -20,6 +20,7 @@ import { UserButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import { fetchQuery } from 'convex/nextjs'
 import { api } from '@/convex/_generated/api';
+import Link from 'next/link';
 
 export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const t = await getTranslations('Main');
@@ -107,7 +108,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <div>
+                            <Link href='/'>
                                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <Radio className="size-4" />
                                 </div>
@@ -115,7 +116,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                                     <span className="font-medium">{t('title')}</span>
                                     <span className="">v1.0.0</span>
                                 </div>
-                            </div>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

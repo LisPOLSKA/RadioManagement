@@ -200,6 +200,75 @@ export const getActivePlaylists = internalQuery({
   },
 });
 
+export const getActivePlaylistForTime = query({
+  args: {
+    date: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const now = dayjs.tz(args.date, "Europe/Warsaw");
+
+    // 🟢 NORMALIZACJA DNIA (CET)
+    const dayStart = now.clone()
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .millisecond(0);
+
+    const dayEnd = now.clone()
+      .hour(23)
+      .minute(59)
+      .second(59)
+      .millisecond(999);
+
+    const dayStartTs = dayStart.valueOf();
+    const dayEndTs = dayEnd.valueOf();
+
+    // 🟢 PONIEDZIAŁEK = 0
+    // isoWeekday(): 1 = Mon ... 7 = Sun
+    const today = now.isoWeekday() - 1;
+
+    // 🟢 INDEX: endDate >= start dnia
+    const playlists = await ctx.db
+      .query("selectedPlaylists")
+      .withIndex("by_endDate", q => q.gte("endDate", dayStartTs))
+      .collect();
+
+    const activePlaylists = playlists
+      .filter(pl => {
+        // 📅 zakres dni
+        if (pl.startDate && pl.startDate > dayEndTs) return false;
+        if (pl.endDate && pl.endDate < dayStartTs) return false;
+
+        // 📆 dni tygodnia
+        if (pl.schedule && !pl.schedule.includes(today)) return false;
+
+        return true;
+      })
+      .sort((a, b) => b.priority - a.priority);
+
+    return activePlaylists.length > 0
+      ? [activePlaylists[0]]
+      : [];
+  },
+});
+
+export const getPublicPlaylistById = query({
+  args: {
+    playlistId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const playlistId = await ctx.db.normalizeId("playlists", args.playlistId);
+
+    if(!playlistId) return null;
+
+    const playlist = await ctx.db.get(playlistId);
+
+    if (!playlist) return null;
+
+    return playlist;
+  },
+});
+
 export const upsertSelectedPlaylist = mutation({
   args: {
     selectedPlaylistId: v.optional(v.id("selectedPlaylists")),

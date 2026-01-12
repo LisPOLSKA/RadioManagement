@@ -15,7 +15,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 
-export default function ExceptionsPage() {
+export default function SchedulePreview({hideDebug = false}: {hideDebug?: boolean}) {
   const [date, setDate] = useState(() => {
     const today = new Date();
     return today.toISOString().slice(0, 10);
@@ -84,7 +84,7 @@ export default function ExceptionsPage() {
       </div>
 
       {/* RAW DEBUG (opcjonalne, ale admin-friendly) */}
-      {data && (
+      {data && hideDebug === false && (
         <details className="text-xs text-muted-foreground">
           <summary className="cursor-pointer">Raw response</summary>
           <pre className="mt-2 bg-muted rounded p-3 overflow-auto">
