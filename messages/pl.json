@@ -1,0 +1,157 @@
+{
+  "Main": {
+    "songs": "Utwory",
+    "playlists": "Playlisty",
+    "selectedPlaylist": "Wybrana playlista",
+    "schedules": "Harmonogramy",
+    "selectedSchedule": "Wybrany harmonogram",
+    "exceptions": "Wyjątki",
+    "users": "Użytkownicy",
+    "logs": "Logi",
+    "admin": "Administrator",
+    "title": "Radio management",
+    "unauthorized": "Brak uprawnień",
+    "loading": "Ładowanie…",
+    "checkSchedule": "Sprawdź harmonogram",
+    "tutorials": "Poradniki"
+  },
+
+  "Tutorials": {
+    "title": "Poradniki",
+
+    "sections": {
+      "general": {
+        "title": "Ogólne",
+        "items": {
+          "overview": {
+            "title": "Przegląd działania",
+            "content": "Aplikacja działa w prosty sposób. Możesz tworzyć utwory, playlisty, harmonogramy oraz wyjątki. Playlisty i harmonogramy posiadają zakładkę „Wybrane”, w której określasz, kiedy są aktywne.",
+            "list": [
+              "Utwory: zawierają informacje o pojedynczych utworach.",
+              "Playlisty: zawierają utwory, które będą odtwarzane.",
+              "Harmonogramy: określają, kiedy muzyka ma być aktywna.",
+              "Wyjątki: pozwalają nadpisywać harmonogramy w określonych momentach."
+            ]
+          },
+          "howtoplaylist": {
+            "title": "Jak utworzyć i wybrać playlistę",
+            "content": "Najpierw musisz dodać utwory. Następnie możesz utworzyć playlistę. Aby określić, kiedy playlista ma być aktywna, przejdź do strony Wybrana playlista. Więcej szczegółów znajdziesz w pozostałych poradnikach."
+          },
+          "playlistoverride": {
+            "title": "Jak nadpisywać playlisty",
+            "content": "Możesz nadpisywać playlisty dla konkretnych dni. Aby to zrobić, przejdź do strony Wybrana playlista i ustaw wyższy priorytet dla danej playlisty."
+          },
+          "howtoschedule": {
+            "title": "Jak utworzyć i wybrać harmonogram",
+            "content": "Harmonogram możesz utworzyć na stronie Harmonogramy. Aby określić, kiedy ma być aktywny, użyj strony Wybrany harmonogram. Więcej informacji znajdziesz w powiązanych poradnikach."
+          },
+          "scheduleoverride": {
+            "title": "Jak nadpisywać harmonogramy",
+            "content": "Możesz nadpisywać harmonogramy dla konkretnych dni, ustawiając wyższy priorytet na stronie Wybrany harmonogram. Jeśli chcesz zmodyfikować istniejący harmonogram zamiast tworzyć nowy, użyj wyjątków."
+          },
+          "howtoexception": {
+            "title": "Jak utworzyć wyjątek",
+            "content": "Wyjątek możesz utworzyć, klikając przycisk Dodaj wyjątek. Wyjątki pozwalają nadpisywać harmonogramy dla konkretnych dni, pomijać całe dni lub wydarzenia albo modyfikować istniejące wydarzenia. Więcej informacji znajdziesz w poradniku Wyjątki."
+          }
+        }
+      },
+
+      "songs": {
+        "title": "Utwory",
+        "items": {
+          "create": {
+            "title": "Dodawanie utworu",
+            "content": "Utwór możesz dodać, klikając przycisk Dodaj utwór. Należy podać tytuł, wykonawcę, kategorię oraz link do YouTube."
+          },
+          "editdelete": {
+            "title": "Edycja i usuwanie utworu",
+            "content": "Jeśli nie jesteś administratorem, możesz edytować i usuwać tylko utwory, które sam utworzyłeś. Aby edytować lub usunąć utwór, kliknij trzy kropki po prawej stronie wiersza i wybierz odpowiednią opcję."
+          }
+        }
+      },
+
+      "playlists": {
+        "title": "Playlisty",
+        "items": {
+          "create": {
+            "title": "Tworzenie playlisty",
+            "content": "Playlistę możesz utworzyć, klikając przycisk Dodaj playlistę. Podaj nazwę oraz opcjonalny opis. Następnie wybierz utwory — możesz je filtrować po tytule, wykonawcy lub kategorii i zaznaczyć checkbox przy wybranych utworach."
+          },
+          "show": {
+            "title": "Podgląd playlisty",
+            "content": "Playlistę możesz podejrzeć, klikając przycisk Pokaż po prawej stronie wiersza playlisty."
+          },
+          "editdelete": {
+            "title": "Edycja i usuwanie playlisty",
+            "content": "Jeśli nie jesteś administratorem, możesz edytować i usuwać tylko playlisty, które sam utworzyłeś. Użyj przycisków akcji po prawej stronie wiersza playlisty."
+          },
+          "selectActive": {
+            "title": "Wybór aktywnej playlisty",
+            "content": "Aktywną playlistę wybierasz na stronie Wybrana playlista. Kliknij przycisk Dodaj wybraną playlistę, wybierz playlistę oraz ustaw jej priorytet (0 to wartość domyślna — im wyższy priorytet, tym ważniejsza playlista). Następnie określ datę rozpoczęcia, zakończenia oraz dni tygodnia, w których playlista ma być aktywna."
+          },
+          "editDelActive": {
+            "title": "Edycja i usuwanie aktywnej playlisty",
+            "content": "Jeśli nie jesteś administratorem, możesz edytować i usuwać tylko aktywne playlisty, które sam utworzyłeś. Użyj przycisków akcji po prawej stronie wiersza wybranej playlisty."
+          },
+          "checkActive": {
+            "title": "Sprawdzanie aktywnych playlist",
+            "content": "Możesz sprawdzić, które playlisty są aktualnie aktywne lub które będą aktywne w wybranym dniu, bezpośrednio na stronie głównej."
+          }
+        }
+      },
+
+      "schedules": {
+        "title": "Harmonogramy",
+        "items": {
+          "create": {
+            "title": "Tworzenie harmonogramu",
+            "content": "Harmonogram możesz utworzyć, klikając przycisk Dodaj harmonogram. Podaj nazwę oraz opcjonalny opis, a następnie dodaj wydarzenia lub przerwy. Wydarzenie określa przedział czasu, w którym playlista jest aktywna."
+          },
+          "editdelete": {
+            "title": "Edycja i usuwanie harmonogramu",
+            "content": "Jeśli nie jesteś administratorem, możesz edytować i usuwać tylko harmonogramy, które sam utworzyłeś. Użyj przycisków akcji po prawej stronie wiersza harmonogramu."
+          },
+          "selectActive": {
+            "title": "Wybór aktywnego harmonogramu",
+            "content": "Aktywny harmonogram wybierasz na stronie Wybrany harmonogram. Kliknij przycisk Dodaj wybrany harmonogram, wybierz harmonogram oraz ustaw jego priorytet (0 to wartość domyślna — im wyższy priorytet, tym ważniejszy harmonogram). Następnie określ datę rozpoczęcia, zakończenia oraz dni tygodnia, w których harmonogram ma być aktywny."
+          },
+          "editDelActive": {
+            "title": "Edycja i usuwanie aktywnego harmonogramu",
+            "content": "Jeśli nie jesteś administratorem, możesz edytować i usuwać tylko aktywne harmonogramy, które sam utworzyłeś. Użyj przycisków akcji po prawej stronie wiersza wybranego harmonogramu."
+          },
+          "checkActive": {
+            "title": "Sprawdzanie aktywnych harmonogramów",
+            "content": "Możesz sprawdzić, które harmonogramy są aktualnie aktywne lub które będą aktywne w wybranym dniu, na stronie głównej."
+          }
+        }
+      },
+
+      "exceptions": {
+        "title": "Wyjątki",
+        "items": {
+          "whatis": {
+            "title": "Czym jest wyjątek?",
+            "content": "Wyjątek pozwala nadpisywać harmonogramy w określonych przedziałach czasu. Na przykład, jeśli muzyka jest odtwarzana w dni robocze od 8:00 do 10:00 oraz od 15:00 do 17:00, a chcesz pominąć konkretny dzień lub wydarzenie, możesz utworzyć wyjątek. Istnieją trzy typy wyjątków:",
+            "list": [
+              "Pomiń dzień: pomija wybrany harmonogram w określonych dniach. Należy wskazać harmonogram do pominięcia.",
+              "Pomiń wydarzenie: pomija konkretne wydarzenie w harmonogramie w wybranych dniach. Należy wskazać harmonogram oraz wydarzenie.",
+              "Modyfikuj wydarzenie: pozwala zmienić godzinę rozpoczęcia i zakończenia wydarzenia. Należy wskazać harmonogram oraz wydarzenie do modyfikacji."
+            ]
+          },
+          "create": {
+            "title": "Tworzenie wyjątku",
+            "content": "Aby utworzyć wyjątek, kliknij przycisk Dodaj wyjątek. Wybierz harmonogram lub opcję zastosowania do wszystkich harmonogramów. Podaj tytuł wyjątku, wybierz akcję (Pomiń dzień, Pomiń wydarzenie lub Modyfikuj wydarzenie) oraz skonfiguruj szczegóły. Na koniec ustaw zakres dat, dni tygodnia oraz priorytet (0 to wartość domyślna — im wyższy priorytet, tym ważniejszy wyjątek)."
+          },
+          "editdelete": {
+            "title": "Edycja i usuwanie wyjątku",
+            "content": "Jeśli nie jesteś administratorem, możesz edytować i usuwać tylko wyjątki, które sam utworzyłeś. Użyj przycisków akcji po prawej stronie wiersza wyjątku."
+          },
+          "isApplied": {
+            "title": "Czy wyjątek jest zastosowany?",
+            "content": "Jeśli nie masz pewności, czy wyjątek jest zastosowany, przejdź do strony głównej, kliknij przycisk Sprawdź harmonogram i wybierz datę, którą chcesz zweryfikować."
+          }
+        }
+      }
+    }
+  }
+}

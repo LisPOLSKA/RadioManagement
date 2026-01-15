@@ -9,6 +9,7 @@ import AppSidebar from "@/components/AppSidebar";
 import AuthorizationProvider from "@/Providers/AuthorizationProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { Toaster } from "sonner";
+import LanguageSelector from "@/components/LanguageSelector";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,8 +49,9 @@ export default async function RootLayout({
                   <SidebarProvider>
                     <AppSidebar />
                     <SidebarInset>
-                      <header className="flex h-14 items-center gap-2 border-b px-4">
+                      <header className="flex h-14 items-center gap-2 border-b px-4 justify-between">
                         <SidebarTrigger className="md:hidden" />
+                        <LanguageSelector />
                       </header>
 
                       <div>

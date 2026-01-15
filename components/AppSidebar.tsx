@@ -75,6 +75,10 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 title: t('exceptions'),
                 url: "/exceptions",
             },
+            {
+                title: t('tutorials'),
+                url: "/tutorials",
+            }
         ]
     }
 

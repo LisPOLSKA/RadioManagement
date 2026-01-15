@@ -154,7 +154,7 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
                             <Label>Events</Label>
-                            <Button size="sm" onClick={addEvent}>+ Add break</Button>
+                            <Button size="sm" onClick={addEvent}>+ Add event/school break</Button>
                         </div>
 
                         {events.map((ev, i) => (

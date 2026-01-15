@@ -115,13 +115,13 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
         <form className="grid gap-4 py-2" onSubmit={handleSubmit}>
           {/* Schedule Group */}
           <div className="grid gap-2 w-full">
-            <Label>Schedule Group</Label>
+            <Label>Schedule</Label>
             <Select value={selectedGroup || "all"} onValueChange={v => setSelectedGroup(v === "all" ? "" : (v as Id<"scheduleGroups">))}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a group" />
               </SelectTrigger>
               <SelectContent className="w-full">
-                <SelectItem value="all">All groups</SelectItem>
+                <SelectItem value="all">All schedules</SelectItem>
                 {groups.map(g => <SelectItem key={g._id} value={g._id}>{g.name}</SelectItem>)}
               </SelectContent>
             </Select>

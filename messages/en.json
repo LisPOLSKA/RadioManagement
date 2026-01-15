@@ -12,6 +12,145 @@
     "title": "Radio Management",
     "unauthorized": "Unauthorized",
     "loading": "Loading…",
-    "checkSchedule": "Check schedule"
+    "checkSchedule": "Check schedule",
+    "tutorials": "Tutorials"
+  },
+  "Tutorials": {
+    "title": "Tutorials",
+
+    "sections": {
+      "general": {
+        "title": "General",
+        "items": {
+          "overview": {
+            "title": "Workflow overview",
+            "content": "The application operates in a simple way. You can create songs, playlists, schedules, and exceptions. Playlists and schedules have a Selected tab where you can define when they are active.",
+            "list": [
+              "Songs: contain information about individual tracks.",
+              "Playlists: contain songs that will be played.",
+              "Schedules: define when music should be active.",
+              "Exceptions: allow you to override schedules for specific times."
+            ]
+          },
+          "howtoplaylist": {
+            "title": "How to create and select a playlist",
+            "content": "First, you need to add songs. Then, you can create a playlist. To select when a playlist should be active, use the Selected Playlist page. You can find more details in the related tutorials."
+          },
+          "playlistoverride": {
+            "title": "How to override playlists",
+            "content": "You can override playlists for specific days. To do this, go to the Selected Playlist page and set a higher priority for the playlist."
+          },
+          "howtoschedule": {
+            "title": "How to create and select a schedule",
+            "content": "You can create a schedule on the Schedules page. To define when a schedule should be active, use the Selected Schedule page. More details are available in the related tutorials."
+          },
+          "scheduleoverride": {
+            "title": "How to override schedules",
+            "content": "You can override schedules for specific days by setting a higher priority on the Selected Schedule page. If you want to modify an existing schedule instead of creating a completely new one, you can use exceptions."
+          },
+          "howtoexception": {
+            "title": "How to create an exception",
+            "content": "You can create an exception by clicking the Add Exception button. Exceptions allow you to override schedules for specific days, skip entire days or events, or modify existing events. More details can be found in the Exceptions tutorial."
+          }
+        }
+      },
+
+      "songs": {
+        "title": "Songs",
+        "items": {
+          "create": {
+            "title": "Adding a song",
+            "content": "You can add a song by clicking the Add Song button. You need to provide the song title, artist, category, and a YouTube link."
+          },
+          "editdelete": {
+            "title": "Editing and deleting a song",
+            "content": "If you are not an admin, you can only edit and delete songs that you created. To edit or delete a song, click the three dots on the right side of the song row and choose the desired option."
+          }
+        }
+      },
+
+      "playlists": {
+        "title": "Playlists",
+        "items": {
+          "create": {
+            "title": "Creating a playlist",
+            "content": "You can create a playlist by clicking the Add Playlist button. Provide a playlist name and an optional description. Then select songs — you can filter them by title, artist, or category and check the box next to each song."
+          },
+          "show": {
+            "title": "Showing a playlist",
+            "content": "You can preview a playlist by clicking the Show button on the right side of the playlist row."
+          },
+          "editdelete": {
+            "title": "Editing and deleting a playlist",
+            "content": "If you are not an admin, you can only edit and delete playlists that you created. To do so, use the action buttons on the right side of the playlist row."
+          },
+          "selectActive": {
+            "title": "Selecting an active playlist",
+            "content": "You can choose which playlist is active on the Selected Playlist page. Click the Add Selected Playlist button, select a playlist, and set its priority (0 is the default — higher values mean higher priority). Then choose the start date, end date, and days of the week when the playlist should be active."
+          },
+          "editDelActive": {
+            "title": "Editing and deleting an active playlist",
+            "content": "If you are not an admin, you can only edit and delete active playlists that you created. Use the action buttons on the right side of the selected playlist row."
+          },
+          "checkActive": {
+            "title": "Checking active playlists",
+            "content": "You can check which playlists are currently active, or which will be active on a selected day, directly from the main page."
+          }
+        }
+      },
+
+      "schedules": {
+        "title": "Schedules",
+        "items": {
+          "create": {
+            "title": "Creating a schedule",
+            "content": "You can create a schedule by clicking the Add Schedule button. Provide a schedule name and an optional description, then add events or breaks. An event defines the time range when playlists are active."
+          },
+          "editdelete": {
+            "title": "Editing and deleting a schedule",
+            "content": "If you are not an admin, you can only edit and delete schedules that you created. Use the action buttons on the right side of the schedule row."
+          },
+          "selectActive": {
+            "title": "Selecting an active schedule",
+            "content": "You can choose which schedule is active on the Selected Schedule page. Click the Add Selected Schedule button, select a schedule, and set its priority (0 is the default — higher values mean higher priority). Then choose the start date, end date, and days of the week when the schedule should be active."
+          },
+          "editDelActive": {
+            "title": "Editing and deleting an active schedule",
+            "content": "If you are not an admin, you can only edit and delete active schedules that you created. Use the action buttons on the right side of the selected schedule row."
+          },
+          "checkActive": {
+            "title": "Checking active schedules",
+            "content": "You can check which schedules are currently active, or which will be active on a selected day, from the main page."
+          }
+        }
+      },
+
+      "exceptions": {
+        "title": "Exceptions",
+        "items": {
+          "whatis": {
+            "title": "What is an exception?",
+            "content": "An exception allows you to override schedules for specific times. For example, if you normally play music from 8:00–10:00 and 15:00–17:00 on weekdays but want to skip a day or event, you can create an exception. There are three types of exceptions:",
+            "list": [
+              "Skip Day: skips the selected schedule on specific days. You must choose which schedule to skip.",
+              "Skip Event: skips a specific event in a schedule on selected days. You must choose both the schedule and the event.",
+              "Modify Event: modifies a specific event by changing its start and end time. You must choose the schedule and event to modify."
+            ]
+          },
+          "create": {
+            "title": "Creating an exception",
+            "content": "To create an exception, click the Add Exception button. Select a schedule or choose the option to apply it to all schedules. Provide an exception title, choose an action (Skip Day, Skip Event, or Modify Event), and configure the details. Finally, set the date range, days of the week, and priority (0 is default — higher values mean higher priority)."
+          },
+          "editdelete": {
+            "title": "Editing and deleting an exception",
+            "content": "If you are not an admin, you can only edit and delete exceptions that you created. Use the action buttons on the right side of the exception row."
+          },
+          "isApplied": {
+            "title": "Is an exception applied?",
+            "content": "If you are unsure whether an exception is applied, go to the main page, click the Check Schedule button, and select the date you want to verify."
+          }
+        }
+      }
+    }
   }
 }
