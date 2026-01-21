@@ -27,7 +27,9 @@ export const upsertException = mutation({
       .query("users")
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
-    if (!user || user.role <= 0) throw new Error("Forbidden");
+    if (!user || user.role < 2) {
+      throw new Error("Forbidden");
+    }
 
     // Walidacja godzin
     if (
@@ -56,11 +58,9 @@ export const upsertException = mutation({
     if (args.exceptionId) {
       const existing = await ctx.db.get(args.exceptionId);
       if (!existing) throw new Error("Exception not found");
-      if (user.role < 2 && existing.createdBy !== user._id) throw new Error("Forbidden");
 
       await ctx.db.patch(args.exceptionId, {
         ...data,
-        createdBy: user._id
       });
 
       await ctx.runMutation(internal.logs.logAdminAction, {
@@ -103,12 +103,12 @@ export const deleteException = mutation({
       .query("users")
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
-    if (!user || user.role <= 0) throw new Error("Forbidden");
+    if (!user || user.role < 2) throw new Error("Forbidden");
+    const canManageAllContent = user.role >= 2;
 
     const existing = await ctx.db.get(args.exceptionId);
     if (!existing) throw new Error("Not found");
-    if (user.role < 2 && existing.createdBy !== user._id) throw new Error("Forbidden");
-
+    if (!canManageAllContent && existing.createdBy !== user._id) throw new Error("Forbidden");
     await ctx.db.delete(args.exceptionId);
 
     await ctx.runMutation(internal.logs.logAdminAction, {

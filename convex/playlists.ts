@@ -287,7 +287,7 @@ export const upsertSelectedPlaylist = mutation({
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .first();
 
-    if (!user || user.role <= 0) throw new Error("Forbidden");
+    if (!user || user.role < 2) throw new Error("Forbidden");
 
     const data = {
       playlistId: args.playlistId,
@@ -342,7 +342,7 @@ export const deleteSelectedPlaylist = mutation({
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .first();
 
-    if (!user || user.role <= 0) throw new Error("Forbidden");
+    if (!user || user.role < 2) throw new Error("Forbidden");
 
     const existing = await ctx.db.get(args.selectedPlaylistId);
     if (!existing) throw new Error("Selected playlist not found");

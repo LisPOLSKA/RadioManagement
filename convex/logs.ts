@@ -38,7 +38,10 @@ export const getLogs = query({
       .query("users")
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
-    if (!user || user.role < 2) throw new Error("Forbidden");
+
+    if (!user || user.role < 3) {
+      throw new Error("Forbidden");
+    }
 
     // 1️⃣ userId + action (najmocniejszy indeks)
     if (args.userId && args.action) {

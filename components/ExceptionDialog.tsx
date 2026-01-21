@@ -110,6 +110,9 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
       <DialogContent className="w-[min(90%,32rem)] sm:mx-auto max-h-[90vh] overflow-y-auto p-4">
         <DialogHeader>
           <DialogTitle>{exception ? "Edit" : "New"} Exception</DialogTitle>
+            <p className="text-sm text-gray-500 mb-2">
+              Only supervisors and above can add or edit exceptions.
+            </p>
         </DialogHeader>
 
         <form className="grid gap-4 py-2" onSubmit={handleSubmit}>

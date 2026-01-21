@@ -30,8 +30,9 @@ import { useAuth } from "@clerk/nextjs";
 const ROLES = [
   { value: "0", label: "Banned" },
   { value: "1", label: "User" },
-  { value: "2", label: "Admin" },
-  { value: "3", label: "Super admin" },
+  { value: "2", label: "Supervisor" },
+  { value: "3", label: "Admin" },
+  { value: "4", label: "Super admin" },
 ];
 
 export default function UsersList() {
@@ -61,7 +62,7 @@ export default function UsersList() {
 
   const setRole = useMutation(api.users.setUserRole);
 
-  if (me && me.role < 2) {
+  if (me && me.role < 3) {
     return <h1 className="text-red-500">Unauthorized</h1>;
   }
 
@@ -86,12 +87,13 @@ export default function UsersList() {
   }
 
   function canAssignRole(meRole: number, targetUserRole: number, newRole: number) {
-    if (meRole === 3) return true; // superadmin
-    if (meRole === 2) {
-      if (targetUserRole >= 2) return false;
-      return newRole <= 1;
+    if (meRole === 4) return true; // superadmin może wszystko
+    if (meRole === 3) {
+      // admin może zmieniać role użytkowników (0 lub 1) ale nie innych adminów ani superadminów
+      if (targetUserRole >= 3) return false; // nie rusza adminów/superadminów
+      return newRole <= 2; // może ustawiać max na 2 (admin)
     }
-    return false;
+    return false; // inne role nie mogą nic zmieniać
   }
 
 

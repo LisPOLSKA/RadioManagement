@@ -88,6 +88,9 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>{selectedPlaylist ? "Edit Selected Playlist" : "New Selected Playlist"}</DialogTitle>
+                    <p className="text-sm text-gray-500 mb-2">
+                        Only supervisors and above can add or edit selected playlists.
+                    </p>
                 </DialogHeader>
 
                 <form className="grid gap-4 py-2" onSubmit={handleSubmit}>

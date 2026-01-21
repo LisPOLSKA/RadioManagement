@@ -65,7 +65,7 @@ export default function SelectedSchedulesList() {
                                 <TableCell>{ss.priority}</TableCell>
                                 <TableCell>{ss.startDate ? new Date(ss.startDate).toLocaleString() : "-"}</TableCell>
                                 <TableCell>{ss.endDate ? new Date(ss.endDate).toLocaleString() : "-"}</TableCell>
-                                <TableCell>{ss.schedule?.map(i => ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i]).join(", ") || "-"}</TableCell>
+                                <TableCell>{ss.schedule?.sort().map(i => ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i]).join(", ") || "-"}</TableCell>
                                 <TableCell className="text-right flex gap-2 justify-end">
                                     <Button size="sm" variant="ghost" onClick={() => setEditing(ss)}>Edit</Button>
                                     <Button size="sm" variant="destructive" onClick={() => handleDelete(ss._id)}>Delete</Button>

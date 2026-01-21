@@ -123,7 +123,7 @@ export const getUsers = query({
 export const setUserRole = mutation({
   args: {
     userId: v.id("users"),
-    role: v.number(), // 0 | 1 | 2 | 3
+    role: v.number(), // 0 | 1 | 2 | 3 | 4
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -134,7 +134,7 @@ export const setUserRole = mutation({
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
 
-    if (!me || me.role < 2) {
+    if (!me || me.role < 3) {
       throw new Error("Forbidden");
     }
 
@@ -149,17 +149,17 @@ export const setUserRole = mutation({
     }
 
     // 🚫 admin nie może ruszać adminów ani superadminów
-    if (me.role === 2 && target.role >= 2) {
+    if (me.role === 3 && target.role >= 3) {
       throw new Error("Forbidden");
     }
 
     // 🚫 admin nie może nadawać admina ani superadmina
-    if (me.role === 2 && args.role >= 2) {
+    if (me.role === 3 && args.role >= 3) {
       throw new Error("Forbidden");
     }
 
     // ✅ opcjonalnie: walidacja zakresu
-    if (![0, 1, 2, 3].includes(args.role)) {
+    if (![0, 1, 2, 3, 4].includes(args.role)) {
       throw new Error("Invalid role");
     }
 

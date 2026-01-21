@@ -47,14 +47,10 @@ export const getPlayers = query({
 
     if (!identity) throw new Error("Unauthorized");
 
-    console.log(identity);
-
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
-
-    console.log(user);
 
     if(!user || user.role < 1) {
       throw new Error("Forbidden");
@@ -67,6 +63,18 @@ export const getPlayers = query({
 export const setPaused = mutation({
   args: { paused: v.boolean() },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) throw new Error("Unauthorized");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
+      .first();
+
+      if (!user || user.role < 2) {
+        throw new Error("Forbidden");
+      }
     const players = await ctx.db.query("players").collect();
 
     if(players.length === 0) {

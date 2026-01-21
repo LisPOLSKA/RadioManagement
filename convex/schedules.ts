@@ -40,7 +40,7 @@ export const upsertSchedule = mutation({
             .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
             .first();
 
-        if (!user || user.role <= 0) throw new Error("Forbidden");
+        if (!user || user.role < 2) throw new Error("Forbidden");
 
         // =========================
         // 0️⃣ WALIDACJA EVENTÓW
@@ -201,7 +201,6 @@ export const getSchedules = query({
 
     const schedules = await ctx.db
       .query("scheduleGroups")
-      .withIndex("by_createdBy", q => q.eq("createdBy", user._id))
       .order("desc")
       .paginate(args.paginationOpts);
 
@@ -310,7 +309,7 @@ export const upsertSelectedSchedule = mutation({
         const user = await ctx.db.query("users")
             .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
             .first();
-        if (!user || user.role <= 0) throw new Error("Forbidden");
+        if (!user || user.role < 2) throw new Error("Forbidden");
 
         // sprawdź uprawnienia dla edycji
         if (args.selectedScheduleId) {
@@ -386,7 +385,6 @@ export const getSelectedSchedules = query({
         if (!user || user.role <= 0) throw new Error("Forbidden");
 
         const page = await ctx.db.query("selectedSchedules")
-            .withIndex("by_createdBy", q => q.eq("createdBy", user._id))
             .order("desc")
             .paginate(args.paginationOpts);
 
@@ -419,7 +417,7 @@ export const deleteSelectedSchedule = mutation({
         const user = await ctx.db.query("users")
             .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
             .first();
-        if (!user || user.role <= 0) throw new Error("Forbidden");
+        if (!user || user.role < 2) throw new Error("Forbidden");
 
         const existing = await ctx.db.get(args.selectedScheduleId);
         if (!existing) throw new Error("Not found");

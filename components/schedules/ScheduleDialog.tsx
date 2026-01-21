@@ -138,6 +138,9 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
             <DialogContent className="w-[min(90%,32rem)] sm:mx-auto max-h-[90vh] overflow-y-auto p-4">
                 <DialogHeader>
                     <DialogTitle>{schedule ? "Edit schedule" : "New schedule"}</DialogTitle>
+                    <p className="text-sm text-gray-500 mb-2">
+                        Only supervisors and above can add or edit schedules.
+                    </p>
                 </DialogHeader>
 
                 <div className="space-y-4">

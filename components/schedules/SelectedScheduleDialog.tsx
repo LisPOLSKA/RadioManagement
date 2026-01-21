@@ -68,6 +68,9 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{selectedSchedule ? "Edit" : "New"} Selected Schedule</DialogTitle>
+            <p className="text-sm text-gray-500 mb-2">
+              Only supervisors and above can add or edit selected schedules.
+            </p>
         </DialogHeader>
 
         <form className="grid gap-4 py-2" onSubmit={handleSubmit}>
