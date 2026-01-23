@@ -33,14 +33,14 @@ export const upsertSchedule = mutation({
 
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthorized");
+        if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
         const user = await ctx.db
             .query("users")
             .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
             .first();
 
-        if (!user || user.role < 2) throw new Error("Forbidden");
+        if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
         // =========================
         // 0️⃣ WALIDACJA EVENTÓW
@@ -52,12 +52,12 @@ export const upsertSchedule = mutation({
                 ev.startMinute < 0 || ev.startMinute > 59 ||
                 ev.endMinute < 0 || ev.endMinute > 59
             ) {
-                throw new Error("Invalid time: hours 0-23, minutes 0-59");
+                throw new ConvexError("INVALID_EVENT_TIME");
             }
             const startTotal = ev.startHour * 60 + ev.startMinute;
             const endTotal = ev.endHour * 60 + ev.endMinute;
             if (startTotal >= endTotal) {
-                throw new Error("Event start must be before end");
+                throw new ConvexError("EVENT_START_AFTER_END");
             }
             return { startTotal, endTotal };
         };
@@ -70,7 +70,7 @@ export const upsertSchedule = mutation({
                     timeRanges[i].startTotal < timeRanges[j].endTotal &&
                     timeRanges[i].endTotal > timeRanges[j].startTotal
                 ) {
-                    throw new Error("Events cannot overlap");
+                    throw new ConvexError("EVENTS_OVERLAP");
                 }
             }
         }
@@ -82,11 +82,11 @@ export const upsertSchedule = mutation({
         // =========================
         if (groupId) {
             const existingGroup = await ctx.db.get(groupId);
-            if (!existingGroup) throw new Error("Not found");
+            if (!existingGroup) throw new ConvexError("SCHEDULE_GROUP_NOT_FOUND");
 
             // 🔐 AUTORYZACJA
             if (user.role < 2 && existingGroup.createdBy !== user._id) {
-                throw new Error("Forbidden");
+                throw new ConvexError("INSUFFICIENT_PERMISSIONS");
             }
 
             await ctx.db.patch(groupId, {
@@ -138,7 +138,7 @@ export const upsertSchedule = mutation({
         // =========================
         for (const ev of existingEvents) {
             if (user.role < 2 && ev.createdBy !== user._id) {
-                throw new Error("Forbidden");
+                throw new ConvexError("INSUFFICIENT_PERMISSIONS");
             }
             if (!incomingIds.has(ev._id)) {
                 await ctx.db.delete(ev._id);
@@ -160,9 +160,9 @@ export const upsertSchedule = mutation({
 
             if (ev.id) {
                 const existingEvent = await ctx.db.get(ev.id);
-                if (!existingEvent) throw new Error("Event not found");
+                if (!existingEvent) throw new ConvexError("SCHEDULE_EVENT_NOT_FOUND");
                 if (user.role < 2 && existingEvent.createdBy !== user._id) {
-                    throw new Error("Forbidden");
+                    throw new ConvexError("INSUFFICIENT_PERMISSIONS");
                 }
                 await ctx.db.patch(ev.id, data);
             } else {
@@ -188,7 +188,7 @@ export const getSchedules = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
     const user = await ctx.db
       .query("users")
@@ -196,7 +196,7 @@ export const getSchedules = query({
       .first();
 
     if (!user || user.role <= 0) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     const schedules = await ctx.db
@@ -214,7 +214,7 @@ export const getSchedule = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
     const user = await ctx.db
       .query("users")
@@ -222,15 +222,15 @@ export const getSchedule = query({
       .first();
 
     if (!user || user.role <= 0) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     const group = await ctx.db.get(args.groupId);
-    if (!group) throw new Error("Not found");
+    if (!group) throw new ConvexError("SCHEDULE_GROUP_NOT_FOUND");
 
     // 🔐 AUTORYZACJA
     if (user.role < 2 && group.createdBy !== user._id) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     const events = await ctx.db
@@ -253,7 +253,7 @@ export const deleteSchedule = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("UNAUTHORIZED");
+      throw new ConvexError("UNAUTHENTICATED")
     }
 
     const user = await ctx.db
@@ -268,7 +268,7 @@ export const deleteSchedule = mutation({
 
     const group = await ctx.db.get(args.groupId);
     if (!group) {
-      throw new Error("NOT_FOUND");
+      throw new ConvexError("SCHEDULE_GROUP_NOT_FOUND");
     }
 
     // 🧹 usuń eventy
@@ -304,19 +304,19 @@ export const upsertSelectedSchedule = mutation({
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthorized");
+        if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
         const user = await ctx.db.query("users")
             .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
             .first();
-        if (!user || user.role < 2) throw new Error("Forbidden");
+        if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
         // sprawdź uprawnienia dla edycji
         if (args.selectedScheduleId) {
             const existing = await ctx.db.get(args.selectedScheduleId);
-            if (!existing) throw new Error("Not found");
+            if (!existing) throw new ConvexError("SELECTED_SCHEDULE_NOT_FOUND");
             if (user.role < 2 && existing.createdBy !== user._id) {
-                throw new Error("Forbidden");
+                throw new ConvexError("INSUFFICIENT_PERMISSIONS");
             }
 
             await ctx.db.patch(args.selectedScheduleId, {
@@ -377,12 +377,12 @@ export const getSelectedSchedules = query({
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthorized");
+        if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
         const user = await ctx.db.query("users")
             .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
             .first();
-        if (!user || user.role <= 0) throw new Error("Forbidden");
+        if (!user || user.role <= 0) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
         const page = await ctx.db.query("selectedSchedules")
             .order("desc")
@@ -412,17 +412,17 @@ export const deleteSelectedSchedule = mutation({
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthorized");
+        if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
         const user = await ctx.db.query("users")
             .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
             .first();
-        if (!user || user.role < 2) throw new Error("Forbidden");
+        if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
         const existing = await ctx.db.get(args.selectedScheduleId);
-        if (!existing) throw new Error("Not found");
+        if (!existing) throw new ConvexError("SELECTED_SCHEDULE_NOT_FOUND");
         if (user.role < 2 && existing.createdBy !== user._id) {
-            throw new Error("Forbidden");
+            throw new ConvexError("INSUFFICIENT_PERMISSIONS");
         }
 
         await ctx.db.delete(args.selectedScheduleId);

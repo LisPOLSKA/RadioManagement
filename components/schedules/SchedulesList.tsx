@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 export default function SchedulesList() {
   const [editing, setEditing] = useState<Doc<"scheduleGroups"> | null>(null);
@@ -28,6 +29,7 @@ export default function SchedulesList() {
   );
 
   const deleteSchedule = useMutation(api.schedules.deleteSchedule);
+  const t = useTranslations("Errors");
 
   const handleDelete = async (id: Id<"scheduleGroups">) => {
     if (!confirm("Delete this schedule and all its events?")) return;
@@ -38,13 +40,7 @@ export default function SchedulesList() {
     } catch (err: any) {
         if (err instanceof ConvexError) {
             console.log(err.data);
-            if (err.data === "INSUFFICIENT_PERMISSIONS") {
-                toast.error("You don't have permission to delete this schedule");
-            } else if (err.data === "NOT_FOUND") {
-                toast.error("Schedule not found");
-            } else {
-                toast.error("Failed to delete schedule");
-            }
+            toast.error(t(err.data));
         } else {
             toast.error("Unexpected error");
             console.error(err);

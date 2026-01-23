@@ -26,6 +26,8 @@ import {
 import { toast } from "sonner";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useAuth } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
+import { ConvexError } from "convex/values";
 
 const ROLES = [
   { value: "0", label: "Banned" },
@@ -38,6 +40,7 @@ const ROLES = [
 export default function UsersList() {
   const [search, setSearch] = useState("");
   const [searchUserId, setSearchUserId] = useState("");
+  const t = useTranslations("Errors");
 
   const { userId: clerkId } = useAuth();
   const me = useQuery(
@@ -70,8 +73,13 @@ export default function UsersList() {
     try {
       await setRole({ userId, role });
       toast.success("Role updated");
-    } catch {
-      toast.error("Failed to update role");
+    } catch(e) {
+      if (e instanceof ConvexError) {
+        toast.error(t(e.data));
+      } else {
+        toast.error("Failed to update role");
+        console.error(e);
+      }
     }
   }
 

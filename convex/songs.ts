@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
@@ -14,7 +14,7 @@ export const upsertSong = mutation({
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthorized");
+        if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
         const user = await ctx.db
         .query("users")
@@ -22,7 +22,7 @@ export const upsertSong = mutation({
         .first();
 
         if (!user || user.role <= 0) {
-          throw new Error("Forbidden");
+          throw new ConvexError("INSUFFICIENT_PERMISSIONS");
         }
 
         const data = {
@@ -37,13 +37,13 @@ export const upsertSong = mutation({
         if (args.songId) {
             // ✏️ EDIT
             const existingSong = await ctx.db.get(args.songId);
-            if (!existingSong) throw new Error("Song not found");
+            if (!existingSong) throw new ConvexError("SONG_NOT_FOUND");
 
             const isOwner = user._id === existingSong.createdBy;
             const isAdmin = user.role >= 2;
 
             if (!isOwner && !isAdmin) {
-                throw new Error("Forbidden");
+                throw new ConvexError("INSUFFICIENT_PERMISSIONS");
             }
 
             await ctx.db.patch(args.songId, data);
@@ -59,7 +59,7 @@ export const upsertSong = mutation({
         // ➕ CREATE
             const song  = await ctx.db.query("songs").withIndex("by_ytLink", q => q.eq("ytLink", args.ytLink)).first();
             if (song) {
-                throw new Error("Song already exists");
+                throw new ConvexError("SONG_ALREADY_EXISTS")
             }
             const id = await ctx.db.insert("songs", data);
 
@@ -81,6 +81,15 @@ export const getSongs = query({
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
+      .first();
+
+      if (!user || user.role <= 0) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
     if(!args.search){
       return await ctx.db
@@ -135,7 +144,7 @@ export const deleteSong = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     // Pobranie użytkownika i sprawdzenie uprawnień
     const user = await ctx.db
@@ -144,18 +153,18 @@ export const deleteSong = mutation({
       .first();
 
     if (!user || user.role <= 0) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     // Pobranie utworu
     const song = await ctx.db.get(args.songId);
-    if (!song) throw new Error("Song not found");
+    if (!song) throw new ConvexError("SONG_NOT_FOUND");
 
     const isOwner = user._id === song.createdBy;
     const isAdmin = user.role >= 2;
 
     if (!isOwner && !isAdmin) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     // Usuwanie piosenki

@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import SongSelector from "./SongSelector";
 import { Plus } from "lucide-react";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 type Props = {
   playlist?: Doc<"playlists">;
@@ -25,6 +27,8 @@ export default function PlaylistDialog({ playlist, open, onOpenChange, hideTrigg
   const [selectedSongs, setSelectedSongs] = useState<Id<"songs">[]>(playlist?.songs || []);
 
   const upsertPlaylist = useMutation(api.playlists.upsertPlaylist);
+
+  const t = useTranslations("Errors");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,9 +47,13 @@ export default function PlaylistDialog({ playlist, open, onOpenChange, hideTrigg
       });
       toast.success("Playlist saved");
       onOpenChange?.(false); // zamyka dialog po submit
-    } catch (err) {
-      toast.error("Failed to save playlist");
-      console.error(err);
+    } catch(e) {
+      if (e instanceof ConvexError) {
+        toast.error(t(e.data));
+      } else {
+        toast.error("Failed to save playlist");
+        console.error(e);
+      }
     }
   }
 

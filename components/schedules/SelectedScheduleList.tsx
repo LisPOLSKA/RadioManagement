@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import SelectedScheduleDialog from "./SelectedScheduleDialog";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 export default function SelectedSchedulesList() {
     const [editing, setEditing] = useState<Doc<"selectedSchedules"> | null>(null);
@@ -16,14 +18,20 @@ export default function SelectedSchedulesList() {
     const { results, status, loadMore } = usePaginatedQuery(api.schedules.getSelectedSchedules, {}, { initialNumItems: 20 });
     const deleteMutation = useMutation(api.schedules.deleteSelectedSchedule);
 
+    const t = useTranslations("Errors");
+
     const handleDelete = async (id: Id<"selectedSchedules">) => {
         if (!confirm("Delete this selected schedule?")) return;
         try {
             await deleteMutation({ selectedScheduleId: id });
             toast.success("Deleted");
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to delete");
+        } catch(e) {
+            if (e instanceof ConvexError) {
+                toast.error(t(e.data));
+            } else {
+                toast.error("Failed to delete selected schedule");
+                console.error(e);
+            }
         }
     };
 

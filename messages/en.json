@@ -152,5 +152,34 @@
         }
       }
     }
+  },
+  "Errors": {
+    "UNAUTHENTICATED": "You must be logged in to perform this action.",
+    "INSUFFICIENT_PERMISSIONS": "You do not have permission to perform this action.",
+    "NOT_FOUND": "The requested resource was not found.",
+    "INVALID_TIME": "The provided time values are invalid.",
+    "INVALID_EVENT_RANGE": "The event start time must be before the end time.",
+    "UNKNOWN_ERROR": "An unexpected error occurred. Please try again later.",
+    "NO_PLAYERS_FOUND": "No players were found.",
+    "PLAYLIST_NOT_FOUND": "The playlist was not found.",
+    "PLAYLIST_EMPTY": "A playlist must contain at least one song.",
+    "INVALID_PLAYLIST_ID": "The provided playlist identifier is invalid.",
+    "SELECTED_PLAYLIST_NOT_FOUND": "The selected playlist was not found.",
+    "SCHEDULE_GROUP_NOT_FOUND": "The schedule group was not found.",
+    "SCHEDULE_NOT_FOUND": "The schedule was not found.",
+    "SCHEDULE_EVENT_NOT_FOUND": "The schedule event was not found.",
+    "SELECTED_SCHEDULE_NOT_FOUND": "The selected schedule was not found.",
+
+    "INVALID_EVENT_TIME": "Invalid event time. Hours must be 0–23 and minutes 0–59.",
+    "EVENT_START_AFTER_END": "The event start time must be before the end time.",
+    "EVENTS_OVERLAP": "Schedule events cannot overlap.",
+
+    "SONG_NOT_FOUND": "The song was not found.",
+    "SONG_ALREADY_EXISTS": "A song with this link already exists.",
+
+    "CANNOT_CHANGE_OWN_ROLE": "You cannot change your own role.",
+    "USER_NOT_FOUND": "The user was not found.",
+    "INVALID_ROLE": "The specified role is invalid.",
+    "DEVICE_USER_ROLE_CHANGE_FORBIDDEN": "You cannot change the role of a device user."
   }
 }

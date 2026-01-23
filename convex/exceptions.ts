@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
@@ -21,14 +21,14 @@ export const upsertException = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
     if (!user || user.role < 2) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     // Walidacja godzin
@@ -38,7 +38,7 @@ export const upsertException = mutation({
       args.startMinute !== undefined && (args.startMinute < 0 || args.startMinute > 59) ||
       args.endMinute !== undefined && (args.endMinute < 0 || args.endMinute > 59)
     ) {
-      throw new Error("Invalid time");
+      throw new ConvexError("INVALID_TIME");
     }
 
     if (args.action === "MODIFY_EVENT") {
@@ -48,7 +48,7 @@ export const upsertException = mutation({
             const startTotal = args.startHour * 60 + args.startMinute;
             const endTotal = args.endHour * 60 + args.endMinute;
             if (startTotal >= endTotal) {
-                throw new Error("Modified event start must be before end");
+              throw new ConvexError("INVALID_EVENT_RANGE");
             }
         }
     }
@@ -57,7 +57,7 @@ export const upsertException = mutation({
 
     if (args.exceptionId) {
       const existing = await ctx.db.get(args.exceptionId);
-      if (!existing) throw new Error("Exception not found");
+      if (!existing) throw new ConvexError("NOT_FOUND");
 
       await ctx.db.patch(args.exceptionId, {
         ...data,
@@ -97,18 +97,18 @@ export const deleteException = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
-    if (!user || user.role < 2) throw new Error("Forbidden");
+    if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     const canManageAllContent = user.role >= 2;
 
     const existing = await ctx.db.get(args.exceptionId);
-    if (!existing) throw new Error("Not found");
-    if (!canManageAllContent && existing.createdBy !== user._id) throw new Error("Forbidden");
+    if (!existing) throw new ConvexError("NOT_FOUND");
+    if (!canManageAllContent && existing.createdBy !== user._id) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     await ctx.db.delete(args.exceptionId);
 
     await ctx.runMutation(internal.logs.logAdminAction, {
@@ -127,13 +127,13 @@ export const getExceptions = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
-    if (!user || user.role <= 0) throw new Error("Forbidden");
+    if (!user || user.role <= 0)  throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
     let q;
 

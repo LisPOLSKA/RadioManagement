@@ -17,6 +17,8 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import PlaylistPreview from "./PlaylistPreview";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 export default function PlaylistsList() {
     const [editingPlaylist, setEditingPlaylist] = useState<Doc<"playlists"> | null>(null);
@@ -28,14 +30,20 @@ export default function PlaylistsList() {
 
     const deletePlaylist = useMutation(api.playlists.deletePlaylist);
 
+    const t = useTranslations("Errors");
+
     async function handleDelete(id: Id<"playlists">) {
         if (!confirm("Are you sure you want to delete this playlist?")) return;
-            try {
+        try {
             await deletePlaylist({ playlistId: id });
             toast.success("Playlist deleted");
-        } catch (err) {
-            toast.error("Failed to delete playlist");
-            console.error(err);
+        } catch(e) {
+            if (e instanceof ConvexError) {
+                toast.error(t(e.data));
+            } else {
+                toast.error("Failed to delete playlist");
+                console.error(e);
+            }
         }
     }
 

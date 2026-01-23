@@ -6,24 +6,39 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Square } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { toast } from "sonner";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 const Pause = () => {
   const players = useQuery(api.players.getPlayers);
   const setPaused = useMutation(api.players.setPaused);
 
+  const t = useTranslations("Errors");
+
   const handleStart = async () => {
     try {
       await setPaused({ paused: false });
-    } catch (err) {
-      console.error("Failed to start", err);
+    } catch(e) {
+      if (e instanceof ConvexError) {
+        toast.error(t(e.data));
+      } else {
+        toast.error("Failed to unpause players");
+        console.error(e);
+      }
     }
   };
 
   const handleStop = async () => {
     try {
       await setPaused({ paused: true });
-    } catch (err) {
-      console.error("Failed to stop", err);
+    } catch(e) {
+      if (e instanceof ConvexError) {
+        toast.error(t(e.data));
+      } else {
+        toast.error("Failed to pause players");
+        console.error(e);
+      }
     }
   };
 

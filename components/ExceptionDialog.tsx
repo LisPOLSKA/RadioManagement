@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 type Props = {
   groups: Doc<"scheduleGroups">[];
@@ -36,6 +38,8 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
   const schedule = useQuery(api.schedules.getSchedule, selectedGroup ? { groupId: selectedGroup } : "skip");
   const upsert = useMutation(api.exceptions.upsertException);
   const allDays = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+  const t = useTranslations("Errors");
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -75,9 +79,13 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
         setTitle("");
       }
       onClose?.();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to save");
+    } catch(e) {
+      if (e instanceof ConvexError) {
+        toast.error(t(e.data));
+      } else {
+        toast.error("Failed to save exception");
+        console.error(e);
+      }
     }
   };
 

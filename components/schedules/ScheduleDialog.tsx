@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 type EventForm = {
     id?: Id<"scheduleEvents">;
@@ -38,6 +40,7 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
     const [initialized, setInitialized] = useState(false);
 
     const upsertSchedule = useMutation(api.schedules.upsertSchedule);
+    const t = useTranslations("Errors");
 
     useEffect(() => {
         if (scheduleData && !initialized) {
@@ -122,9 +125,15 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
             });
             toast.success("Schedule saved");
             onClose?.();
-        } catch {
-            toast.error("Failed to save schedule");
+        } catch(e) {
+            if (e instanceof ConvexError) {
+                toast.error(t(e.data));
+            } else {
+                toast.error("Failed to save schedule");
+                console.error(e);
+            }
         }
+
     };
 
     return (

@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
@@ -22,7 +22,7 @@ export const upsertPlaylist = mutation({
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthorized");
+        if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
         const user = await ctx.db
             .query("users")
@@ -30,11 +30,11 @@ export const upsertPlaylist = mutation({
             .first();
 
         if (!user || user.role <= 0) {
-            throw new Error("Forbidden");
+            throw new ConvexError("INSUFFICIENT_PERMISSIONS");
         }
 
         if (!args.songs || args.songs.length === 0) {
-            throw new Error("Playlist must contain at least one song");
+            throw new ConvexError("PLAYLIST_EMPTY");
         }
 
         const data = {
@@ -47,13 +47,13 @@ export const upsertPlaylist = mutation({
         if (args.playlistId) {
           // ✏️ EDIT: tylko właściciel lub admin
           const playlist = await ctx.db.get(args.playlistId);
-          if (!playlist) throw new Error("Playlist not found");
+          if (!playlist) throw new ConvexError("PLAYLIST_NOT_FOUND")
 
           const isOwner = user._id === playlist.createdBy;
           const isAdmin = user.role >= 2;
 
           if (!isOwner && !isAdmin) {
-              throw new Error("Forbidden");
+              throw new ConvexError("INSUFFICIENT_PERMISSIONS");
           }
 
           await ctx.db.patch(args.playlistId, data);
@@ -87,7 +87,7 @@ export const deletePlaylist = mutation({
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthorized");
+        if (!identity) throw new ConvexError("UNAUTHENTICATED");;
 
         const user = await ctx.db
             .query("users")
@@ -95,17 +95,16 @@ export const deletePlaylist = mutation({
             .first();
 
         if (!user || user.role <= 0) {
-            throw new Error("Forbidden");
+            throw new ConvexError("INSUFFICIENT_PERMISSIONS");
         }
 
         const playlist = await ctx.db.get(args.playlistId);
-        if (!playlist) throw new Error("Playlist not found");
-
+        if (!playlist) throw new ConvexError("PLAYLIST_NOT_FOUND");
         const isOwner = user._id === playlist.createdBy;
         const isAdmin = user.role >= 2;
 
         if (!isOwner && !isAdmin) {
-            throw new Error("Forbidden");
+            throw new ConvexError("INSUFFICIENT_PERMISSIONS");
         }
 
         await ctx.db.delete(args.playlistId);
@@ -280,14 +279,14 @@ export const upsertSelectedPlaylist = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .first();
 
-    if (!user || user.role < 2) throw new Error("Forbidden");
+    if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
     const data = {
       playlistId: args.playlistId,
@@ -301,10 +300,10 @@ export const upsertSelectedPlaylist = mutation({
     if (args.selectedPlaylistId) {
       // Edycja – sprawdzamy czy user ma prawa
       const existing = await ctx.db.get(args.selectedPlaylistId);
-      if (!existing) throw new Error("Selected playlist not found");
+      if (!existing) throw new ConvexError("SELECTED_PLAYLIST_NOT_FOUND");
 
       if (existing.createdBy !== user._id && user.role < 2) {
-        throw new Error("Forbidden: not allowed to edit this playlist");
+        throw new ConvexError("INSUFFICIENT_PERMISSIONS");
       }
 
       await ctx.db.patch(args.selectedPlaylistId, data);
@@ -335,20 +334,20 @@ export const deleteSelectedPlaylist = mutation({
   args: { selectedPlaylistId: v.id("selectedPlaylists") },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .first();
 
-    if (!user || user.role < 2) throw new Error("Forbidden");
+    if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
     const existing = await ctx.db.get(args.selectedPlaylistId);
-    if (!existing) throw new Error("Selected playlist not found");
+    if (!existing) throw new ConvexError("SELECTED_PLAYLIST_NOT_FOUND");
 
     if (existing.createdBy !== user._id && user.role < 2) {
-      throw new Error("Forbidden: not allowed to delete this playlist");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     await ctx.db.delete(args.selectedPlaylistId);
@@ -368,14 +367,14 @@ export const getSelectedPlaylists = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .first();
 
-    if (!user || user.role <= 0) throw new Error("Forbidden");
+    if (!user || user.role <= 0) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
     const playlistsPage = await ctx.db
       .query("selectedPlaylists")

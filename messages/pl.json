@@ -153,5 +153,34 @@
         }
       }
     }
+  },
+  "Errors": {
+    "UNAUTHENTICATED": "Musisz być zalogowany, aby wykonać tę akcję.",
+    "INSUFFICIENT_PERMISSIONS": "Nie masz uprawnień do wykonania tej akcji.",
+    "NOT_FOUND": "Nie znaleziono żądanego zasobu.",
+    "INVALID_TIME": "Podane wartości czasu są nieprawidłowe.",
+    "INVALID_EVENT_RANGE": "Czas rozpoczęcia wydarzenia musi być wcześniejszy niż czas zakończenia.",
+    "UNKNOWN_ERROR": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.",
+    "NO_PLAYERS_FOUND": "Nie znaleziono żadnych odtwarzaczy.",
+    "PLAYLIST_NOT_FOUND": "Nie znaleziono playlisty.",
+    "PLAYLIST_EMPTY": "Playlista musi zawierać co najmniej jeden utwór.",
+    "INVALID_PLAYLIST_ID": "Podany identyfikator playlisty jest nieprawidłowy.",
+    "SELECTED_PLAYLIST_NOT_FOUND": "Nie znaleziono wybranej playlisty.",
+    "SCHEDULE_GROUP_NOT_FOUND": "Nie znaleziono grupy harmonogramu.",
+    "SCHEDULE_NOT_FOUND": "Nie znaleziono harmonogramu.",
+    "SCHEDULE_EVENT_NOT_FOUND": "Nie znaleziono wydarzenia w harmonogramie.",
+    "SELECTED_SCHEDULE_NOT_FOUND": "Nie znaleziono wybranego harmonogramu.",
+
+    "INVALID_EVENT_TIME": "Nieprawidłowy czas wydarzenia. Godziny 0–23, minuty 0–59.",
+    "EVENT_START_AFTER_END": "Czas rozpoczęcia musi być wcześniejszy niż zakończenia.",
+    "EVENTS_OVERLAP": "Wydarzenia w harmonogramie nie mogą się nakładać.",
+
+    "SONG_NOT_FOUND": "Nie znaleziono utworu.",
+    "SONG_ALREADY_EXISTS": "Utwór z tym linkiem już istnieje.",
+
+    "CANNOT_CHANGE_OWN_ROLE": "Nie możesz zmienić własnej roli.",
+    "USER_NOT_FOUND": "Nie znaleziono użytkownika.",
+    "INVALID_ROLE": "Podana rola jest nieprawidłowa.",
+    "DEVICE_USER_ROLE_CHANGE_FORBIDDEN": "Nie można zmienić roli użytkownika urządzenia."
   }
 }

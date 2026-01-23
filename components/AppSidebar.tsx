@@ -28,13 +28,15 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
     const { userId } = await auth();
 
     let isAdmin = false;
+    let isSupervisor = false;
 
     if (userId) {
         const user = await fetchQuery(api.users.getUser, {
         clerkId: userId,
         });
 
-        isAdmin = !!user && user.role >= 2;
+        isAdmin = !!user && user.role >= 3;
+        isSupervisor = !!user && user.role >= 2;
     }
 
     const data  = {
@@ -56,7 +58,12 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                         url: "/selectedPlaylist",
                     },
                 ]
-            },
+            }
+        ]
+    }
+
+    const supervisorData = {
+        navMain: [
             {
                 title: t('schedules'),
                 url: "/schedules",
@@ -75,10 +82,6 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 title: t('exceptions'),
                 url: "/exceptions",
             },
-            {
-                title: t('tutorials'),
-                url: "/tutorials",
-            }
         ]
     }
 
@@ -104,6 +107,15 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
             }
         ]
     };
+
+    const lastItems = {
+        navMain: [
+            {
+                title: t('tutorials'),
+                url: "/tutorials",
+            }
+        ]
+    }
 
 
     return (
@@ -148,7 +160,47 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                                 ) : null}
                             </SidebarMenuItem>
                         ))}
+                        {isSupervisor && supervisorData.navMain.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton asChild>
+                                    <a href={item.url} className='font-medium'>
+                                        {item.title}
+                                    </a>
+                                </SidebarMenuButton>
+                                {item.items?.length ? (
+                                    <SidebarMenuSub>
+                                        {item.items.map((subItem) => (
+                                            <SidebarMenuSubItem key={subItem.title}>
+                                                <SidebarMenuSubButton asChild isActive={false}>
+                                                    <a href={subItem.url}>{subItem.title}</a>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        ))}
+                                    </SidebarMenuSub>
+                                ) : null}
+                            </SidebarMenuItem>
+                        ))}                    
                         {isAdmin && adminData.navMain.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton asChild>
+                                    <a href={item.url} className='font-medium'>
+                                        {item.title}
+                                    </a>
+                                </SidebarMenuButton>
+                                {item.items?.length ? (
+                                    <SidebarMenuSub>
+                                        {item.items.map((subItem) => (
+                                            <SidebarMenuSubItem key={subItem.title}>
+                                                <SidebarMenuSubButton asChild isActive={false}>
+                                                    <a href={subItem.url}>{subItem.title}</a>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        ))}
+                                    </SidebarMenuSub>
+                                ) : null}
+                            </SidebarMenuItem>
+                        ))}
+                        {lastItems.navMain.map((item) => (
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton asChild>
                                     <a href={item.url} className='font-medium'>

@@ -10,6 +10,8 @@ import ExceptionDialog from "./ExceptionDialog";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 export default function ExceptionsList() {
   const [editing, setEditing] = useState<Doc<"exceptions"> | null>(null);
@@ -25,14 +27,20 @@ export default function ExceptionsList() {
 
   const deleteMutation = useMutation(api.exceptions.deleteException);
 
+  const t = useTranslations("Errors");
+
   const handleDelete = async (id: Id<"exceptions">) => {
     if (!confirm("Delete this exception?")) return;
     try {
       await deleteMutation({ exceptionId: id });
       toast.success("Deleted");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete");
+    } catch(e) {
+      if (e instanceof ConvexError) {
+        toast.error(t(e.data));
+      } else {
+        toast.error("Failed to delete exception");
+        console.error(e);
+      }
     }
   };
 

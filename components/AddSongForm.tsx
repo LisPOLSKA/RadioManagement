@@ -9,6 +9,8 @@ import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import CategoryDropdown from "./CategoryDropdown";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 type SongFormProps = {
   song?: {
@@ -29,6 +31,8 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const saveSong = useMutation(api.songs.upsertSong);
+
+    const t = useTranslations("Errors");
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -60,8 +64,12 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
 
             onSuccess?.();
         } catch (err) {
-            toast.error("Something went wrong");
-            console.error(err);
+            if (err instanceof ConvexError) {
+                toast.error(t(err.data));
+            } else {
+                toast.error("Failed to save song");
+                console.error(err);
+            }
         } finally {
             setIsSubmitting(false);
         }

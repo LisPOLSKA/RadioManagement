@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query, QueryCtx } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
@@ -45,7 +45,7 @@ export const getPlayers = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
 
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const user = await ctx.db
       .query("users")
@@ -53,7 +53,7 @@ export const getPlayers = query({
       .first();
 
     if(!user || user.role < 1) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
     
     return await ctx.db.query("players").collect();
@@ -65,7 +65,7 @@ export const setPaused = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
 
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const user = await ctx.db
       .query("users")
@@ -73,12 +73,12 @@ export const setPaused = mutation({
       .first();
 
       if (!user || user.role < 2) {
-        throw new Error("Forbidden");
+        throw new ConvexError("INSUFFICIENT_PERMISSIONS");
       }
     const players = await ctx.db.query("players").collect();
 
     if(players.length === 0) {
-      throw new Error("No players found");
+      throw new ConvexError("NO_PLAYERS_FOUND");
     }
 
     players.forEach(player => {

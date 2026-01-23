@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { toast } from "sonner";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 type Props = {
   selectedSchedule?: Doc<"selectedSchedules">;
@@ -27,6 +29,8 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
 
   const { results: schedules, status, loadMore } = usePaginatedQuery(api.schedules.getSchedules, {}, { initialNumItems: 20 });
   const upsert = useMutation(api.schedules.upsertSelectedSchedule);
+
+  const t = useTranslations("Errors");
 
   const allDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -53,9 +57,13 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
       });
       toast.success("Selected schedule saved");
       onClose?.();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to save");
+    } catch(e) {
+      if (e instanceof ConvexError) {
+        toast.error(t(e.data));
+      } else {
+        toast.error("Failed to save selected schedule");
+        console.error(e);
+      }
     }
   };
 
@@ -101,11 +109,11 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
           {/* Daty */}
           <div className="grid gap-2">
             <Label>Start Date</Label>
-            <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+            <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} required/>
           </div>
           <div className="grid gap-2">
             <Label>End Date</Label>
-            <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} required/>
           </div>
 
           {/* Dni tygodnia */}

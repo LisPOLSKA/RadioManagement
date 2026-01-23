@@ -10,6 +10,8 @@ import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import CategoryDropdown from "./CategoryDropdown";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 type Props = {
   song: {
@@ -29,6 +31,8 @@ export default function EditSongDialog({ song, onClose }: Props) {
   const [ytLink, setYtLink] = useState(song.ytLink);
 
   const upsertSong = useMutation(api.songs.upsertSong);
+
+  const t = useTranslations("Errors");
 
   // Reset state if song changes
     useEffect(() => {
@@ -56,9 +60,13 @@ export default function EditSongDialog({ song, onClose }: Props) {
             });
             toast.success("Song updated");
             onClose();
-        } catch (err) {
-            toast.error("Failed to update song");
-            console.error(err);
+        } catch(e) {
+            if (e instanceof ConvexError) {
+               toast.error(t(e.data));
+            } else {
+                toast.error("Failed to save song");
+                console.error(e);
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internalMutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 
@@ -32,7 +32,7 @@ export const getLogs = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const user = await ctx.db
       .query("users")
@@ -40,7 +40,7 @@ export const getLogs = query({
       .first();
 
     if (!user || user.role < 3) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     // 1️⃣ userId + action (najmocniejszy indeks)

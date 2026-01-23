@@ -28,6 +28,8 @@ import {
 import { toast } from "sonner";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import CategoryDropdown from "./CategoryDropdown";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 export default function SongsList() {
     const [search, setSearch] = useState("");
@@ -46,14 +48,20 @@ export default function SongsList() {
 
     const deleteSong = useMutation(api.songs.deleteSong);
 
+    const t = useTranslations("Errors");
+
     async function handleDelete(songId: Id<"songs">) {
         if (!confirm("Are you sure you want to delete this song?")) return;
         try {
-        await deleteSong({ songId });
-        toast.success("Song deleted");
-        } catch (err) {
-        toast.error("Failed to delete song");
-        console.error(err);
+            await deleteSong({ songId });
+            toast.success("Song deleted");
+        } catch(e) {
+            if (e instanceof ConvexError) {
+                toast.error(t(e.data));
+            } else {
+                toast.error("Failed to delete song");
+                console.error(e);
+            }
         }
     }
 

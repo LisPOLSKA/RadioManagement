@@ -1,6 +1,6 @@
 import { paginationOptsValidator } from "convex/server";
 import { internalMutation, mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 export const upsertFromClerk = internalMutation({
   args: {
@@ -68,14 +68,14 @@ export const getUsers = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const me = await ctx.db
       .query("users")
       .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
       .first();
 
-    if (!me || me.role < 2) throw new Error("Forbidden");
+    if (!me || me.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
     // brak filtra → ostatni users
     if (!args.search && !args.searchUserId) {
@@ -127,7 +127,7 @@ export const setUserRole = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     const me = await ctx.db
       .query("users")
@@ -135,36 +135,36 @@ export const setUserRole = mutation({
       .first();
 
     if (!me || me.role < 3) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     // 🚫 nie można zmieniać własnej roli
     if (me._id === args.userId) {
-      throw new Error("Cannot change own role");
+      throw new ConvexError("CANNOT_CHANGE_OWN_ROLE");
     }
 
     const target = await ctx.db.get(args.userId);
     if (!target) {
-      throw new Error("User not found");
+      throw new ConvexError("USER_NOT_FOUND");
     }
 
     // 🚫 admin nie może ruszać adminów ani superadminów
     if (me.role === 3 && target.role >= 3) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     // 🚫 admin nie może nadawać admina ani superadmina
     if (me.role === 3 && args.role >= 3) {
-      throw new Error("Forbidden");
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
 
     // ✅ opcjonalnie: walidacja zakresu
     if (![0, 1, 2, 3, 4].includes(args.role)) {
-      throw new Error("Invalid role");
+      throw new ConvexError("INVALID_ROLE");
     }
 
     if(target.deviceId){
-      throw new Error("Cannot change role of device user");
+      throw new ConvexError("DEVICE_USER_ROLE_CHANGE_FORBIDDEN");
     }
 
     await ctx.db.patch(args.userId, {

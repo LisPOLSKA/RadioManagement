@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { ConvexError } from "convex/values";
+import { useTranslations } from "next-intl";
 
 type Props = {
     selectedPlaylist?: Doc<"selectedPlaylists">;
@@ -39,6 +41,8 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
     );
 
     const upsertSP = useMutation(api.playlists.upsertSelectedPlaylist);
+
+    const t = useTranslations("Errors");
 
     const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -70,9 +74,13 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
             });
             toast.success("Saved successfully");
             onClose?.();
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to save");
+        } catch(e) {
+            if (e instanceof ConvexError) {
+                toast.error(t(e.data));
+            } else {
+                toast.error("Failed to save selected playlist");
+                console.error(e);
+            }
         }
     };
 
