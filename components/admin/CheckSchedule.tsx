@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 export default function SchedulePreview({hideDebug = false}: {hideDebug?: boolean}) {
   const [date, setDate] = useState(() => {
@@ -27,9 +28,11 @@ export default function SchedulePreview({hideDebug = false}: {hideDebug?: boolea
     date: timestamp,
   });
 
+  const t = useTranslations("UI");
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Schedule check</h1>
+      <h1 className="text-2xl font-semibold">{t("checkSchedule")}</h1>
 
       {/* Filters */}
       <div className="flex gap-3 flex-wrap">
@@ -43,8 +46,8 @@ export default function SchedulePreview({hideDebug = false}: {hideDebug?: boolea
 
       {/* Schedule meta */}
       <div className="text-sm text-muted-foreground">
-        {data === undefined && "Loading schedule…"}
-        {data && !data.schedule && "No schedule for this day"}
+        {data === undefined && t("loadingSchedule")}
+        {data && !data.schedule && t("noSchedule")}
       </div>
 
       {/* EVENTS TABLE */}
@@ -52,8 +55,8 @@ export default function SchedulePreview({hideDebug = false}: {hideDebug?: boolea
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Start</TableHead>
-              <TableHead>End</TableHead>
+              <TableHead>{t("start")}</TableHead>
+              <TableHead>{t("end")}</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -61,7 +64,7 @@ export default function SchedulePreview({hideDebug = false}: {hideDebug?: boolea
             {data && data.events.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center">
-                  No events
+                  {t("noEvents")}
                 </TableCell>
               </TableRow>
             )}
@@ -86,7 +89,7 @@ export default function SchedulePreview({hideDebug = false}: {hideDebug?: boolea
       {/* RAW DEBUG (opcjonalne, ale admin-friendly) */}
       {data && hideDebug === false && (
         <details className="text-xs text-muted-foreground">
-          <summary className="cursor-pointer">Raw response</summary>
+          <summary className="cursor-pointer">{t("rawResponse")}</summary>
           <pre className="mt-2 bg-muted rounded p-3 overflow-auto">
             {JSON.stringify(data, null, 2)}
           </pre>

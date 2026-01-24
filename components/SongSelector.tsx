@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import CategoryDropdown from "./CategoryDropdown";
+import { useTranslations } from "next-intl";
 
 type Props = {
     selectedSongs: Id<"songs">[];
@@ -35,13 +36,15 @@ const SongSelector: React.FC<Props> = ({ selectedSongs, onChange }) => {
         }
     };
 
+    const t = useTranslations("UI");
+
     return (
         <div className="grid gap-2">
-            <Label>Filter songs</Label>
+            <Label>{t("filterSongs")}</Label>
             <div className="flex gap-2 flex-wrap items-end">
                 <div className="flex-1 min-w-50">
                     <Input
-                        placeholder="Search by title or artist"
+                        placeholder={t("searchByTitleOrArtist")}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />

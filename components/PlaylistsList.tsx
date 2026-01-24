@@ -31,12 +31,13 @@ export default function PlaylistsList() {
     const deletePlaylist = useMutation(api.playlists.deletePlaylist);
 
     const t = useTranslations("Errors");
+    const tUI = useTranslations("UI");
 
     async function handleDelete(id: Id<"playlists">) {
-        if (!confirm("Are you sure you want to delete this playlist?")) return;
+        if (!confirm(tUI("surePlaylistDelete"))) return;
         try {
             await deletePlaylist({ playlistId: id });
-            toast.success("Playlist deleted");
+            toast.success(tUI("playlistDeleted"));
         } catch(e) {
             if (e instanceof ConvexError) {
                 toast.error(t(e.data));
@@ -50,7 +51,7 @@ export default function PlaylistsList() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Playlists</h1>
+                <h1 className="text-2xl font-semibold">{tUI("playlists")}</h1>
                 <PlaylistDialog />
             </div>
 
@@ -58,17 +59,17 @@ export default function PlaylistsList() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Title</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead>Songs</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{tUI("title")}</TableHead>
+                            <TableHead>{tUI("description")}</TableHead>
+                            <TableHead>{tUI("songs")}</TableHead>
+                            <TableHead className="text-right">{tUI("actions")}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {playlists.length === 0 && status === "LoadingFirstPage" && (
                         <TableRow>
                             <TableCell colSpan={4} className="text-center text-muted-foreground">
-                                Loading playlists…
+                                {tUI("loadingPlaylists")}
                             </TableCell>
                         </TableRow>
                         )}
@@ -76,7 +77,7 @@ export default function PlaylistsList() {
                         {playlists.length === 0 && status !== "LoadingFirstPage" && (
                         <TableRow>
                             <TableCell colSpan={4} className="text-center text-muted-foreground">
-                                No playlists found
+                                {tUI("noPlaylists")}
                             </TableCell>
                         </TableRow>
                         )}
@@ -87,9 +88,9 @@ export default function PlaylistsList() {
                                 <TableCell>{pl.description}</TableCell>
                                 <TableCell>{pl.songs.length}</TableCell>
                                 <TableCell className="text-right">
-                                    <Button variant="ghost" size="sm" onClick={() => setShowingPlaylistDialog(pl)}>Show</Button>
-                                    <Button variant="ghost" size="sm" onClick={() => setEditingPlaylist(pl)}>Edit</Button>
-                                    <Button variant="destructive" size="sm" onClick={() => handleDelete(pl._id)}>Delete</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => setShowingPlaylistDialog(pl)}>{tUI("show")}</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => setEditingPlaylist(pl)}>{tUI("edit")}</Button>
+                                    <Button variant="destructive" size="sm" onClick={() => handleDelete(pl._id)}>{tUI("delete")}</Button>
                                 </TableCell>
                         </TableRow>
                         ))}
@@ -99,7 +100,7 @@ export default function PlaylistsList() {
 
             {status === "CanLoadMore" && (
                 <div className="flex justify-center">
-                <Button variant="outline" onClick={() => loadMore(10)}>Load more</Button>
+                <Button variant="outline" onClick={() => loadMore(10)}>{tUI("loadMore")}</Button>
                 </div>
             )}
 

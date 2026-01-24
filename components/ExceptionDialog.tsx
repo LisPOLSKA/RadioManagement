@@ -35,16 +35,18 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
   const [endMinute, setEndMinute] = useState<number>(exception?.endMinute ?? 0);
   const [startMinute, setStartMinute] = useState<number>(exception?.startMinute ?? 0);
 
+  const tUI = useTranslations("UI");
+
   const schedule = useQuery(api.schedules.getSchedule, selectedGroup ? { groupId: selectedGroup } : "skip");
   const upsert = useMutation(api.exceptions.upsertException);
-  const allDays = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const allDays = [tUI("mon"), tUI("tue"), tUI("wed"), tUI("thu"), tUI("fri"), tUI("sat"), tUI("sun")];
 
   const t = useTranslations("Errors");
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!selectedGroup) {
-      toast.error("Select a schedule group");
+      toast.error(tUI("selectSchedule"));
       return;
     }
     try {
@@ -63,7 +65,7 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
         endMinute: action === "MODIFY_EVENT" ? endMinute : undefined,
         title,
       });
-      toast.success("Exception saved");
+      toast.success(tUI("exceptionSaved"));
       if (!exception) {
         setSelectedGroup("");
         setAction("SKIP_DAY");
@@ -111,28 +113,28 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
       <DialogTrigger asChild hidden={hideTrigger}>
         <Button variant={"outline"}>
           <Plus className="mr-2 h-4 w-4" />
-          {exception ? "Edit Exception" : "Add Exception"}
+          {exception ? tUI("editException") : tUI("addException")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="w-[min(90%,32rem)] sm:mx-auto max-h-[90vh] overflow-y-auto p-4">
         <DialogHeader>
-          <DialogTitle>{exception ? "Edit" : "New"} Exception</DialogTitle>
+          <DialogTitle>{exception ? tUI("editException") : tUI("addException")}</DialogTitle>
             <p className="text-sm text-gray-500 mb-2">
-              Only supervisors and above can add or edit exceptions.
+              {tUI("onlySupervisorsExceptions")}
             </p>
         </DialogHeader>
 
         <form className="grid gap-4 py-2" onSubmit={handleSubmit}>
           {/* Schedule Group */}
           <div className="grid gap-2 w-full">
-            <Label>Schedule</Label>
+            <Label>{tUI("schedule")}</Label>
             <Select value={selectedGroup || "all"} onValueChange={v => setSelectedGroup(v === "all" ? "" : (v as Id<"scheduleGroups">))}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a group" />
+                <SelectValue placeholder={tUI("selectSchedule")} />
               </SelectTrigger>
               <SelectContent className="w-full">
-                <SelectItem value="all">All schedules</SelectItem>
+                <SelectItem value="all">{tUI("allSchedules")}</SelectItem>
                 {groups.map(g => <SelectItem key={g._id} value={g._id}>{g.name}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -140,21 +142,21 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
 
           {/* Title */}
           <div className="grid gap-2 w-full">
-            <Label>Title</Label>
-            <Input className="w-full" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" />
+            <Label>{tUI("title")}</Label>
+            <Input className="w-full" value={title} onChange={e => setTitle(e.target.value)} placeholder={tUI("title")} />
           </div>
 
           {/* Action */}
           <div className="grid gap-2 w-full">
-            <Label>Action</Label>
+            <Label>{tUI("action")}</Label>
             <Select value={action} onValueChange={v => setAction(v as "SKIP_DAY" | "SKIP_EVENT" | "MODIFY_EVENT")}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select action" />
+                <SelectValue placeholder={tUI("selectAction")} />
               </SelectTrigger>
               <SelectContent className="w-full">
-                <SelectItem value="SKIP_DAY">Skip Day</SelectItem>
-                <SelectItem value="SKIP_EVENT">Skip Event</SelectItem>
-                <SelectItem value="MODIFY_EVENT">Modify Event</SelectItem>
+                <SelectItem value="SKIP_DAY">{tUI("skipDay")}</SelectItem>
+                <SelectItem value="SKIP_EVENT">{tUI("skipEvent")}</SelectItem>
+                <SelectItem value="MODIFY_EVENT">{tUI("modifyEvent")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -162,10 +164,10 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
           {/* Event */}
           {(action === "SKIP_EVENT" || action === "MODIFY_EVENT") && (
             <div className="grid gap-2 w-full">
-              <Label>Event</Label>
+              <Label>{tUI("event")}</Label>
               <Select value={eventId || undefined} onValueChange={v => handleEventChange(v as Id<"scheduleEvents">)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select an event" />
+                  <SelectValue placeholder={tUI("selectEvent")} />
                 </SelectTrigger>
                 <SelectContent className="w-full">
                   {schedule?.events?.map(e => (
@@ -181,16 +183,16 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
           {/* Modify Event Time */}
           {action === "MODIFY_EVENT" && (
             <div className="grid gap-2 w-full">
-              <Label>Start Time</Label>
+              <Label>{tUI("startTime")}</Label>
               <div className="flex gap-2 flex-wrap">
-                <Input className="w-20 shrink-0" type="number" min={0} max={23} value={startHour} onChange={e => setStartHour(Number(e.target.value))} placeholder="Hour" />
-                <Input className="w-20 shrink-0" type="number" min={0} max={59} value={startMinute} onChange={e => setStartMinute(Number(e.target.value))} placeholder="Minute" />
+                <Input className="w-20 shrink-0" type="number" min={0} max={23} value={startHour} onChange={e => setStartHour(Number(e.target.value))} placeholder={tUI("hour")} />
+                <Input className="w-20 shrink-0" type="number" min={0} max={59} value={startMinute} onChange={e => setStartMinute(Number(e.target.value))} placeholder={tUI("minute")} />
               </div>
 
-              <Label>End Time</Label>
+              <Label>{tUI("endTime")}</Label>
               <div className="flex gap-2 flex-wrap">
-                <Input className="w-20 shrink-0" type="number" min={0} max={23} value={endHour} onChange={e => setEndHour(Number(e.target.value))} placeholder="Hour" />
-                <Input className="w-20 shrink-0" type="number" min={0} max={59} value={endMinute} onChange={e => setEndMinute(Number(e.target.value))} placeholder="Minute" />
+                <Input className="w-20 shrink-0" type="number" min={0} max={23} value={endHour} onChange={e => setEndHour(Number(e.target.value))} placeholder={tUI("hour")} />
+                <Input className="w-20 shrink-0" type="number" min={0} max={59} value={endMinute} onChange={e => setEndMinute(Number(e.target.value))} placeholder={tUI("minute")} />
               </div>
             </div>
           )}
@@ -198,18 +200,18 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
           {/* Dates */}
           <div className="grid gap-2 w-full sm:grid-cols-2">
             <div className="w-full">
-              <Label>Start Date</Label>
+              <Label>{tUI("startDate")}</Label>
               <Input className="w-full" type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
             </div>
             <div className="w-full">
-              <Label>End Date</Label>
+              <Label>{tUI("endDate")}</Label>
               <Input className="w-full" type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
             </div>
           </div>
 
           {/* Days of week */}
           <div className="grid gap-2 w-full">
-            <Label>Days of week</Label>
+            <Label>{tUI("daysOfWeek")}</Label>
             <div className="flex flex-wrap gap-2">
               {allDays.map((d, i) => (
                 <Button
@@ -227,12 +229,12 @@ export default function ExceptionDialog({ groups, exception, onClose, hideTrigge
 
           {/* Priority */}
           <div className="grid gap-2 w-full">
-            <Label>Priority</Label>
+            <Label>{tUI("priority")}</Label>
             <Input className="w-full" type="number" value={priority} onChange={e => setPriority(Number(e.target.value))} />
           </div>
 
           <DialogFooter>
-            <Button type="submit">{exception ? "Save" : "Create"}</Button>
+            <Button type="submit">{exception ? tUI("save") : tUI("create")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

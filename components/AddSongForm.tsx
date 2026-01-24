@@ -33,12 +33,13 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
     const saveSong = useMutation(api.songs.upsertSong);
 
     const t = useTranslations("Errors");
+    const tUI = useTranslations("UI");
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         if (!title || !artist || !category || !ytLink) {
-        toast.error("Please fill in all fields");
+        toast.error(tUI("fillAllFields"));
         return;
         }
 
@@ -53,7 +54,7 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
                 ytLink,
             });
 
-            toast.success(song ? "Song updated" : "Song added");
+            toast.success(song ? tUI("songUpdated") : tUI("songAdded"));
 
             if (!song) {
                 setTitle("");
@@ -78,22 +79,22 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
     return (
         <form className="grid gap-4 py-4" onSubmit={handleSubmit}>
         <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{tUI("title")}</Label>
             <Input
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Song title"
+            placeholder={tUI("songTitle")}
             />
         </div>
 
         <div className="grid gap-2">
-            <Label htmlFor="artist">Artist</Label>
+            <Label htmlFor="artist">{tUI("artist")}</Label>
             <Input
             id="artist"
             value={artist}
             onChange={(e) => setArtist(e.target.value)}
-            placeholder="Artist"
+            placeholder={tUI("artist")}
             />
         </div>
 
@@ -103,7 +104,7 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
         />
 
         <div className="grid gap-2">
-            <Label htmlFor="ytLink">YouTube link</Label>
+            <Label htmlFor="ytLink">{tUI("ytLink")}</Label>
             <Input
             id="ytLink"
             value={ytLink}
@@ -113,7 +114,7 @@ export default function SongForm({ song, onSuccess }: SongFormProps) {
         </div>
 
         <Button type="submit" disabled={isSubmitting}>
-            {song ? "Save changes" : "Add song"}
+            {song ? tUI("saveChanges") : tUI("addSong")}
         </Button>
         </form>
     );

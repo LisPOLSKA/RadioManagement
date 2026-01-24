@@ -19,12 +19,13 @@ export default function SelectedSchedulesList() {
     const deleteMutation = useMutation(api.schedules.deleteSelectedSchedule);
 
     const t = useTranslations("Errors");
+    const tUI = useTranslations("UI");
 
     const handleDelete = async (id: Id<"selectedSchedules">) => {
-        if (!confirm("Delete this selected schedule?")) return;
+        if (!confirm(tUI("sureSelectedScheduleDelete"))) return;
         try {
             await deleteMutation({ selectedScheduleId: id });
-            toast.success("Deleted");
+            toast.success(tUI("deleted"));
         } catch(e) {
             if (e instanceof ConvexError) {
                 toast.error(t(e.data));
@@ -38,7 +39,7 @@ export default function SelectedSchedulesList() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Selected Schedules</h1>
+                <h1 className="text-2xl font-semibold">{tUI("selectedSchedules")}</h1>
                 <SelectedScheduleDialog />
             </div>
 
@@ -46,23 +47,23 @@ export default function SelectedSchedulesList() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Schedule</TableHead>
-                            <TableHead>Priority</TableHead>
-                            <TableHead>Start Date</TableHead>
-                            <TableHead>End Date</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{tUI("schedule")}</TableHead>
+                            <TableHead>{tUI("priority")}</TableHead>
+                            <TableHead>{tUI("startDate")}</TableHead>
+                            <TableHead>{tUI("endDate")}</TableHead>
+                            <TableHead className="text-right">{tUI("actions")}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {results.length === 0 && status === "LoadingFirstPage" && (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center text-muted-foreground">Loading…</TableCell>
+                                <TableCell colSpan={5} className="text-center text-muted-foreground">{tUI("loading")}</TableCell>
                             </TableRow>
                         )}
 
                         {results.length === 0 && status !== "LoadingFirstPage" && (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center text-muted-foreground">No selected schedules</TableCell>
+                                <TableCell colSpan={5} className="text-center text-muted-foreground">{tUI("noSelectedSchedules")}</TableCell>
                             </TableRow>
                         )}
                             
@@ -73,10 +74,10 @@ export default function SelectedSchedulesList() {
                                 <TableCell>{ss.priority}</TableCell>
                                 <TableCell>{ss.startDate ? new Date(ss.startDate).toLocaleString() : "-"}</TableCell>
                                 <TableCell>{ss.endDate ? new Date(ss.endDate).toLocaleString() : "-"}</TableCell>
-                                <TableCell>{ss.schedule?.sort().map(i => ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i]).join(", ") || "-"}</TableCell>
+                                <TableCell>{ss.schedule?.sort().map(i => [tUI("mon"),tUI("tue"),tUI("wed"),tUI("thu"),tUI("fri"),tUI("sat"),tUI("sun")][i]).join(", ") || "-"}</TableCell>
                                 <TableCell className="text-right flex gap-2 justify-end">
-                                    <Button size="sm" variant="ghost" onClick={() => setEditing(ss)}>Edit</Button>
-                                    <Button size="sm" variant="destructive" onClick={() => handleDelete(ss._id)}>Delete</Button>
+                                    <Button size="sm" variant="ghost" onClick={() => setEditing(ss)}>{tUI("edit")}</Button>
+                                    <Button size="sm" variant="destructive" onClick={() => handleDelete(ss._id)}>{tUI("delete")}</Button>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -86,7 +87,7 @@ export default function SelectedSchedulesList() {
 
             {status === "CanLoadMore" && (
                 <div className="flex justify-center">
-                    <Button variant="outline" onClick={() => loadMore(10)}>Load more</Button>
+                    <Button variant="outline" onClick={() => loadMore(10)}>{tUI("loadMore")}</Button>
                 </div>
             )}
 

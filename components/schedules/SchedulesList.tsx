@@ -30,13 +30,14 @@ export default function SchedulesList() {
 
   const deleteSchedule = useMutation(api.schedules.deleteSchedule);
   const t = useTranslations("Errors");
+  const tUI = useTranslations("UI");
 
   const handleDelete = async (id: Id<"scheduleGroups">) => {
-    if (!confirm("Delete this schedule and all its events?")) return;
+    if (!confirm(tUI("sureScheduleDelete"))) return;
 
     try {
       await deleteSchedule({ groupId: id });
-      toast.success("Schedule deleted");
+      toast.success(tUI("scheduleDeleted"));
     } catch (err: any) {
         if (err instanceof ConvexError) {
             console.log(err.data);
@@ -51,7 +52,7 @@ export default function SchedulesList() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Schedules</h1>
+        <h1 className="text-2xl font-semibold">{tUI("schedules")}</h1>
         <ScheduleDialog 
           key={"nothing"}
         />
@@ -61,9 +62,9 @@ export default function SchedulesList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{tUI("name")}</TableHead>
+              <TableHead>{tUI("description")}</TableHead>
+              <TableHead className="text-right">{tUI("actions")}</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -74,14 +75,14 @@ export default function SchedulesList() {
                 <TableCell>{s.description}</TableCell>
                 <TableCell className="text-right flex gap-2 justify-end">
                   <Button size="sm" variant="ghost" onClick={() => setEditing(s)}>
-                    Edit
+                    {tUI("edit")}
                   </Button>
                   <Button
                     size="sm"
                     variant="destructive"
                     onClick={() => handleDelete(s._id)}
                   >
-                    Delete
+                    {tUI("delete")}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -90,7 +91,7 @@ export default function SchedulesList() {
             {results.length === 0 && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-muted-foreground">
-                  No schedules
+                  {tUI("noSchedulesFound")}
                 </TableCell>
               </TableRow>
             )}
@@ -101,7 +102,7 @@ export default function SchedulesList() {
       {status === "CanLoadMore" && (
         <div className="flex justify-center">
           <Button variant="outline" onClick={() => loadMore(10)}>
-            Load more
+            {tUI("loadMore")}
           </Button>
         </div>
       )}

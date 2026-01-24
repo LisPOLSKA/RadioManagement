@@ -41,6 +41,7 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
 
     const upsertSchedule = useMutation(api.schedules.upsertSchedule);
     const t = useTranslations("Errors");
+    const tUI = useTranslations("UI");
 
     useEffect(() => {
         if (scheduleData && !initialized) {
@@ -78,13 +79,13 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
             const ev = newEvents[i];
             let error = "";
             if (typeof ev.startHour === "number" && (ev.startHour < 0 || ev.startHour > 23)) {
-                error = "Start hour must be 0-23";
+                error = tUI("startHourError");
             } else if (typeof ev.endHour === "number" && (ev.endHour < 0 || ev.endHour > 23)) {
-                error = "End hour must be 0-23";
+                error = tUI("endHourError");
             } else if (typeof ev.startMinute === "number" && (ev.startMinute < 0 || ev.startMinute > 59)) {
-                error = "Start minute must be 0-59";
+                error = tUI("startMinuteError");
             } else if (typeof ev.endMinute === "number" && (ev.endMinute < 0 || ev.endMinute > 59)) {
-                error = "End minute must be 0-59";
+                error = tUI("endMinuteError");
             } else if (
                 typeof ev.startHour === "number" &&
                 typeof ev.startMinute === "number" &&
@@ -94,7 +95,7 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
                 const startTotal = ev.startHour * 60 + ev.startMinute;
                 const endTotal = ev.endHour * 60 + ev.endMinute;
                 if (startTotal >= endTotal) {
-                    error = "Start must be before end";
+                    error = tUI("startBeforeEndError");
                 }
             }
 
@@ -123,7 +124,7 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
                 description,
                 events: payload,
             });
-            toast.success("Schedule saved");
+            toast.success(tUI("scheduleSaved"));
             onClose?.();
         } catch(e) {
             if (e instanceof ConvexError) {
@@ -140,33 +141,33 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
         <Dialog open={!!schedule || undefined} onOpenChange={o => !o && onClose?.()}>
             {!hideTrigger && (
                 <DialogTrigger asChild>
-                    <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{schedule ? "Edit schedule" : "Add schedule"}</Button>
+                    <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{schedule ? tUI("editSchedule") : tUI("addSchedule")}</Button>
                 </DialogTrigger>
             )}
 
             <DialogContent className="w-[min(90%,32rem)] sm:mx-auto max-h-[90vh] overflow-y-auto p-4">
                 <DialogHeader>
-                    <DialogTitle>{schedule ? "Edit schedule" : "New schedule"}</DialogTitle>
+                    <DialogTitle>{schedule ? tUI("editSchedule") : tUI("newSchedule")}</DialogTitle>
                     <p className="text-sm text-gray-500 mb-2">
-                        Only supervisors and above can add or edit schedules.
+                        {tUI("onlySupervisorsSchedules")}
                     </p>
                 </DialogHeader>
 
                 <div className="space-y-4">
                     <div>
-                        <Label className="mb-1">Name</Label>
+                        <Label className="mb-1">{tUI("name")}</Label>
                         <Input value={name} onChange={e => setName(e.target.value)} />
                     </div>
 
                     <div>
-                        <Label className="mb-1">Description</Label>
+                        <Label className="mb-1">{tUI("description")}</Label>
                         <Input value={description} onChange={e => setDescription(e.target.value)} />
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                            <Label>Events</Label>
-                            <Button size="sm" onClick={addEvent}>+ Add event/school break</Button>
+                            <Label>{tUI("events")}</Label>
+                            <Button size="sm" onClick={addEvent}>+ {tUI("addEvent")}</Button>
                         </div>
 
                         {events.map((ev, i) => (
@@ -187,8 +188,8 @@ export default function ScheduleDialog({ schedule, onClose, hideTrigger }: Props
                     </div>
 
                     <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={onClose}>Cancel</Button>
-                        <Button onClick={handleSubmit} disabled={events.some(e => e.error)}>Save</Button>
+                        <Button variant="outline" onClick={onClose}>{tUI("cancel")}</Button>
+                        <Button onClick={handleSubmit} disabled={events.some(e => e.error)}>{tUI("save")}</Button>
                     </div>
                 </div>
             </DialogContent>

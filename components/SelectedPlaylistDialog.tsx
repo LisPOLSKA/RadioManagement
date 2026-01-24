@@ -43,8 +43,9 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
     const upsertSP = useMutation(api.playlists.upsertSelectedPlaylist);
 
     const t = useTranslations("Errors");
+    const tUI = useTranslations("UI");
 
-    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const daysOfWeek = [tUI("mon"), tUI("tue"), tUI("wed"), tUI("thu"), tUI("fri"), tUI("sat"), tUI("sun")];
 
     const toggleDay = (index: number) => {
         if (schedule.includes(index)) setSchedule(schedule.filter(d => d !== index));
@@ -54,12 +55,12 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!playlistId) {
-            toast.error("Select a playlist");
+            toast.error(tUI("selectPlaylist"));
             return;
         }
 
         if(!startDate || !endDate) {
-            toast.error("Start and end date are required");
+            toast.error(tUI("startEndSelectedPlaylistError"));
             return;
         }
 
@@ -72,7 +73,7 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
                 endDate: new Date(endDate).getTime(),
                 schedule
             });
-            toast.success("Saved successfully");
+            toast.success(tUI("savedSuccessfully"));
             onClose?.();
         } catch(e) {
             if (e instanceof ConvexError) {
@@ -89,24 +90,24 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
             <DialogTrigger asChild hidden={hideTrigger}>
                 <Button variant="outline">
                     <Plus className="mr-2 h-4 w-4" />
-                    {selectedPlaylist ? "Edit Selected Playlist" : "Add Selected Playlist"}
+                    {selectedPlaylist ? tUI("editSelectedPlaylist") : tUI("addSelectedPlaylist")}
                 </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>{selectedPlaylist ? "Edit Selected Playlist" : "New Selected Playlist"}</DialogTitle>
+                    <DialogTitle>{selectedPlaylist ? tUI("editSelectedPlaylist") : tUI("addSelectedPlaylist")}</DialogTitle>
                     <p className="text-sm text-gray-500 mb-2">
-                        Only supervisors and above can add or edit selected playlists.
+                        {tUI("onlySupervisors")}
                     </p>
                 </DialogHeader>
 
                 <form className="grid gap-4 py-2" onSubmit={handleSubmit}>
                     <div className="grid gap-2">
-                        <Label>Playlist</Label>
+                        <Label>{tUI("playlist")}</Label>
                         <Select value={playlistId} onValueChange={(v: Id<"playlists">) => setPlaylistId(v)}>
                             <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a playlist" />
+                                <SelectValue placeholder={tUI("selectPlaylist")} />
                             </SelectTrigger>
                             <SelectContent className="max-h-60 overflow-y-auto">
                                 {playlists.map(pl => (
@@ -114,7 +115,7 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
                                 ))}
                                 {status === "CanLoadMore" && (
                                     <div className="p-2 sticky bottom-0 bg-background">
-                                        <Button variant="ghost" size="sm" onClick={() => loadMore(20)} className="w-full">Load more</Button>
+                                        <Button variant="ghost" size="sm" onClick={() => loadMore(20)} className="w-full">{tUI("loadMore")}</Button>
                                     </div>
                                 )}
                             </SelectContent>
@@ -122,21 +123,21 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
                     </div>
 
                     <div className="grid gap-2">
-                        <Label>Priority</Label>
+                        <Label>{tUI("priority")}</Label>
                         <Input type="number" value={priority} onChange={e => setPriority(Number(e.target.value))} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label>Start Date</Label>
+                        <Label>{tUI("startDate")}</Label>
                         <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
                     </div>
                     <div className="grid gap-2">
-                        <Label>End Date</Label>
+                        <Label>{tUI("endDate")}</Label>
                         <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label>Days of week</Label>
+                        <Label>{tUI("daysOfWeek")}</Label>
                         <div className="flex flex-wrap gap-2">
                             {daysOfWeek.map((d, i) => (
                                 <Button
@@ -152,7 +153,7 @@ export default function SelectedPlaylistDialog({ selectedPlaylist, onClose, hide
                     </div>
 
                     <DialogFooter>
-                        <Button type="submit">{selectedPlaylist ? "Save" : "Create"}</Button>
+                        <Button type="submit">{selectedPlaylist ? tUI("save") : tUI("create")}</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

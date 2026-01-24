@@ -65,14 +65,16 @@ export default function UsersList() {
 
   const setRole = useMutation(api.users.setUserRole);
 
+  const tUI = useTranslations("UI");
+
   if (me && me.role < 3) {
-    return <h1 className="text-red-500">Unauthorized</h1>;
+    return <h1 className="text-red-500">{tUI("unauthorized")}</h1>;
   }
 
   async function changeRole(userId: Doc<"users">["_id"], role: number) {
     try {
       await setRole({ userId, role });
-      toast.success("Role updated");
+      toast.success(tUI("roleUpdated"));
     } catch(e) {
       if (e instanceof ConvexError) {
         toast.error(t(e.data));
@@ -85,13 +87,13 @@ export default function UsersList() {
 
   function copyId(id: string) {
     navigator.clipboard.writeText(id);
-    toast.success("User ID copied");
+    toast.success(tUI("userIdCopied"));
   }
 
   if(me === undefined) {
     return "Loading...";
   }else if(me === null){
-    return <h1 className="text-red-500">Unauthorized</h1>;
+    return <h1 className="text-red-500">{tUI("unauthorized")}</h1>;
   }
 
   function canAssignRole(meRole: number, targetUserRole: number, newRole: number) {
@@ -107,19 +109,19 @@ export default function UsersList() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Users</h1>
+      <h1 className="text-2xl font-semibold">{tUI("users")}</h1>
 
       <div className="flex gap-3 flex-wrap">
       {/* Search */}
         <Input
-          placeholder="Search by email"
+          placeholder={tUI("searchEmail")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-md"
         />
 
         <Input
-          placeholder="Search by userId"
+          placeholder={tUI("searchUserId")}
           value={searchUserId}
           onChange={(e) => setSearchUserId(e.target.value)}
           className="max-w-md"
@@ -131,10 +133,10 @@ export default function UsersList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>User ID</TableHead>
+              <TableHead>{tUI("userName")}</TableHead>
+              <TableHead>{tUI("email")}</TableHead>
+              <TableHead>{tUI("role")}</TableHead>
+              <TableHead>{tUI("userId")}</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -142,7 +144,7 @@ export default function UsersList() {
             {status === "LoadingFirstPage" && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center">
-                  Loading users…
+                  {tUI("loadingUsers")}
                 </TableCell>
               </TableRow>
             )}
@@ -150,7 +152,7 @@ export default function UsersList() {
             {status !== "LoadingFirstPage" && users.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center">
-                  No users found
+                  {tUI("noUsersFound")}
                 </TableCell>
               </TableRow>
             )}
@@ -195,7 +197,7 @@ export default function UsersList() {
                       variant="outline"
                       onClick={() => copyId(user._id)}
                     >
-                      Copy
+                      {tUI("copyId")}
                     </Button>
                   </div>
                 </TableCell>
@@ -212,7 +214,7 @@ export default function UsersList() {
             variant="outline"
             onClick={() => loadMore(20)}
           >
-            Load more
+            {tUI("loadMore")}
           </Button>
         </div>
       )}

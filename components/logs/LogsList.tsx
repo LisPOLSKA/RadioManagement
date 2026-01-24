@@ -21,6 +21,7 @@ import ActionSelect from "./ActionSelect";
 import TargetTableSelect from "./TargetTableSelect";
 import { useAuth } from "@clerk/nextjs";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function LogsList() {
   const [action, setAction] = useState<string | undefined>();
@@ -42,6 +43,8 @@ export default function LogsList() {
     setSelectedUserId(lookedUpUser._id);
   }
 
+  const t = useTranslations("UI");
+
   const {
     results: logs,
     status,
@@ -60,12 +63,12 @@ export default function LogsList() {
   );
 
   if (user && user.role < 2) {
-    return <h1 className="text-red-500">Unauthorized</h1>;
+    return <h1 className="text-red-500">{t("unauthorized")}</h1>;
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Logs</h1>
+      <h1 className="text-2xl font-semibold">{t("logs")}</h1>
 
       {/* Filters panel */}
       <div className="border rounded-md p-2">
@@ -73,7 +76,7 @@ export default function LogsList() {
           className="flex justify-between w-full font-medium mb-2"
           onClick={() => setFiltersOpen(prev => !prev)}
         >
-          <span>Filters</span>
+          <span>{t("filters")}</span>
           {filtersOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
 
@@ -83,13 +86,13 @@ export default function LogsList() {
             <TargetTableSelect value={targetTable} onChange={setTargetTable} />
 
             <Input
-              placeholder="Target ID"
+              placeholder={t("targetId")}
               value={targetId}
               onChange={(e) => setTargetId(e.target.value)}
               className="w-64"
             />
             <Input
-              placeholder="User ID"
+              placeholder={t("userId")}
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               className="w-64"
@@ -102,7 +105,7 @@ export default function LogsList() {
               setUserInput("");
               setSelectedUserId(undefined);
             }}>
-              Reset Filters
+              {t("resetFilters")}
             </Button>
           </div>
         )}
@@ -113,11 +116,11 @@ export default function LogsList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead>Target</TableHead>
-              <TableHead>Done By</TableHead>
-              <TableHead>Details</TableHead>
+              <TableHead>{t("date")}</TableHead>
+              <TableHead>{t("action")}</TableHead>
+              <TableHead>{t("target")}</TableHead>
+              <TableHead>{t("doneBy")}</TableHead>
+              <TableHead>{t("details")}</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -125,7 +128,7 @@ export default function LogsList() {
             {logs.length === 0 && status === "LoadingFirstPage" && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  Loading logs…
+                  {t("loadingLogs")}
                 </TableCell>
               </TableRow>
             )}
@@ -133,7 +136,7 @@ export default function LogsList() {
             {logs.length === 0 && status !== "LoadingFirstPage" && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  No logs found
+                  {t("noLogsFound")}
                 </TableCell>
               </TableRow>
             )}
@@ -161,7 +164,7 @@ export default function LogsList() {
       {status === "CanLoadMore" && (
         <div className="flex justify-center">
           <Button variant="outline" onClick={() => loadMore(10)}>
-            Load more
+            {t("loadMore")}
           </Button>
         </div>
       )}

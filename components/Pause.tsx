@@ -15,6 +15,7 @@ const Pause = () => {
   const setPaused = useMutation(api.players.setPaused);
 
   const t = useTranslations("Errors");
+  const tUI = useTranslations("UI");
 
   const handleStart = async () => {
     try {
@@ -43,16 +44,16 @@ const Pause = () => {
   };
 
   // Status graczy
-  let statusElement: React.ReactNode = <p className="text-sm text-muted-foreground">Loading players…</p>;
+  let statusElement: React.ReactNode = <p className="text-sm text-muted-foreground">{tUI("loadingPlayers")}</p>;
 
   if (players) {
     const allPaused = players.every((p) => p.paused);
     const allPlaying = players.every((p) => !p.paused);
 
     if (allPaused) {
-      statusElement = <p className="text-sm text-center font-medium text-red-600">Paused</p>;
+      statusElement = <p className="text-sm text-center font-medium text-red-600">{tUI("paused")}</p>;
     } else if (allPlaying) {
-      statusElement = <p className="text-sm text-center font-medium text-green-600">Not stopped</p>;
+      statusElement = <p className="text-sm text-center font-medium text-green-600">{tUI("notStopped")}</p>;
     } else {
       // różne stany – pokaz tabelkę
       statusElement = (
@@ -60,8 +61,8 @@ const Pause = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Device ID</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{tUI("deviceId")}</TableHead>
+                <TableHead>{tUI("status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -70,9 +71,9 @@ const Pause = () => {
                   <TableCell>{p.deviceId}</TableCell>
                   <TableCell>
                     {p.paused ? (
-                      <span className="text-red-600 font-medium">Paused</span>
+                      <span className="text-red-600 font-medium">{tUI("paused")}</span>
                     ) : (
-                      <span className="text-green-600 font-medium">Not stopped</span>
+                      <span className="text-green-600 font-medium">{tUI("notStopped")}</span>
                     )}
                   </TableCell>
                 </TableRow>
@@ -87,7 +88,7 @@ const Pause = () => {
   return (
     <div className="w-full space-y-4">
       {/* Nagłówek */}
-      <h2 className="text-xl font-semibold text-center">Player Controls</h2>
+      <h2 className="text-xl font-semibold text-center">{tUI("playerControls")}</h2>
 
       {/* Status graczy */}
       <div className="w-full">{statusElement}</div>
@@ -100,7 +101,7 @@ const Pause = () => {
           onClick={handleStart}
         >
           <Play className="w-4 h-4" />
-          Start
+          {tUI("start")}
         </Button>
 
         <Button
@@ -109,7 +110,7 @@ const Pause = () => {
           onClick={handleStop}
         >
           <Square className="w-4 h-4" />
-          Stop
+          {tUI("stop")}
         </Button>
       </div>
     </div>

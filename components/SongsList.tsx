@@ -49,12 +49,13 @@ export default function SongsList() {
     const deleteSong = useMutation(api.songs.deleteSong);
 
     const t = useTranslations("Errors");
+    const tUI = useTranslations("UI");
 
     async function handleDelete(songId: Id<"songs">) {
-        if (!confirm("Are you sure you want to delete this song?")) return;
+        if (!confirm(tUI("sureSongDelete"))) return;
         try {
             await deleteSong({ songId });
-            toast.success("Song deleted");
+            toast.success(tUI("deletedSuccessfully"));
         } catch(e) {
             if (e instanceof ConvexError) {
                 toast.error(t(e.data));
@@ -69,7 +70,7 @@ export default function SongsList() {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-semibold">Songs</h1>
+                <h1 className="text-2xl font-semibold">{tUI("songs")}</h1>
                 <AddSongDialog />
             </div>
 
@@ -77,7 +78,7 @@ export default function SongsList() {
             <div className="flex gap-4 items-end">
                 <div className="flex-3 min-w-50">
                     <Input
-                        placeholder="Search by title or artist"
+                        placeholder={tUI("searchByTitleOrArtist")}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -96,11 +97,11 @@ export default function SongsList() {
                 <Table>
                 <TableHeader>
                     <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Artist</TableHead>
-                    <TableHead>Category</TableHead>
+                    <TableHead>{tUI("title")}</TableHead>
+                    <TableHead>{tUI("artist")}</TableHead>
+                    <TableHead>{tUI("category")}</TableHead>
                     <TableHead>YouTube</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-right">{tUI("actions")}</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -108,7 +109,7 @@ export default function SongsList() {
                     {songs.length === 0 && status === "LoadingFirstPage" && (
                     <TableRow>
                         <TableCell colSpan={5} className="text-center text-muted-foreground">
-                        Loading songs…
+                        {tUI("loadingSongs")}
                         </TableCell>
                     </TableRow>
                     )}
@@ -116,7 +117,7 @@ export default function SongsList() {
                     {songs.length === 0 && status !== "LoadingFirstPage" && (
                     <TableRow>
                         <TableCell colSpan={5} className="text-center text-muted-foreground">
-                        No songs found
+                        {tUI("noSongs")}
                         </TableCell>
                     </TableRow>
                     )}
@@ -133,7 +134,7 @@ export default function SongsList() {
                             rel="noreferrer"
                             className="underline underline-offset-4 text-sm"
                         >
-                            Open
+                            {tUI("open")}
                         </a>
                         </TableCell>
                         <TableCell className="text-right">
@@ -145,10 +146,10 @@ export default function SongsList() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => setEditingSong(song)}>
-                                Edit
+                                {tUI("edit")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDelete(song._id)} variant="destructive">
-                                Delete
+                                {tUI("delete")}
                             </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -163,7 +164,7 @@ export default function SongsList() {
         {status === "CanLoadMore" && (
             <div className="flex justify-center">
             <Button variant="outline" onClick={() => loadMore(10)}>
-                Load more
+                {tUI("loadMore")}
             </Button>
             </div>
         )}

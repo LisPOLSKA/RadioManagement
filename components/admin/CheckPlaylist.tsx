@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function CheckPlaylist() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -24,9 +25,11 @@ export default function CheckPlaylist() {
     playlist ? { ids: playlist.songs ? playlist.songs.slice(0, 10) : [] } : "skip"
   );
 
+  const t = useTranslations("UI");
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Active Playlist Preview</h1>
+      <h1 className="text-2xl font-semibold">{t("activePlaylistPreview")}</h1>
 
       {/* Datetime picker */}
       <div className="flex gap-3 flex-wrap">
@@ -38,34 +41,34 @@ export default function CheckPlaylist() {
         />
       </div>
 
-      {!playlist && <p className="text-sm text-muted-foreground">No active playlist at this time.</p>}
+      {!playlist && <p className="text-sm text-muted-foreground">{t("noActivePlaylist")}</p>}
 
       {playlist && (
         <div className="space-y-4">
           {/* Playlist info */}
           <div>
-            <h3 className="text-sm text-muted-foreground">Playlist ID</h3>
+            <h3 className="text-sm text-muted-foreground">{t("playlistId")}</h3>
             <p className="font-medium">{playlist._id}</p>
           </div>
 
           {/* Songs */}
           <div>
-            <h3 className="text-sm text-muted-foreground">Sample Songs</h3>
+            <h3 className="text-sm text-muted-foreground">{t("sampleSongs")}</h3>
 
-            {!songs && <p className="text-sm text-muted-foreground">Loading songs…</p>}
+            {!songs && <p className="text-sm text-muted-foreground">{t("loadingSongs")}</p>}
 
             {songs && songs.length === 0 && (
-              <p className="text-sm text-muted-foreground">No songs found</p>
+              <p className="text-sm text-muted-foreground">{t("noSongs")}</p>
             )}
 
             {songs && songs.length > 0 && (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Artist</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Link</TableHead>
+                    <TableHead>{t("title")}</TableHead>
+                    <TableHead>{t("artist")}</TableHead>
+                    <TableHead>{t("category")}</TableHead>
+                    <TableHead>{t("link")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -95,7 +98,7 @@ export default function CheckPlaylist() {
             {/* Link do pełnej playlisty */}
             <div className="mt-2">
               <Link href="/playlists" className="text-sm text-blue-600 hover:underline">
-                See full playlist
+                {t("seeFullPlaylist")}
               </Link>
             </div>
           </div>

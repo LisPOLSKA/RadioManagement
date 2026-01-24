@@ -15,6 +15,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 type Props = {
   playlist?: Doc<"playlists">;
@@ -29,6 +30,8 @@ const PlaylistPreview = ({ playlist, open, onOpenChange, hideTrigger }: Props) =
     api.songs.getSongsByIds,
     playlist?.songs ? { ids: playlist.songs } : "skip"
   );
+
+  const t = useTranslations("UI");
 
   if (!playlist) return null;
 
@@ -49,25 +52,25 @@ const PlaylistPreview = ({ playlist, open, onOpenChange, hideTrigger }: Props) =
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild hidden={hideTrigger}>
-        <Button variant="outline">Preview Playlist</Button>
+        <Button variant="outline">{t("playlistPreview")}</Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Playlist preview</DialogTitle>
+          <DialogTitle>{t("playlistPreview")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
           {/* Title */}
           <div>
-            <h3 className="text-sm text-muted-foreground">Title</h3>
+            <h3 className="text-sm text-muted-foreground">{t("title")}</h3>
             <p className="text-lg font-medium">{playlist.title}</p>
           </div>
 
           {/* Description */}
           {playlist.description && (
             <div>
-              <h3 className="text-sm text-muted-foreground">Description</h3>
+              <h3 className="text-sm text-muted-foreground">{t("description")}</h3>
               <p>{playlist.description}</p>
             </div>
           )}
@@ -75,7 +78,7 @@ const PlaylistPreview = ({ playlist, open, onOpenChange, hideTrigger }: Props) =
           {/* Search */}
           <div className="mb-2">
             <Input
-              placeholder="Search songs…"
+              placeholder={t("searchSongs")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -84,16 +87,16 @@ const PlaylistPreview = ({ playlist, open, onOpenChange, hideTrigger }: Props) =
           {/* Songs */}
           <div>
             <h3 className="text-sm text-muted-foreground mb-2">
-              Songs ({filteredSongs.length})
+              {t("songs")}: ({filteredSongs.length})
             </h3>
 
             {!songs && (
-              <p className="text-sm text-muted-foreground">Loading songs…</p>
+              <p className="text-sm text-muted-foreground">{t("loadingSongs")}</p>
             )}
 
             {songs && filteredSongs.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                No songs match your search
+                {t("noSongsMatch")}
               </p>
             )}
 
@@ -105,7 +108,7 @@ const PlaylistPreview = ({ playlist, open, onOpenChange, hideTrigger }: Props) =
                       key={`missing-${index}`}
                       className="text-sm text-muted-foreground italic"
                     >
-                      Song not found
+                      {t("songNotFound")}
                     </div>
                   );
                 }
@@ -127,7 +130,7 @@ const PlaylistPreview = ({ playlist, open, onOpenChange, hideTrigger }: Props) =
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-foreground"
-                      title="Open in YouTube"
+                      title={t("openInYouTube")}
                     >
                       <ExternalLink className="h-4 w-4" />
                     </a>
@@ -140,7 +143,7 @@ const PlaylistPreview = ({ playlist, open, onOpenChange, hideTrigger }: Props) =
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange?.(false)}>
-            Close
+            {t("close")}
           </Button>
         </DialogFooter>
       </DialogContent>

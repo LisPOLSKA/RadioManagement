@@ -29,12 +29,13 @@ export default function PlaylistDialog({ playlist, open, onOpenChange, hideTrigg
   const upsertPlaylist = useMutation(api.playlists.upsertPlaylist);
 
   const t = useTranslations("Errors");
+  const tUI = useTranslations("UI");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!title || selectedSongs.length === 0) {
-      toast.error("Title and at least one song are required");
+      toast.error(tUI("playlistError"));
       return;
     }
 
@@ -45,7 +46,7 @@ export default function PlaylistDialog({ playlist, open, onOpenChange, hideTrigg
         songs: selectedSongs,
         playlistId: playlist?._id || undefined,
       });
-      toast.success("Playlist saved");
+      toast.success(tUI("palylistSaved"));
       onOpenChange?.(false); // zamyka dialog po submit
     } catch(e) {
       if (e instanceof ConvexError) {
@@ -60,27 +61,27 @@ export default function PlaylistDialog({ playlist, open, onOpenChange, hideTrigg
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild hidden={hideTrigger}>
-        <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{playlist ? "Edit Playlist" : "Add Playlist"}</Button>
+        <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{playlist ? tUI("editPlaylist") : tUI("addPlaylist")}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{playlist ? "Edit Playlist" : "New Playlist"}</DialogTitle>
+          <DialogTitle>{playlist ? tUI("editPlaylist") : tUI("newPlaylist")}</DialogTitle>
         </DialogHeader>
         <form className="grid gap-4 py-2" onSubmit={handleSubmit}>
           <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Title"/>
+            <Label htmlFor="title">{tUI("title")}</Label>
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder={tUI("title")}/>
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="description">Description</Label>
-            <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description"/>
+            <Label htmlFor="description">{tUI("description")}</Label>
+            <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={tUI("description")} />
           </div>
 
           <SongSelector selectedSongs={selectedSongs} onChange={setSelectedSongs} />
 
           <DialogFooter>
-            <Button type="submit">{playlist ? "Save" : "Create"}</Button>
+            <Button type="submit">{playlist ? tUI("save") : tUI("create")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

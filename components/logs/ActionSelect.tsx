@@ -8,6 +8,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 
 type Props = {
   value?: string;
@@ -38,16 +39,17 @@ const logActions = [
 ] as const;
 
 export default function ActionSelect({ value, onChange }: Props) {
+  const t = useTranslations("UI")
   return (
     <Select
       value={value ?? "ALL"}
       onValueChange={(v) => onChange(v === "ALL" ? undefined : v)}
     >
       <SelectTrigger>
-        <SelectValue placeholder="Action" />
+        <SelectValue placeholder={t("action")} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="ALL">All actions</SelectItem>
+        <SelectItem value="ALL">{t("allActions")}</SelectItem>
         {logActions.map((action) => (
           <SelectItem key={action} value={action}>
             {action}

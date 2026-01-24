@@ -33,6 +33,7 @@ export default function EditSongDialog({ song, onClose }: Props) {
   const upsertSong = useMutation(api.songs.upsertSong);
 
   const t = useTranslations("Errors");
+  const tUI = useTranslations("UI");
 
   // Reset state if song changes
     useEffect(() => {
@@ -46,7 +47,7 @@ export default function EditSongDialog({ song, onClose }: Props) {
         e.preventDefault();
 
         if (!title || !artist || !category || !ytLink) {
-        toast.error("Please fill in all fields");
+        toast.error(tUI("fillAllFields"));
         return;
         }
 
@@ -58,7 +59,7 @@ export default function EditSongDialog({ song, onClose }: Props) {
                 category,
                 ytLink,
             });
-            toast.success("Song updated");
+            toast.success(tUI("songUpdated"));
             onClose();
         } catch(e) {
             if (e instanceof ConvexError) {
@@ -74,28 +75,28 @@ export default function EditSongDialog({ song, onClose }: Props) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Song</DialogTitle>
+          <DialogTitle>{tUI("editSong")}</DialogTitle>
         </DialogHeader>
 
         <form className="grid gap-4 py-4" onSubmit={handleSubmit}>
           <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{tUI("title")}</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Song Title"
+              placeholder={tUI("songTitle")}
               required
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="artist">Artist</Label>
+            <Label htmlFor="artist">{tUI("artist")}</Label>
             <Input
               id="artist"
               value={artist}
               onChange={(e) => setArtist(e.target.value)}
-              placeholder="Artist"
+              placeholder={tUI("artist")}
               required
             />
           </div>
@@ -106,9 +107,9 @@ export default function EditSongDialog({ song, onClose }: Props) {
           />
 
           <div className="grid gap-2">
-            <Label htmlFor="spotifyLink">Spotify Link</Label>
+            <Label htmlFor="ytLink">{tUI("ytLink")}</Label>
             <Input
-              id="spotifyLink"
+              id="ytLink"
               value={ytLink}
               onChange={(e) => setYtLink(e.target.value)}
               placeholder="https://..."
@@ -116,8 +117,8 @@ export default function EditSongDialog({ song, onClose }: Props) {
           </div>
 
           <DialogFooter>
-            <Button type="submit">Save</Button>
-            <Button variant="ghost" onClick={onClose}>Cancel</Button>
+            <Button type="submit">{tUI("save")}</Button>
+            <Button variant="ghost" onClick={onClose}>{tUI("cancel")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

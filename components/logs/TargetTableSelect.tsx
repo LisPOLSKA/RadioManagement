@@ -8,6 +8,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 
 type Props = {
   value?: string;
@@ -25,16 +26,17 @@ const TARGET_TABLES = [
 ] as const;
 
 export default function TargetTableSelect({ value, onChange }: Props) {
+  const t = useTranslations("UI")
   return (
     <Select
       value={value ?? "ALL"}
       onValueChange={(v) => onChange(v === "ALL" ? undefined : v)}
     >
       <SelectTrigger>
-        <SelectValue placeholder="Target table" />
+        <SelectValue placeholder={t("targetTable")} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="ALL">All tables</SelectItem>
+        <SelectItem value="ALL">{t("allTables")}</SelectItem>
         {TARGET_TABLES.map((t) => (
           <SelectItem key={t} value={t}>
             {t}

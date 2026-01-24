@@ -31,8 +31,9 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
   const upsert = useMutation(api.schedules.upsertSelectedSchedule);
 
   const t = useTranslations("Errors");
+  const tUI = useTranslations("UI");
 
-  const allDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const allDays = [tUI("mon"), tUI("tue"), tUI("wed"), tUI("thu"), tUI("fri"), tUI("sat"), tUI("sun")];
 
   const toggleDay = (i: number) => {
     if (daysOfWeek.includes(i)) setDaysOfWeek(daysOfWeek.filter(d => d !== i));
@@ -42,7 +43,7 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!scheduleId) {
-      toast.error("Select a schedule");
+      toast.error(tUI("selectSchedule"));
       return;
     }
 
@@ -55,7 +56,7 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
         endDate: endDate ? new Date(endDate).getTime() : undefined,
         schedule: daysOfWeek,
       });
-      toast.success("Selected schedule saved");
+      toast.success(tUI("selectedScheduleSaved"));
       onClose?.();
     } catch(e) {
       if (e instanceof ConvexError) {
@@ -70,14 +71,14 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
   return (
     <Dialog open={!!selectedSchedule || undefined} onOpenChange={(open) => { if (!open) onClose?.(); }}>
       <DialogTrigger asChild hidden={hideTrigger}>
-        <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{selectedSchedule ? "Edit Selected Schedule" : "Add Selected Schedule"}</Button>
+        <Button variant={"outline"}><Plus className="mr-2 h-4 w-4" />{selectedSchedule ? tUI("editSelectedSchedule") : tUI("addSelectedSchedule")}</Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{selectedSchedule ? "Edit" : "New"} Selected Schedule</DialogTitle>
+          <DialogTitle>{selectedSchedule ? tUI("edit") : tUI("new")} Selected Schedule</DialogTitle>
             <p className="text-sm text-gray-500 mb-2">
-              Only supervisors and above can add or edit selected schedules.
+              {tUI("onlySupervisorsSelectedSchedules")}
             </p>
         </DialogHeader>
 
@@ -87,14 +88,14 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
             <Label>Schedule</Label>
             <Select value={scheduleId} onValueChange={(v: Id<"scheduleGroups">) => setScheduleId(v)}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a schedule" />
+                <SelectValue placeholder={tUI("selectSchedule")} />
               </SelectTrigger>
               <SelectContent>
                 {schedules.map(s => (
                   <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
                 ))}
                 {status === "CanLoadMore" && (
-                  <Button variant="ghost" size="sm" className="w-full" onClick={() => loadMore(20)}>Load more</Button>
+                  <Button variant="ghost" size="sm" className="w-full" onClick={() => loadMore(20)}>{tUI("loadMore")}</Button>
                 )}
               </SelectContent>
             </Select>
@@ -102,23 +103,23 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
 
           {/* Priorytet */}
           <div className="grid gap-2">
-            <Label>Priority</Label>
+            <Label>{tUI("priority")}</Label>
             <Input type="number" value={priority} onChange={e => setPriority(Number(e.target.value))} />
           </div>
 
           {/* Daty */}
           <div className="grid gap-2">
-            <Label>Start Date</Label>
+            <Label>{tUI("startDate")}</Label>
             <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} required/>
           </div>
           <div className="grid gap-2">
-            <Label>End Date</Label>
+            <Label>{tUI("endDate")}</Label>
             <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} required/>
           </div>
 
           {/* Dni tygodnia */}
           <div className="grid gap-2">
-            <Label>Days of week</Label>
+            <Label>{tUI("daysOfWeek")}</Label>
             <div className="flex gap-2 flex-wrap">
               {allDays.map((d, i) => (
                 <Button key={i} size="sm" variant={daysOfWeek.includes(i) ? "default" : "outline"} onClick={(e) => { e.preventDefault(); toggleDay(i); }}>
@@ -129,7 +130,7 @@ export default function SelectedScheduleDialog({ selectedSchedule, onClose, hide
           </div>
 
           <DialogFooter>
-            <Button type="submit">{selectedSchedule ? "Save" : "Create"}</Button>
+            <Button type="submit">{selectedSchedule ? tUI("save") : tUI("create")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

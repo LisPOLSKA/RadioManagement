@@ -32,12 +32,13 @@ export default function SelectedPlaylistsList() {
     const deleteSP = useMutation(api.playlists.deleteSelectedPlaylist);
 
     const t = useTranslations("Errors");
+    const tUI = useTranslations("UI");
 
     const handleDelete = async (id: Id<"selectedPlaylists">) => {
-        if (!confirm("Are you sure you want to delete this selected playlist?")) return;
+        if (!confirm(tUI("sureSelectedPlaylistDelete"))) return;
         try {
             await deleteSP({ selectedPlaylistId: id });
-            toast.success("Deleted successfully");
+            toast.success(tUI("deletedSuccessfully"));
         } catch(e) {
             if (e instanceof ConvexError) {
                 toast.error(t(e.data));
@@ -51,7 +52,7 @@ export default function SelectedPlaylistsList() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold">Selected Playlists</h1>
+                <h1 className="text-2xl font-semibold">{tUI("selectedPlaylists")}</h1>
                 <SelectedPlaylistDialog />
             </div>
 
@@ -59,11 +60,11 @@ export default function SelectedPlaylistsList() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Playlist</TableHead>
-                            <TableHead>Priority</TableHead>
-                            <TableHead>Start Date</TableHead>
-                            <TableHead>End Date</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{tUI("playlist")}</TableHead>
+                            <TableHead>{tUI("priority")}</TableHead>
+                            <TableHead>{tUI("startDate")}</TableHead>
+                            <TableHead>{tUI("endDate")}</TableHead>
+                            <TableHead className="text-right">{tUI("actions")}</TableHead>
                         </TableRow>
                     </TableHeader>
 
@@ -71,7 +72,7 @@ export default function SelectedPlaylistsList() {
                         {results.length === 0 && status === "LoadingFirstPage" && (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                                    Loading…
+                                    {tUI("loading")}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -79,7 +80,7 @@ export default function SelectedPlaylistsList() {
                         {results.length === 0 && status !== "LoadingFirstPage" && (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                                    No selected playlists
+                                    {tUI("noSelectedPlaylists")}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -91,8 +92,8 @@ export default function SelectedPlaylistsList() {
                                 <TableCell>{sp.startDate ? new Date(sp.startDate).toLocaleDateString() : "-"}</TableCell>
                                 <TableCell>{sp.endDate ? new Date(sp.endDate).toLocaleDateString() : "-"}</TableCell>
                                 <TableCell className="text-right flex gap-2 justify-end">
-                                    <Button variant="ghost" size="sm" onClick={() => setEditing(sp)}>Edit</Button>
-                                    <Button variant="destructive" size="sm" onClick={() => handleDelete(sp._id)}>Delete</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => setEditing(sp)}>{tUI("edit")}</Button>
+                                    <Button variant="destructive" size="sm" onClick={() => handleDelete(sp._id)}>{tUI("delete")}</Button>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -102,7 +103,7 @@ export default function SelectedPlaylistsList() {
 
             {status === "CanLoadMore" && (
                 <div className="flex justify-center">
-                    <Button variant="outline" onClick={() => loadMore(10)}>Load more</Button>
+                    <Button variant="outline" onClick={() => loadMore(10)}>{tUI("loadMore")}</Button>
                 </div>
             )}
 

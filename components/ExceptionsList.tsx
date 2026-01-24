@@ -28,12 +28,13 @@ export default function ExceptionsList() {
   const deleteMutation = useMutation(api.exceptions.deleteException);
 
   const t = useTranslations("Errors");
+  const tUI = useTranslations("UI");
 
   const handleDelete = async (id: Id<"exceptions">) => {
-    if (!confirm("Delete this exception?")) return;
+    if (!confirm(tUI("sureExceptionDelete"))) return;
     try {
       await deleteMutation({ exceptionId: id });
-      toast.success("Deleted");
+      toast.success(tUI("deleted"));
     } catch(e) {
       if (e instanceof ConvexError) {
         toast.error(t(e.data));
@@ -49,21 +50,21 @@ export default function ExceptionsList() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Exceptions List</h1>
+        <h1 className="text-2xl font-semibold">{tUI("exceptionsList")}</h1>
         <ExceptionDialog groups={groups} key={"1234"}/>
       </div>
 
         <div className="flex gap-2 items-center">
-            <span>Filter by Schedule Group:</span>
+            <span>{tUI("filterByScheduleGroup")}</span>
             <Select
                 value={filterGroup || "All"}
                 onValueChange={v => setFilterGroup(v === "All" ? "" : v as Id<"scheduleGroups">)}
             >
                 <SelectTrigger className="w-48">
-                    <SelectValue placeholder="All groups" />
+                    <SelectValue placeholder={tUI("allGroups")} />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="All">All groups</SelectItem>
+                    <SelectItem value="All">{tUI("allGroups")}</SelectItem>
                     {groups.map(g => (
                         <SelectItem key={g._id} value={g._id}>{g.name}</SelectItem>
                     ))}
@@ -75,25 +76,25 @@ export default function ExceptionsList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Action</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
-              <TableHead>Day of Week</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{tUI("action")}</TableHead>
+              <TableHead>{tUI("title")}</TableHead>
+              <TableHead>{tUI("startDate")}</TableHead>
+              <TableHead>{tUI("endDate")}</TableHead>
+              <TableHead>{tUI("dayOfWeek")}</TableHead>
+              <TableHead>{tUI("priority")}</TableHead>
+              <TableHead className="text-right">{tUI("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 && status === "LoadingFirstPage" && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">Loading…</TableCell>
+                <TableCell colSpan={7} className="text-center text-muted-foreground">{tUI("loading")}</TableCell>
               </TableRow>
             )}
 
             {filtered.length === 0 && status !== "LoadingFirstPage" && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">No exceptions</TableCell>
+                <TableCell colSpan={7} className="text-center text-muted-foreground">{tUI("noExceptions")}</TableCell>
               </TableRow>
             )}
 
@@ -105,13 +106,13 @@ export default function ExceptionsList() {
                 <TableCell>{new Date(ex.endDate).toLocaleDateString()}</TableCell>
                 <TableCell>
                     {ex.dayOfWeek && ex.dayOfWeek.length > 0
-                        ? ex.dayOfWeek.sort().map(d => ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][d]).join(", ")
+                        ? ex.dayOfWeek.sort().map(d => [tUI("mon"),tUI("tue"),tUI("wed"),tUI("thu"),tUI("fri"),tUI("sat"),tUI("sun")][d]).join(", ")
                         : "-"}
                 </TableCell>
                 <TableCell>{ex.priority ?? "-"}</TableCell>
                 <TableCell className="text-right flex gap-2 justify-end">
-                  <Button size="sm" variant="ghost" onClick={() => setEditing(ex)}>Edit</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(ex._id)}>Delete</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setEditing(ex)}>{tUI("edit")}</Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleDelete(ex._id)}>{tUI("delete")}</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -121,7 +122,7 @@ export default function ExceptionsList() {
 
       {status === "CanLoadMore" && (
         <div className="flex justify-center">
-          <Button variant="outline" onClick={() => loadMore(20)}>Load more</Button>
+          <Button variant="outline" onClick={() => loadMore(20)}>{tUI("loadMore")}</Button>
         </div>
       )}
 
