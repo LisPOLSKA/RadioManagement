@@ -25,6 +25,7 @@ export default defineSchema({
   })
     .index("by_category_createdBy", ["category", "createdBy"])
     .index("by_createdBy", ["createdBy"])
+    .index("by_ytLink", ["ytLink"])
     .searchIndex("search_by_title_artist", {
       searchField: "searchKey",
       filterFields: ["category", "createdBy"],
