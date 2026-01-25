@@ -48,7 +48,7 @@ export default async function RootLayout({
                 <AuthorizationProvider>
                   <SidebarProvider>
                     <AppSidebar />
-                    <SidebarInset>
+                    <SidebarInset className="max-w-full overflow-auto">
                       <header className="flex h-14 items-center gap-2 border-b px-4 justify-between">
                         <SidebarTrigger className="md:hidden" />
                         <LanguageSelector />

@@ -19,13 +19,17 @@ import {
 import PlaylistPreview from "./PlaylistPreview";
 import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
+import CopyId from "./CopyId";
 
 export default function PlaylistsList() {
     const [editingPlaylist, setEditingPlaylist] = useState<Doc<"playlists"> | null>(null);
     const [showingPlaylistDialog, setShowingPlaylistDialog] = useState<Doc<"playlists"> | null>(null);
+    const [isMine, setIsMine] = useState(true);
 
     const { results: playlists, status, loadMore } = usePaginatedQuery(
-        api.playlists.getPlaylists, {} , { initialNumItems: 20 }
+        api.playlists.getPlaylists, {isMine} , { initialNumItems: 20 }
     );
 
     const deletePlaylist = useMutation(api.playlists.deletePlaylist);
@@ -53,6 +57,11 @@ export default function PlaylistsList() {
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-semibold">{tUI("playlists")}</h1>
                 <PlaylistDialog />
+            </div>
+
+            <div className="flex justify-end items-center">
+                <Checkbox checked={isMine} onCheckedChange={(checked) => setIsMine(checked === true)} className="h-4 w-4" id="isMine"/>
+                <Label htmlFor="isMine" className="ml-2">{tUI("showMine")}</Label>
             </div>
 
             <div className="rounded-md border">
@@ -89,6 +98,7 @@ export default function PlaylistsList() {
                                 <TableCell>{pl.songs.length}</TableCell>
                                 <TableCell className="text-right">
                                     <Button variant="ghost" size="sm" onClick={() => setShowingPlaylistDialog(pl)}>{tUI("show")}</Button>
+                                    <CopyId id={pl._id} />
                                     <Button variant="ghost" size="sm" onClick={() => setEditingPlaylist(pl)}>{tUI("edit")}</Button>
                                     <Button variant="destructive" size="sm" onClick={() => handleDelete(pl._id)}>{tUI("delete")}</Button>
                                 </TableCell>

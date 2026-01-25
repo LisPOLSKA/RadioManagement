@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
+import CopyId from "./CopyId";
 
 export default function SelectedPlaylistsList() {
     const [editing, setEditing] = useState<Doc<"selectedPlaylists"> | null>(null);
@@ -93,6 +94,7 @@ export default function SelectedPlaylistsList() {
                                 <TableCell>{sp.endDate ? new Date(sp.endDate).toLocaleDateString() : "-"}</TableCell>
                                 <TableCell className="text-right flex gap-2 justify-end">
                                     <Button variant="ghost" size="sm" onClick={() => setEditing(sp)}>{tUI("edit")}</Button>
+                                    <CopyId id={sp._id} />
                                     <Button variant="destructive" size="sm" onClick={() => handleDelete(sp._id)}>{tUI("delete")}</Button>
                                 </TableCell>
                             </TableRow>

@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
+import CopyId from "./CopyId";
 
 export default function ExceptionsList() {
   const [editing, setEditing] = useState<Doc<"exceptions"> | null>(null);
@@ -112,6 +113,7 @@ export default function ExceptionsList() {
                 <TableCell>{ex.priority ?? "-"}</TableCell>
                 <TableCell className="text-right flex gap-2 justify-end">
                   <Button size="sm" variant="ghost" onClick={() => setEditing(ex)}>{tUI("edit")}</Button>
+                  <CopyId id={ex._id} />
                   <Button size="sm" variant="destructive" onClick={() => handleDelete(ex._id)}>{tUI("delete")}</Button>
                 </TableCell>
               </TableRow>

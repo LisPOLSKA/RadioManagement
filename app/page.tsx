@@ -13,7 +13,7 @@ export default function Home() {
         <div className="flex-1 p-5 min-w-96">
           <SchedulePreview hideDebug={true} />
         </div>
-        <div className="flex-1 p-5">
+        <div className="flex-1 p-5 min-w-96">
           <CheckPlaylist />
         </div>
       </div>

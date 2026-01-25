@@ -30,11 +30,15 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import CategoryDropdown from "./CategoryDropdown";
 import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
+import CopyId from "./CopyId";
 
 export default function SongsList() {
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
     const [editingSong, setEditingSong] = useState<Doc<"songs"> | null>(null);
+    const [isMine, setIsMine] = useState(true);
 
     const {
         results: songs,
@@ -42,7 +46,7 @@ export default function SongsList() {
         loadMore,
     } = usePaginatedQuery(
         api.songs.getSongs,
-        { search: search || undefined, category: category || undefined },
+        { search: search || undefined, category: category || undefined, mine: isMine },
         { initialNumItems: 20 }
     );
 
@@ -89,6 +93,10 @@ export default function SongsList() {
                         onChange={setCategory}
                         categoryAll={true}
                     />
+                </div>
+                <div className="flex-1 min-w-24 flex items-center h-9">
+                    <Checkbox checked={isMine} onCheckedChange={(checked) => setIsMine(checked === true)} className="h-6 w-6" id="isMine"/>
+                    <Label htmlFor="isMine" className="ml-2">{tUI("showMine")}</Label>
                 </div>
             </div>
 
@@ -148,6 +156,7 @@ export default function SongsList() {
                             <DropdownMenuItem onClick={() => setEditingSong(song)}>
                                 {tUI("edit")}
                             </DropdownMenuItem>
+                            <CopyId id={song._id} isMenuItem />
                             <DropdownMenuItem onClick={() => handleDelete(song._id)} variant="destructive">
                                 {tUI("delete")}
                             </DropdownMenuItem>

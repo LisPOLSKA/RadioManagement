@@ -355,6 +355,8 @@
     "loadingSchedule": "Ładowanie harmonogramu…",
     "savedSuccessfully": "Zapisano pomyślnie",
     "deletedSuccessfully": "Usunięto pomyślnie",
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "showMine": "Pokaż tylko moje",
+    "idCopied": "ID skopiowane do schowka"
   }
 }

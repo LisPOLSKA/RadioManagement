@@ -359,6 +359,8 @@
     "loadingSchedule": "Loading schedule…",
     "savedSuccessfully": "Saved successfully",
     "deletedSuccessfully": "Deleted successfully",
-    "close": "Close"
+    "close": "Close",
+    "showMine": "Show only mine",
+    "idCopied": "ID copied to clipboard"
   }
 }

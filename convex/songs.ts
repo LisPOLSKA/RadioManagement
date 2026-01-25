@@ -78,6 +78,7 @@ export const getSongs = query({
   args: {
     search: v.optional(v.string()),
     category: v.optional(v.string()),
+    mine: v.optional(v.boolean()),
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
@@ -91,47 +92,87 @@ export const getSongs = query({
 
       if (!user || user.role <= 0) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
-    if(!args.search){
-      return await ctx.db
-        .query("songs")
-        .order("desc")
-        .paginate(args.paginationOpts);
-    }
+    // if(!args.search){
+    //   if(args.mine){
+    //     return await ctx.db
+    //     .query("songs")
+    //     .withIndex("by_createdBy", q => q.eq("createdBy", user._id))
+    //     .paginate(args.paginationOpts);
+    //   }else{
+    //     return await ctx.db
+    //     .query("songs")
+    //     .order("desc")
+    //     .paginate(args.paginationOpts);
+    //   }
+    // }
 
     if(args.search){
       if(args.category){
-        // Szukaj z filtrem kategorii
-        return await ctx.db
+        if(args.mine){
+          return await ctx.db
+          .query("songs")
+          .withSearchIndex("search_by_title_artist", q =>
+            q.search("searchKey", args.search!).eq("category", args.category!).eq("createdBy", user._id)
+          )
+          .paginate(args.paginationOpts);
+        }else{
+          return await ctx.db
           .query("songs")
           .withSearchIndex("search_by_title_artist", q =>
             q.search("searchKey", args.search!).eq("category", args.category!)
           )
           .paginate(args.paginationOpts);
+        }
       }else {
-        // Szukaj bez filtra kategorii
-        return await ctx.db
+        if(args.mine){
+          return await ctx.db
+          .query("songs")
+          .withSearchIndex("search_by_title_artist", q =>
+            q.search("searchKey", args.search!).eq("createdBy", user._id)
+          )
+          .paginate(args.paginationOpts);
+        }else{
+          return await ctx.db
           .query("songs")
           .withSearchIndex("search_by_title_artist", q =>
             q.search("searchKey", args.search!)
           )
           .paginate(args.paginationOpts);
+        }
       }
     }else{
       if(args.category){
-        // Szukaj z filtrem kategorii
-        return await ctx.db
-          .query("songs")
-          .withIndex("by_category", (q) =>
-            q.eq("category", args.category!)
-          )
-          .order("desc")
-          .paginate(args.paginationOpts);
+        if(args.mine){
+          return await ctx.db
+            .query("songs")
+            .withIndex("by_category_createdBy", (q) =>
+              q.eq("category", args.category!).eq("createdBy", user._id)
+            )
+            .order("desc")
+            .paginate(args.paginationOpts);
+        }else{
+          return await ctx.db
+            .query("songs")
+            .withIndex("by_category_createdBy", (q) =>
+              q.eq("category", args.category!)
+            )
+            .order("desc")
+            .paginate(args.paginationOpts);
+        }
       }else {
-        // Szukaj bez filtra kategorii
-        return await ctx.db
+        if(args.mine){
+          return await ctx.db
+          .query("songs")
+          .withIndex("by_createdBy", (q) =>
+            q.eq("createdBy", user._id)
+          )
+          .paginate(args.paginationOpts);
+        }else{
+          return await ctx.db
           .query("songs")
           .order("desc")
           .paginate(args.paginationOpts);
+        }
       }
     }
   },

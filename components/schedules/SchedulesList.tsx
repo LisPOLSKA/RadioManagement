@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
+import CopyId from "../CopyId";
 
 export default function SchedulesList() {
   const [editing, setEditing] = useState<Doc<"scheduleGroups"> | null>(null);
@@ -77,6 +78,7 @@ export default function SchedulesList() {
                   <Button size="sm" variant="ghost" onClick={() => setEditing(s)}>
                     {tUI("edit")}
                   </Button>
+                  <CopyId id={s._id} />
                   <Button
                     size="sm"
                     variant="destructive"

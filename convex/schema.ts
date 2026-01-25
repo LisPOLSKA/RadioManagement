@@ -23,11 +23,11 @@ export default defineSchema({
     createdBy: v.id("users"),
     searchKey: v.string(),
   })
-    .index("by_category", ["category"])
-    .index("by_ytLink", ["ytLink"])
+    .index("by_category_createdBy", ["category", "createdBy"])
+    .index("by_createdBy", ["createdBy"])
     .searchIndex("search_by_title_artist", {
       searchField: "searchKey",
-      filterFields: ["category"],
+      filterFields: ["category", "createdBy"],
     }),
   playlists: defineTable({
     title: v.string(),
@@ -35,7 +35,11 @@ export default defineSchema({
     description: v.optional(v.string()),
     createdBy: v.id("users"),
   })
-    .index("by_title", ["title"]),
+    .searchIndex("search_by_title_createdBy", {
+      searchField: "title",
+      filterFields: ["createdBy"],
+    })
+    .index("by_createdBy", ["createdBy"]),
   selectedPlaylists: defineTable({
     playlistId: v.id("playlists"),
     priority: v.number(),

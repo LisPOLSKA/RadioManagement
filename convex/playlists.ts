@@ -121,27 +121,35 @@ export const deletePlaylist = mutation({
 export const getPlaylists = query({
   args: {
     title: v.optional(v.string()),
-    createdBy: v.optional(v.id("users")),
+    isMine: v.optional(v.boolean()),
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!user || user.role <= 0) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     let q;
 
-    if (args.title && args.createdBy) {
+    if (args.title && args.isMine) {
       // filtr po tytule i autorze
       q = ctx.db
         .query("playlists")
-        .filter((p) => p.eq(p.field("title"), args.title))
-        .filter((p) => p.eq(p.field("createdBy"), args.createdBy));
+        .withSearchIndex("search_by_title_createdBy", q => q.search("title", args.title!).eq("createdBy", user._id))
     } else if (args.title) {
-      q = ctx.db.query("playlists").filter((p) => p.eq(p.field("title"), args.title));
-    } else if (args.createdBy) {
-      q = ctx.db.query("playlists").filter((p) => p.eq(p.field("createdBy"), args.createdBy));
+      q = ctx.db.query("playlists").withSearchIndex("search_by_title_createdBy", q => q.search("title", args.title!));
+    } else if (args.isMine) {
+      q = ctx.db.query("playlists").withIndex("by_createdBy", q => q.eq("createdBy", user._id));
     } else {
       q = ctx.db.query("playlists");
     }
 
-    return q.order("desc").paginate(args.paginationOpts);
+    return q.paginate(args.paginationOpts);
   },
 });
 

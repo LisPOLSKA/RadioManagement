@@ -11,6 +11,7 @@ import SelectedScheduleDialog from "./SelectedScheduleDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
+import CopyId from "../CopyId";
 
 export default function SelectedSchedulesList() {
     const [editing, setEditing] = useState<Doc<"selectedSchedules"> | null>(null);
@@ -51,6 +52,7 @@ export default function SelectedSchedulesList() {
                             <TableHead>{tUI("priority")}</TableHead>
                             <TableHead>{tUI("startDate")}</TableHead>
                             <TableHead>{tUI("endDate")}</TableHead>
+                            <TableHead>{tUI("daysOfWeek")}</TableHead>
                             <TableHead className="text-right">{tUI("actions")}</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -77,6 +79,7 @@ export default function SelectedSchedulesList() {
                                 <TableCell>{ss.schedule?.sort().map(i => [tUI("mon"),tUI("tue"),tUI("wed"),tUI("thu"),tUI("fri"),tUI("sat"),tUI("sun")][i]).join(", ") || "-"}</TableCell>
                                 <TableCell className="text-right flex gap-2 justify-end">
                                     <Button size="sm" variant="ghost" onClick={() => setEditing(ss)}>{tUI("edit")}</Button>
+                                    <CopyId id={ss._id} />
                                     <Button size="sm" variant="destructive" onClick={() => handleDelete(ss._id)}>{tUI("delete")}</Button>
                                 </TableCell>
                             </TableRow>
