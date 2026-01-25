@@ -207,7 +207,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                                         {item.title}
                                     </a>
                                 </SidebarMenuButton>
-                                {item.items?.length ? (
+                                {/* {item.items?.length ? (
                                     <SidebarMenuSub>
                                         {item.items.map((subItem) => (
                                             <SidebarMenuSubItem key={subItem.title}>
@@ -217,7 +217,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                                             </SidebarMenuSubItem>
                                         ))}
                                     </SidebarMenuSub>
-                                ) : null}
+                                ) : null} */}
                             </SidebarMenuItem>
                         ))}
                     </SidebarMenu>
