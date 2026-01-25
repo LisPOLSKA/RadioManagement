@@ -10,6 +10,7 @@ export default defineSchema({
     searchKey: v.string(),
     deviceId: v.optional(v.id("devices")),
     type: v.optional(v.union(v.literal("player"), v.literal("user"))),
+    comment: v.optional(v.string()),
   })
     .index("by_clerkId", ["clerkId"])
     .index("by_email", ["email"])

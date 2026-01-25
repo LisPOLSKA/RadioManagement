@@ -28,6 +28,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { useAuth } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import { ConvexError } from "convex/values";
+import UserCommentDialog from "./CommentDialog";
 
 const ROLES = [
   { value: "0", label: "Banned" },
@@ -135,6 +136,7 @@ export default function UsersList() {
             <TableRow>
               <TableHead>{tUI("userName")}</TableHead>
               <TableHead>{tUI("email")}</TableHead>
+              <TableHead>{tUI("comment")}</TableHead>
               <TableHead>{tUI("role")}</TableHead>
               <TableHead>{tUI("userId")}</TableHead>
             </TableRow>
@@ -164,6 +166,20 @@ export default function UsersList() {
                 </TableCell>
 
                 <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+                      {user.comment || "—"}
+                    </span>
+
+                    {me.role >= 3 && me._id !== user._id && (
+                      <UserCommentDialog
+                        userId={user._id}
+                        initialComment={user.comment}
+                      />
+                    )}
+                  </div>
+                </TableCell>
 
                 <TableCell>
                   <Select

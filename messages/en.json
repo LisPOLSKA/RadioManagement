@@ -180,7 +180,8 @@
     "CANNOT_CHANGE_OWN_ROLE": "You cannot change your own role.",
     "USER_NOT_FOUND": "The user was not found.",
     "INVALID_ROLE": "The specified role is invalid.",
-    "DEVICE_USER_ROLE_CHANGE_FORBIDDEN": "You cannot change the role of a device user."
+    "DEVICE_USER_ROLE_CHANGE_FORBIDDEN": "You cannot change the role of a device user.",
+    "CANNOT_CHANGE_OWN_COMMENT": "You cannot change your own comment."
   },
   "UI": {
     "playerControls": "Player controls",
@@ -334,6 +335,7 @@
     "userName": "User name",
     "email": "Email",
     "role": "Role",
+    "comment": "Comment",
     "userId": "User ID",
     "copyId": "Copy ID",
     "loadingUsers": "Loading users…",
@@ -361,6 +363,12 @@
     "deletedSuccessfully": "Deleted successfully",
     "close": "Close",
     "showMine": "Show only mine",
-    "idCopied": "ID copied to clipboard"
+    "idCopied": "ID copied to clipboard",
+    "editComment": "Edit comment",
+    "editUserComment": "Edit user comment",
+    "commentSaved": "Comment saved",
+    "commentPlaceholder": "Enter comment…",
+    "commentVisibleForAdmins": "Comment visible only to admins",
+    "saveFailed": "Failed to save"
   }
 }

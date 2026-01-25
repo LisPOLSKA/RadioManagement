@@ -181,7 +181,8 @@
     "CANNOT_CHANGE_OWN_ROLE": "Nie możesz zmienić własnej roli.",
     "USER_NOT_FOUND": "Nie znaleziono użytkownika.",
     "INVALID_ROLE": "Podana rola jest nieprawidłowa.",
-    "DEVICE_USER_ROLE_CHANGE_FORBIDDEN": "Nie można zmienić roli użytkownika urządzenia."
+    "DEVICE_USER_ROLE_CHANGE_FORBIDDEN": "Nie można zmienić roli użytkownika urządzenia.",
+    "CANNOT_CHANGE_OWN_COMMENT": "Nie możesz zmienić własnego komentarza."
   },
   "UI": {
     "playerControls": "Sterowanie odtwarzaczem",
@@ -330,6 +331,7 @@
     "userName": "Nazwa użytkownika",
     "email": "E-mail",
     "role": "Rola",
+    "comment": "Komentarz",
     "userId": "ID użytkownika",
     "copyId": "Kopiuj ID",
     "loadingUsers": "Ładowanie użytkowników…",
@@ -357,6 +359,12 @@
     "deletedSuccessfully": "Usunięto pomyślnie",
     "close": "Zamknij",
     "showMine": "Pokaż tylko moje",
-    "idCopied": "ID skopiowane do schowka"
+    "idCopied": "ID skopiowane do schowka",
+    "editComment": "Edytuj komentarz",
+    "editUserComment": "Edytuj komentarz użytkownika",
+    "commentSaved": "Komentarz zapisany",
+    "commentPlaceholder": "Wpisz komentarz…",
+    "commentVisibleForAdmins": "Komentarz widoczny tylko dla administracji",
+    "saveFailed": "Nie udało się zapisać"
   }
 }

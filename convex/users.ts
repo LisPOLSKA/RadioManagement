@@ -173,6 +173,44 @@ export const setUserRole = mutation({
   },
 });
 
+export const setComment = mutation({
+  args: {
+    userId: v.id("users"),
+    comment: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!me || me.role < 3) {
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+    }
+
+    if(me._id === args.userId){
+      throw new ConvexError("CANNOT_CHANGE_OWN_COMMENT");
+    }
+
+    const target = await ctx.db.get(args.userId);
+    if (!target) {
+      throw new ConvexError("USER_NOT_FOUND");
+    }
+
+    if(target.role >= 3 && me.role < 4){
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+    }
+
+    await ctx.db.patch(args.userId, {
+      comment: args.comment,
+    });
+
+  }
+})
+
 export const findUserById = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
