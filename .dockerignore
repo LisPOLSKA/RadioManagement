@@ -1,0 +1,38 @@
+# Git files
+.git
+.gitignore
+
+# Build output
+.next
+dist
+build
+.turbo
+
+# Dependencies
+node_modules
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS files
+.DS_Store
+*.pem
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Deployment
+.vercel
+
+# Only exclude these specific env files (keep .env.production)
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
