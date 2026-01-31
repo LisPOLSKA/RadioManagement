@@ -3,6 +3,7 @@ import { mutation, query, QueryCtx } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import { sha256 } from "./utils/hash";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export type ResolvedEvent = Doc<"scheduleEvents"> | (Doc<"scheduleEvents"> & {
   startHour: number;
@@ -47,11 +48,10 @@ export const getPlayers = query({
 
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
-
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+    
     if(!user || user.role < 1) {
       throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
@@ -66,15 +66,13 @@ export const setPaused = mutation({
     const identity = await ctx.auth.getUserIdentity();
 
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
-
-      if (!user || user.role < 2) {
-        throw new ConvexError("INSUFFICIENT_PERMISSIONS");
-      }
+    if (!user || user.role < 2) {
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+    }
     const players = await ctx.db.query("players").collect();
 
     if(players.length === 0) {

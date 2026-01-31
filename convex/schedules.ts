@@ -8,6 +8,7 @@ import dayjs from "dayjs"
 import isoWeek from "dayjs/plugin/isoWeek"
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -35,10 +36,10 @@ export const upsertSchedule = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
-        const user = await ctx.db
-            .query("users")
-            .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-            .first();
+        const id = await getAuthUserId(ctx);
+        if(!id) throw new ConvexError("UNAUTHENTICATED");
+        const user = await ctx.db.get(id);
+    
 
         if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
@@ -190,10 +191,9 @@ export const getSchedules = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
 
     if (!user || user.role <= 0) {
       throw new ConvexError("INSUFFICIENT_PERMISSIONS");
@@ -216,11 +216,10 @@ export const getSchedule = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
-
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+    
     if (!user || user.role <= 0) {
       throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
@@ -256,10 +255,9 @@ export const deleteSchedule = mutation({
       throw new ConvexError("UNAUTHENTICATED")
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
 
     // 🔐 TYLKO ADMIN
     if (!user || user.role < 2) {
@@ -306,9 +304,10 @@ export const upsertSelectedSchedule = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
-        const user = await ctx.db.query("users")
-            .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-            .first();
+        const id = await getAuthUserId(ctx);
+        if(!id) throw new ConvexError("UNAUTHENTICATED");
+        const user = await ctx.db.get(id);
+        
         if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
         // sprawdź uprawnienia dla edycji
@@ -379,9 +378,10 @@ export const getSelectedSchedules = query({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
-        const user = await ctx.db.query("users")
-            .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-            .first();
+        const id = await getAuthUserId(ctx);
+        if(!id) throw new ConvexError("UNAUTHENTICATED");
+        const user = await ctx.db.get(id);
+        
         if (!user || user.role <= 0) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
         const page = await ctx.db.query("selectedSchedules")
@@ -414,9 +414,10 @@ export const deleteSelectedSchedule = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
-        const user = await ctx.db.query("users")
-            .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-            .first();
+        const id = await getAuthUserId(ctx);
+        if(!id) throw new ConvexError("UNAUTHENTICATED");
+        const user = await ctx.db.get(id);
+        
         if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
         const existing = await ctx.db.get(args.selectedScheduleId);

@@ -2,6 +2,7 @@ import { v, ConvexError } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const upsertException = mutation({
   args: {
@@ -23,10 +24,10 @@ export const upsertException = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED")
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+
     if (!user || user.role < 2) {
       throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     }
@@ -99,10 +100,10 @@ export const deleteException = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+    
     if (!user || user.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
     const canManageAllContent = user.role >= 2;
 
@@ -129,10 +130,10 @@ export const getExceptions = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+    
     if (!user || user.role <= 0)  throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
     let q;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePaginatedQuery, useQuery } from "convex/react";
+import { useConvexAuth, usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 import {
@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import ActionSelect from "./ActionSelect";
 import TargetTableSelect from "./TargetTableSelect";
-import { useAuth } from "@clerk/nextjs";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -31,8 +30,8 @@ export default function LogsList() {
   const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | undefined>();
   const [filtersOpen, setFiltersOpen] = useState(true); // collapse toggle
 
-  const { userId: clerkId } = useAuth();
-  const user = useQuery(api.users.getUser, clerkId ? { clerkId: clerkId } : "skip");
+  const { isAuthenticated } = useConvexAuth();
+  const user = useQuery(api.users.getCurrentUser, isAuthenticated ? {} : "skip");
 
   const lookedUpUser = useQuery(
     api.users.findUserById,

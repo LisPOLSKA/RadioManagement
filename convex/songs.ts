@@ -3,6 +3,7 @@ import { internalQuery, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const upsertSong = mutation({
     args: {
@@ -16,11 +17,10 @@ export const upsertSong = mutation({
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-        const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-        .first();
-
+        const id = await getAuthUserId(ctx);
+        if(!id) throw new ConvexError("UNAUTHENTICATED");
+        const user = await ctx.db.get(id);
+        
         if (!user || user.role <= 0) {
           throw new ConvexError("INSUFFICIENT_PERMISSIONS");
         }
@@ -85,10 +85,10 @@ export const getSongs = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+    
 
       if (!user || user.role <= 0) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
@@ -188,10 +188,10 @@ export const deleteSong = mutation({
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
     // Pobranie użytkownika i sprawdzenie uprawnień
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+    
 
     if (!user || user.role <= 0) {
       throw new ConvexError("INSUFFICIENT_PERMISSIONS");

@@ -1,6 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { internalMutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const logAdminAction = internalMutation({
   args: {
@@ -34,10 +35,9 @@ export const getLogs = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
 
     if (!user || user.role < 3) {
       throw new ConvexError("INSUFFICIENT_PERMISSIONS");

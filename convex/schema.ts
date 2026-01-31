@@ -1,18 +1,20 @@
+import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  ...authTables,
   users: defineTable({
-    clerkId: v.string(),
+    //clerkId: v.optional(v.string()),
     email: v.string(),
     displayName: v.string(),
     role: v.number(),
     searchKey: v.string(),
     deviceId: v.optional(v.id("devices")),
-    type: v.optional(v.union(v.literal("player"), v.literal("user"))),
+    //type: v.optional(v.union(v.literal("player"), v.literal("user"))),
     comment: v.optional(v.string()),
   })
-    .index("by_clerkId", ["clerkId"])
+    //.index("by_clerkId", ["clerkId"])
     .index("by_email", ["email"])
     .index("by_displayName", ["displayName"])
     .index("by_searchKey", ["searchKey"]),

@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as CustomProfile from "../CustomProfile.js";
+import type * as auth from "../auth.js";
 import type * as devices from "../devices.js";
 import type * as exceptions from "../exceptions.js";
 import type * as http from "../http.js";
@@ -27,6 +29,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  CustomProfile: typeof CustomProfile;
+  auth: typeof auth;
   devices: typeof devices;
   exceptions: typeof exceptions;
   http: typeof http;

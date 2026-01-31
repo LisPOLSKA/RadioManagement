@@ -13,7 +13,8 @@
     "unauthorized": "Unauthorized",
     "loading": "Loading…",
     "checkSchedule": "Check schedule",
-    "tutorials": "Tutorials"
+    "tutorials": "Tutorials",
+    "logout": "Logout"
   },
   "Tutorials": {
     "title": "Tutorials",
@@ -369,6 +370,14 @@
     "commentSaved": "Comment saved",
     "commentPlaceholder": "Enter comment…",
     "commentVisibleForAdmins": "Comment visible only to admins",
-    "saveFailed": "Failed to save"
+    "saveFailed": "Failed to save",
+    "password": "Password",
+    "TooManyFailedAttempt": "Too many failed login attempts. Try again later.",
+    "InvalidSecret": "Invalid secret provided.",
+    "InvalidAccountId": "Invalid account ID.",
+    "InvalidPassword": "Invalid password - check the requirements and try again.",
+    "AccountExists": "Account already exists.",
+    "CouldNotSignIn": "Could not sign in, did you mean to sign up?",
+    "CouldNotSignUp": "Could not sign up, did you mean to sign in?"
   }
 }

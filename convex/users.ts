@@ -1,64 +1,75 @@
 import { paginationOptsValidator } from "convex/server";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
-export const upsertFromClerk = internalMutation({
-  args: {
-    clerkId: v.string(),
-    email: v.string(),
-    displayName: v.string(),
-    role: v.number(),
-  },
-  async handler(ctx, { clerkId, email, displayName, role }) {
-    const existing = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
-      .unique();
+// export const upsertUser = internalMutation({
+//   args: {
+//     clerkId: v.optional(v.string()),
+//     email: v.string(),
+//     displayName: v.string(),
+//     role: v.number(),
+//   },
+//   async handler(ctx, { clerkId, email, displayName, role }) {
+//     const existing = await ctx.db
+//       .query("users")
+//       .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+//       .unique();
 
-    if (!existing) {
-      await ctx.db.insert("users", {
-        clerkId,
-        email,
-        displayName,
-        role,
-        searchKey: displayName.toLowerCase() + email.toLowerCase(),
-      });
-    } else {
-      await ctx.db.patch(existing._id, {
-        email,
-        displayName,
-        role,
-        searchKey: displayName.toLowerCase() + email.toLowerCase(),
-      });
-    }
-  },
-});
+//     if (!existing) {
+//       await ctx.db.insert("users", {
+//         clerkId: clerkId || undefined,
+//         email,
+//         displayName,
+//         role,
+//         searchKey: displayName.toLowerCase() + email.toLowerCase(),
+//       });
+//     } else {
+//       await ctx.db.patch(existing._id, {
+//         email,
+//         displayName,
+//         role,
+//         searchKey: displayName.toLowerCase() + email.toLowerCase(),
+//       });
+//     }
+//   },
+// });
 
-export const deleteFromClerk = internalMutation({
-  args: { clerkId: v.string() },
-  async handler(ctx, { clerkId }) {
-    const existing = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
-      .unique();
+export const getCurrentUser = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    const id = ctx.db.normalizeId("users", identity.subject.split("|")[0]);
+    if(!id) return null;
+    return await ctx.db.get(id);
+  }
+})
 
-    if (existing) {
-      await ctx.db.delete(existing._id);
-    }
-  },
-});
+// export const deleteFromClerk = internalMutation({
+//   args: { clerkId: v.string() },
+//   async handler(ctx, { clerkId }) {
+//     const existing = await ctx.db
+//       .query("users")
+//       .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
+//       .unique();
 
-export const getUser = query({
-  args: { clerkId: v.string() },
-  handler: async (ctx, { clerkId }) => {
-    const user = await ctx.db
-      .query('users')
-      .withIndex('by_clerkId', (q) => q.eq('clerkId', clerkId))
-      .first();
+//     if (existing) {
+//       await ctx.db.delete(existing._id);
+//     }
+//   },
+// });
 
-    return user ?? null;
-  },
-});
+// export const getUser = query({
+//   args: { clerkId: v.string() },
+//   handler: async (ctx, { clerkId }) => {
+//     const user = await ctx.db
+//       .query('users')
+//       .withIndex('by_clerkId', (q) => q.eq('clerkId', clerkId))
+//       .first();
+
+//     return user ?? null;
+//   },
+// });
 
 export const getUsers = query({
   args: {
@@ -70,10 +81,9 @@ export const getUsers = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-    const me = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const me = await ctx.db.get(id);
 
     if (!me || me.role < 2) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
 
@@ -129,10 +139,10 @@ export const setUserRole = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-    const me = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const me = await ctx.db.get(id);
+    
 
     if (!me || me.role < 3) {
       throw new ConvexError("INSUFFICIENT_PERMISSIONS");
@@ -182,10 +192,9 @@ export const setComment = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("UNAUTHENTICATED");
 
-    const me = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", q => q.eq("clerkId", identity.subject))
-      .first();
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const me = await ctx.db.get(id);
 
     if (!me || me.role < 3) {
       throw new ConvexError("INSUFFICIENT_PERMISSIONS");
@@ -217,6 +226,17 @@ export const findUserById = query({
     const id = ctx.db.normalizeId("users", args.userId);
     if (!id) return undefined;
     const user = await ctx.db.get(id);
+    return user ?? undefined;
+  },
+});
+
+export const getUserByEmail = internalQuery({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", q => q.eq("email", args.email))
+      .first();
     return user ?? undefined;
   },
 });

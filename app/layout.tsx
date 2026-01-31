@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "@/Providers/ConvexClientProvider";
-import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
@@ -10,6 +9,7 @@ import AuthorizationProvider from "@/Providers/AuthorizationProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { Toaster } from "sonner";
 import LanguageSelector from "@/components/LanguageSelector";
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +32,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ConvexAuthNextjsServerProvider>
       <ConvexClientProvider>
         <html suppressHydrationWarning>
           <body
@@ -66,6 +66,6 @@ export default async function RootLayout({
           </body>
         </html>
       </ConvexClientProvider>
-    </ClerkProvider>
+    </ConvexAuthNextjsServerProvider >
   );
 }

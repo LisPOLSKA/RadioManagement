@@ -16,28 +16,25 @@ import {
 } from "@/components/ui/sidebar"
 import { Radio } from 'lucide-react';
 import {getTranslations} from 'next-intl/server';
-import { UserButton } from '@clerk/nextjs';
-import { auth } from '@clerk/nextjs/server';
 import { fetchQuery } from 'convex/nextjs'
 import { api } from '@/convex/_generated/api';
 import Link from 'next/link';
+import { convexAuthNextjsToken } from '@convex-dev/auth/nextjs/server';
+import { Button } from './ui/button';
+import SignOutButton from './SignOutButton';
 
 export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const t = await getTranslations('Main');
 
-    const { userId } = await auth();
-
     let isAdmin = false;
     let isSupervisor = false;
 
-    if (userId) {
-        const user = await fetchQuery(api.users.getUser, {
-        clerkId: userId,
-        });
+    const token = await convexAuthNextjsToken();
 
-        isAdmin = !!user && user.role >= 3;
-        isSupervisor = !!user && user.role >= 2;
-    }
+    const user = await fetchQuery(api.users.getCurrentUser, {}, {token: token});
+
+    isAdmin = !!user && user.role >= 3;
+    isSupervisor = !!user && user.role >= 2;
 
     const data  = {
         navMain: [
@@ -225,23 +222,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
             </SidebarContent>
             <SidebarFooter className="flex justify-center items-end p-4">
                 <div className="w-full flex justify-center flex-col items-center">
-                    <UserButton
-                        showName
-                        appearance={{
-                            variables: {
-                                colorPrimary: "#4f46e5",        // Twój główny kolor
-                                colorText: "#ffffff",
-                                colorBackground: "#999",     // tło avatara / przycisku
-                                colorTextSecondary: "#e0e7ff",
-                            },
-                            elements: {
-                                userButtonAvatarBox: "!h-8 !w-8 rounded-full border border-white",
-                                userButtonBox: "flex !flex-row-reverse items-center !gap-3 px-3 py-2 rounded-lg hover:bg-indigo-600 transition",
-                                userButtonOuterIdentifier: "!text-base font-medium",
-                            },
-                            layout: {logoPlacement: "inside"}
-                        }}
-                    />
+                    <SignOutButton />
                     <div className='bg-muted-foreground w-full h-[0.1] mt-1'></div>
                     <div>
                         <a href="https://yolo-services.pl/" className='text-xs text-muted-foreground'>© YoloServices 2026</a>

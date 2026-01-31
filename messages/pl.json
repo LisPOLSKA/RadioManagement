@@ -13,7 +13,8 @@
     "unauthorized": "Brak uprawnień",
     "loading": "Ładowanie…",
     "checkSchedule": "Sprawdź harmonogram",
-    "tutorials": "Poradniki"
+    "tutorials": "Poradniki",
+    "logout": "Wyloguj się"
   },
 
   "Tutorials": {
@@ -365,6 +366,14 @@
     "commentSaved": "Komentarz zapisany",
     "commentPlaceholder": "Wpisz komentarz…",
     "commentVisibleForAdmins": "Komentarz widoczny tylko dla administracji",
-    "saveFailed": "Nie udało się zapisać"
+    "saveFailed": "Nie udało się zapisać",
+    "password": "Hasło",
+    "TooManyFailedAttempt": "Zbyt wiele nieudanych prób logowania. Spróbuj później.",
+    "InvalidSecret": "Podano nieprawidłowy sekret.",
+    "InvalidAccountId": "Nieprawidłowy identyfikator konta.",
+    "InvalidPassword": "Nieprawidłowe hasło – sprawdź wymagania i spróbuj ponownie.",
+    "AccountExists": "Konto już istnieje.",
+    "CouldNotSignIn": "Nie można się zalogować, czy chciałeś się zarejestrować?",
+    "CouldNotSignUp": "Nie można się zarejestrować, czy chciałeś się zalogować?"
   }
 }

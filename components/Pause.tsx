@@ -94,7 +94,7 @@ const Pause = () => {
       <div className="w-full">{statusElement}</div>
 
       {/* Przycisk Start / Stop */}
-      <div className="w-full flex gap-3 items-center justify-center">
+      <div className="w-full flex gap-3 items-center justify-center flex-wrap">
         <Button
           className="w-full max-w-xs py-2 flex items-center justify-center gap-2"
           variant="outline"

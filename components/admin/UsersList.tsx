@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation, usePaginatedQuery } from "convex/react";
+import { useQuery, useMutation, usePaginatedQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 import {
@@ -25,7 +25,6 @@ import {
 
 import { toast } from "sonner";
 import { Doc } from "@/convex/_generated/dataModel";
-import { useAuth } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import { ConvexError } from "convex/values";
 import UserCommentDialog from "./CommentDialog";
@@ -42,11 +41,11 @@ export default function UsersList() {
   const [search, setSearch] = useState("");
   const [searchUserId, setSearchUserId] = useState("");
   const t = useTranslations("Errors");
+  const { isAuthenticated } = useConvexAuth();
 
-  const { userId: clerkId } = useAuth();
   const me = useQuery(
-    api.users.getUser,
-    clerkId ? { clerkId } : "skip"
+    api.users.getCurrentUser,
+    isAuthenticated ? {} : "skip"
   );
 
   const {
