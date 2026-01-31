@@ -12,6 +12,10 @@ RUN npm install --frozen-lockfile || npm install
 # Copy source code
 COPY . .
 
+ARG NEXT_PUBLIC_CONVEX_URL
+
+ENV NEXT_PUBLIC_CONVEX_URL=$NEXT_PUBLIC_CONVEX_URL
+
 # Build the application
 RUN npm run build
 
