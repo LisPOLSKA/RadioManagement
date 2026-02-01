@@ -8,7 +8,7 @@ services:
         NEXT_PUBLIC_CONVEX_URL: ${NEXT_PUBLIC_CONVEX_URL}
     container_name: radio-managment
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
@@ -38,8 +38,8 @@ services:
     stop_signal: SIGINT
     restart: unless-stopped
     ports:
-      - "${PORT:-3210}:3210"
-      - "${SITE_PROXY_PORT:-3211}:3211"
+      - "127.0.0.1:${PORT:-3210}:3210"
+      - "127.0.0.1:${SITE_PROXY_PORT:-3211}:3211"
     volumes:
       - /srv/convex/data:/convex/data
     environment:
@@ -85,7 +85,7 @@ services:
     restart: unless-stopped
     stop_signal: SIGINT
     ports:
-      - "${DASHBOARD_PORT:-6791}:6791"
+      - "127.0.0.1:${DASHBOARD_PORT:-6791}:6791"
     environment:
       - NEXT_PUBLIC_DEPLOYMENT_URL=${NEXT_PUBLIC_DEPLOYMENT_URL:-http://127.0.0.1:${PORT:-3210}}
       - NEXT_PUBLIC_LOAD_MONACO_INTERNALLY
