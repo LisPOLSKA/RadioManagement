@@ -86,4 +86,4 @@ This application is web-based management tool for RadioPlayer, my another app.
   10. Run npx convex deploy -- you may need to install nodejs and npm
   11. Open dashboard.your-domain and log in with previously generated admin key
   12. Run node generateKeys.mjs and copy output then paste it in convex dasboard settings -> environmental variables -> Add
-  13. You may want to run docker compose restart -d or event docker compose down and then up -d to be sure
+  13. You may want to run docker compose restart or even docker compose down and then up -d to be sure
