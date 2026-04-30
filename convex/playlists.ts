@@ -119,6 +119,153 @@ export const deletePlaylist = mutation({
     },
 });
 
+  export const clonePlaylist = mutation({
+    args: {
+      playlistId: v.id("playlists"),
+    },
+    handler: async (ctx, args) => {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+      const id = await getAuthUserId(ctx);
+      if (!id) throw new ConvexError("UNAUTHENTICATED");
+      const user = await ctx.db.get(id);
+
+      if (!user || user.role <= 0) {
+        throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+      }
+
+      const playlist = await ctx.db.get(args.playlistId);
+      if (!playlist) throw new ConvexError("PLAYLIST_NOT_FOUND");
+
+      const clonedData = {
+        title: `${playlist.title} (copy)`,
+        songs: playlist.songs,
+        description: playlist.description,
+        createdBy: user._id,
+      };
+
+      const clonedPlaylistId = await ctx.db.insert("playlists", clonedData);
+      const clonedPlaylist = await ctx.db.get(clonedPlaylistId);
+      if (!clonedPlaylist) throw new ConvexError("PLAYLIST_NOT_FOUND");
+
+      await ctx.runMutation(internal.logs.logAdminAction, {
+        userId: user._id,
+        action: "CLONE_PLAYLIST",
+        targetTable: "playlists",
+        targetId: clonedPlaylistId,
+        details: JSON.stringify({
+          sourcePlaylistId: args.playlistId,
+          ...clonedData,
+        }),
+      });
+
+      return clonedPlaylist;
+    },
+  });
+
+export const importPlaylistFromYoutube = mutation({
+  args: {
+    playlist: v.object({
+      title: v.string(),
+      description: v.optional(v.string()),
+      author: v.optional(v.string()),
+      items: v.array(
+        v.object({
+          id: v.string(),
+          title: v.string(),
+          url: v.string(),
+          author: v.optional(v.string()),
+        })
+      ),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+    const id = await getAuthUserId(ctx);
+    if (!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+
+    if (!user || user.role <= 0) {
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+    }
+
+    try {
+      const youtubePlaylist = args.playlist;
+
+      if (!youtubePlaylist.items.length) {
+        throw new ConvexError("PLAYLIST_EMPTY");
+      }
+
+      const importedSongs = [];
+
+      for (const item of youtubePlaylist.items) {
+        const existingSong = await ctx.db
+          .query("songs")
+          .withIndex("by_ytLink", (q) => q.eq("ytLink", item.url))
+          .first();
+
+        if (existingSong) {
+          importedSongs.push(existingSong._id);
+          continue;
+        }
+
+        const songData = {
+          title: item.title.trim() || item.id,
+          artist: item.author || youtubePlaylist.author || "Unknown",
+          category: "Other",
+          ytLink: item.url,
+          createdBy: user._id,
+          searchKey: `${item.title} ${item.author || youtubePlaylist.author || "Unknown"} Other ${item.url}`,
+        };
+
+        const songId = await ctx.db.insert("songs", songData);
+        importedSongs.push(songId);
+
+        await ctx.runMutation(internal.logs.logAdminAction, {
+          userId: user._id,
+          action: "CREATE_SONG",
+          targetTable: "songs",
+          targetId: songId,
+          details: JSON.stringify(songData),
+        });
+      }
+
+      const playlistData = {
+        title: youtubePlaylist.title || "Imported playlist",
+        songs: importedSongs,
+        description: youtubePlaylist.description || undefined,
+        createdBy: user._id,
+      };
+
+      const playlistId = await ctx.db.insert("playlists", playlistData);
+      const playlist = await ctx.db.get(playlistId);
+
+      await ctx.runMutation(internal.logs.logAdminAction, {
+        userId: user._id,
+        action: "CREATE_PLAYLIST",
+        targetTable: "playlists",
+        targetId: playlistId,
+        details: JSON.stringify({
+          source: youtubePlaylist.title,
+          importedSongs: importedSongs.length,
+          ...playlistData,
+        }),
+      });
+
+      return playlist;
+    } catch (error) {
+      if (error instanceof ConvexError) {
+        throw error;
+      }
+      console.error("Failed to import YouTube playlist", error);
+      throw new ConvexError("PLAYLIST_NOT_FOUND");
+    }
+  },
+});
+
 export const getPlaylists = query({
   args: {
     title: v.optional(v.string()),

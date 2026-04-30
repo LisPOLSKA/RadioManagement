@@ -22,6 +22,7 @@ import { useTranslations } from "next-intl";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import CopyId from "./CopyId";
+import ImportPlaylistDialog from "./ImportPlaylistDialog";
 
 export default function PlaylistsList() {
     const [editingPlaylist, setEditingPlaylist] = useState<Doc<"playlists"> | null>(null);
@@ -33,6 +34,7 @@ export default function PlaylistsList() {
     );
 
     const deletePlaylist = useMutation(api.playlists.deletePlaylist);
+    const clonePlaylist = useMutation(api.playlists.clonePlaylist);
 
     const t = useTranslations("Errors");
     const tUI = useTranslations("UI");
@@ -52,11 +54,29 @@ export default function PlaylistsList() {
         }
     }
 
+    async function handleClone(id: Id<"playlists">) {
+        try {
+            const clonedPlaylist = await clonePlaylist({ playlistId: id });
+            setEditingPlaylist(clonedPlaylist);
+            toast.success(tUI("playlistCloned"));
+        } catch (e) {
+            if (e instanceof ConvexError) {
+                toast.error(t(e.data));
+            } else {
+                toast.error("Failed to clone playlist");
+                console.error(e);
+            }
+        }
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-semibold">{tUI("playlists")}</h1>
-                <PlaylistDialog />
+                <div className="flex items-center gap-2">
+                    <ImportPlaylistDialog />
+                    <PlaylistDialog />
+                </div>
             </div>
 
             <div className="flex justify-end items-center">
@@ -98,6 +118,7 @@ export default function PlaylistsList() {
                                 <TableCell>{pl.songs.length}</TableCell>
                                 <TableCell className="text-right">
                                     <Button variant="ghost" size="sm" onClick={() => setShowingPlaylistDialog(pl)}>{tUI("show")}</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => handleClone(pl._id)}>{tUI("clone")}</Button>
                                     <CopyId id={pl._id} />
                                     <Button variant="ghost" size="sm" onClick={() => setEditingPlaylist(pl)}>{tUI("edit")}</Button>
                                     <Button variant="destructive" size="sm" onClick={() => handleDelete(pl._id)}>{tUI("delete")}</Button>

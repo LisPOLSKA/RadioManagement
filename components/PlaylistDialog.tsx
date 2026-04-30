@@ -46,7 +46,7 @@ export default function PlaylistDialog({ playlist, open, onOpenChange, hideTrigg
         songs: selectedSongs,
         playlistId: playlist?._id || undefined,
       });
-      toast.success(tUI("palylistSaved"));
+      toast.success(tUI("playlistSaved"));
       onOpenChange?.(false); // zamyka dialog po submit
     } catch(e) {
       if (e instanceof ConvexError) {
