@@ -14,7 +14,8 @@
     "loading": "Ładowanie…",
     "checkSchedule": "Sprawdź harmonogram",
     "tutorials": "Poradniki",
-    "logout": "Wyloguj się"
+    "logout": "Wyloguj się",
+    "devices": "Urządzenia"
   },
 
   "Tutorials": {
@@ -187,6 +188,7 @@
     "CANNOT_CHANGE_OWN_COMMENT": "Nie możesz zmienić własnego komentarza."
   },
   "UI": {
+    "active": "Aktywne",
     "playerControls": "Sterowanie odtwarzaczem",
     "play": "Odtwórz",
     "stop": "Zatrzymaj",
@@ -254,6 +256,7 @@
     "playlistPreview": "Podgląd playlisty",
     "noSongsMatch": "Brak utworów pasujących do wyszukiwania",
     "searchSongs": "Szukaj utworów…",
+    "searchPlaylists": "Szukaj playlist…",
     "songNotFound": "Nie znaleziono utworu",
     "addPlaylist": "Dodaj playlistę",
     "playlistSaved": "Playlista zapisana",
@@ -375,6 +378,10 @@
     "commentVisibleForAdmins": "Komentarz widoczny tylko dla administracji",
     "saveFailed": "Nie udało się zapisać",
     "password": "Hasło",
+    "devices": "Urządzenia",
+    "addDevice": "Dodaj urządzenie",
+    "createdAt": "Utworzone",
+    "sure": "Jesteś pewny?",
     "TooManyFailedAttempt": "Zbyt wiele nieudanych prób logowania. Spróbuj później.",
     "InvalidSecret": "Podano nieprawidłowy sekret.",
     "InvalidAccountId": "Nieprawidłowy identyfikator konta.",

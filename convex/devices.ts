@@ -1,8 +1,10 @@
-import { internalMutation, internalQuery, mutation } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { sha256 } from "./utils/hash";
 import { internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { paginationOptsValidator } from "convex/server";
+import { ConvexError } from "convex/values";
 
 export const registerDevice = mutation({
   args: {
@@ -56,6 +58,65 @@ export const updateLastSeenAt = internalMutation({
   },
   handler: async (ctx, { deviceId, lastSeenAt }) => {
     await ctx.db.patch(deviceId, { lastSeenAt });
+    return true;
+  },
+});
+
+export const getDevices = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+    const id = await getAuthUserId(ctx);
+    if (!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+
+    if (!user || user.role < 3) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+
+    return ctx.db.query("devices").order("desc").paginate(args.paginationOpts);
+  },
+});
+
+export const deleteDevice = mutation({
+  args: {
+    deviceId: v.id("devices"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+    const id = await getAuthUserId(ctx);
+    if (!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+
+    if (!user || user.role < 3) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+
+    const device = await ctx.db.get(args.deviceId);
+    if (!device) throw new ConvexError("DEVICE_NOT_FOUND");
+
+    // Delete associated player state
+    const player = await ctx.db
+      .query("players")
+      .filter(q => q.eq(q.field("deviceId"), args.deviceId))
+      .unique();
+    
+    if (player) {
+      await ctx.db.delete(player._id);
+    }
+
+    // Delete device
+    await ctx.db.delete(args.deviceId);
+
+    await ctx.runMutation(internal.logs.logAdminAction, {
+      userId: user._id,
+      action: "DELETE_DEVICE",
+      targetTable: "devices",
+      targetId: args.deviceId,
+    });
+
     return true;
   },
 });

@@ -45,7 +45,7 @@ export default defineSchema({
     })
     .index("by_createdBy", ["createdBy"]),
   selectedPlaylists: defineTable({
-    playlistId: v.id("playlists"),
+    playlistId: v.array(v.id("playlists")),
     priority: v.number(),
     schedule: v.optional(v.array(v.number())), // dni tygodnia (0-6)
     startDate: v.number(), // timestamp w ms

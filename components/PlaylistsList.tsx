@@ -23,14 +23,16 @@ import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import CopyId from "./CopyId";
 import ImportPlaylistDialog from "./ImportPlaylistDialog";
+import { Input } from "./ui/input";
 
 export default function PlaylistsList() {
     const [editingPlaylist, setEditingPlaylist] = useState<Doc<"playlists"> | null>(null);
     const [showingPlaylistDialog, setShowingPlaylistDialog] = useState<Doc<"playlists"> | null>(null);
     const [isMine, setIsMine] = useState(true);
+    const [titleFilter, setTitleFilter] = useState("");
 
     const { results: playlists, status, loadMore } = usePaginatedQuery(
-        api.playlists.getPlaylists, {isMine} , { initialNumItems: 20 }
+        api.playlists.getPlaylists, {isMine, title: titleFilter} , { initialNumItems: 20 }
     );
 
     const deletePlaylist = useMutation(api.playlists.deletePlaylist);
@@ -79,9 +81,17 @@ export default function PlaylistsList() {
                 </div>
             </div>
 
-            <div className="flex justify-end items-center">
-                <Checkbox checked={isMine} onCheckedChange={(checked) => setIsMine(checked === true)} className="h-4 w-4" id="isMine"/>
-                <Label htmlFor="isMine" className="ml-2">{tUI("showMine")}</Label>
+            <div className="flex items-center gap-4">
+                <Input
+                    placeholder={tUI("searchPlaylists")}
+                    value={titleFilter}
+                    onChange={(e) => setTitleFilter(e.target.value)}
+                    className="flex-1"
+                />
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                    <Checkbox checked={isMine} onCheckedChange={(checked) => setIsMine(checked === true)} className="h-4 w-4" id="isMine"/>
+                    <Label htmlFor="isMine" className="font-normal cursor-pointer">{tUI("showMine")}</Label>
+                </div>
             </div>
 
             <div className="rounded-md border">

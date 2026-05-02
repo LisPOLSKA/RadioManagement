@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Globe } from "lucide-react";
 
 type Props = {
   defaultLang: string;
@@ -19,7 +20,8 @@ export const LanguageSelectorClient: React.FC<Props> = ({ defaultLang }) => {
 
   return (
     <Select value={lang} onValueChange={handleChange}>
-      <SelectTrigger>
+      <SelectTrigger className="w-auto gap-2">
+        <Globe className="h-4 w-4" />
         <SelectValue placeholder="Select language" />
       </SelectTrigger>
       <SelectContent>

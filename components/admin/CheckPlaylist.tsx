@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,8 @@ export default function CheckPlaylist() {
   const selectedPlaylists = useQuery(api.playlists.getActivePlaylistForTime, { date: timestamp });
   const selectedPlaylist = selectedPlaylists?.[0];
 
-  const playlist = useQuery(api.playlists.getPublicPlaylistById, selectedPlaylist?.playlistId ?  { playlistId: selectedPlaylist?.playlistId } : "skip");
+  const playlists = useQuery(api.playlists.getPublicPlaylistById, selectedPlaylist?.playlistId ?  { playlistsId: selectedPlaylist?.playlistId } : "skip");
+  const playlist = playlists?.[0];
 
   // pobranie pierwszych 10 piosenek
   const songs = useQuery(
@@ -37,7 +38,7 @@ export default function CheckPlaylist() {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="max-w-[250px]"
+          className="max-w-62.5"
         />
       </div>
 
@@ -83,6 +84,7 @@ export default function CheckPlaylist() {
                             href={song.ytLink}
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label={`Open ${song.title} on YouTube`}
                             className="text-muted-foreground hover:text-foreground"
                           >
                             <ExternalLink className="h-4 w-4" />

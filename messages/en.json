@@ -14,7 +14,8 @@
     "loading": "Loading…",
     "checkSchedule": "Check schedule",
     "tutorials": "Tutorials",
-    "logout": "Logout"
+    "logout": "Logout",
+    "devices": "Devices"
   },
   "Tutorials": {
     "title": "Tutorials",
@@ -186,6 +187,7 @@
     "CANNOT_CHANGE_OWN_COMMENT": "You cannot change your own comment."
   },
   "UI": {
+    "active": "Active",
     "playerControls": "Player controls",
     "play": "Play",
     "stop": "Stop",
@@ -253,6 +255,7 @@
     "playlistPreview": "Playlist preview",
     "noSongsMatch": "No songs match your search",
     "searchSongs": "Search songs…",
+    "searchPlaylists": "Search playlists…",
     "songNotFound": "Song not found",
     "addPlaylist": "Add playlist",
     "playlistSaved": "Playlist saved",
@@ -379,6 +382,10 @@
     "commentVisibleForAdmins": "Comment visible only to admins",
     "saveFailed": "Failed to save",
     "password": "Password",
+    "devices": "Devices",
+    "addDevice": "Add Device",
+    "createdAt": "Created at",
+    "sure": "Are you sure?",
     "TooManyFailedAttempt": "Too many failed login attempts. Try again later.",
     "InvalidSecret": "Invalid secret provided.",
     "InvalidAccountId": "Invalid account ID.",

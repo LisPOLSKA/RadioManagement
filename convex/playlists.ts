@@ -408,25 +408,27 @@ export const getActivePlaylistForTime = query({
 
 export const getPublicPlaylistById = query({
   args: {
-    playlistId: v.string(),
+    playlistsId: v.array(v.id("playlists")),
   },
   handler: async (ctx, args) => {
-    const playlistId = await ctx.db.normalizeId("playlists", args.playlistId);
+    const playlists = await Promise.all(args.playlistsId.map(async (id) => {
+      const playlistId = await ctx.db.normalizeId("playlists", id);
+      
+      if(!playlistId) return null;
+      const playlist = await ctx.db.get(playlistId);
 
-    if(!playlistId) return null;
+      if (!playlist) return null;
 
-    const playlist = await ctx.db.get(playlistId);
-
-    if (!playlist) return null;
-
-    return playlist;
+      return playlist;
+    }))
+    return playlists.filter(p => p !== null);
   },
 });
 
 export const upsertSelectedPlaylist = mutation({
   args: {
     selectedPlaylistId: v.optional(v.id("selectedPlaylists")),
-    playlistId: v.id("playlists"),
+    playlistId: v.array(v.id("playlists")),
     priority: v.number(),
     schedule: v.optional(v.array(v.number())), // dni tygodnia 0-6
     startDate: v.number(), // timestamp ms
@@ -471,13 +473,13 @@ export const upsertSelectedPlaylist = mutation({
       });
     } else {
       // Tworzenie nowego
-      await ctx.db.insert("selectedPlaylists", data);
+      const id = await ctx.db.insert("selectedPlaylists", data);
 
       await ctx.runMutation(internal.logs.logAdminAction, {
         userId: user._id,
         action: "CREATE_SELECTED_PLAYLIST",
         targetTable: "selectedPlaylists",
-        targetId: args.selectedPlaylistId,
+        targetId: id,
         details: JSON.stringify(data),
       });
     }
@@ -537,10 +539,10 @@ export const getSelectedPlaylists = query({
     // Dopinanie playlistName
     const resultsWithNames = await Promise.all(
         playlistsPage.page.map(async (sp) => {
-            const playlist = await ctx.db.get(sp.playlistId);
+            const playlist = await ctx.db.get(sp.playlistId[0]);
             return {
             ...sp,
-            playlistName: playlist?.title || "Unknown",
+            playlistName: sp.playlistId.length > 1 ? ((playlist?.title || "Unknown") + " And more") : playlist?.title || "Unknown",
             };
         })
     );
