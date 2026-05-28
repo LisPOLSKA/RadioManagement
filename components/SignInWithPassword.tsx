@@ -8,6 +8,7 @@ import { ConvexError } from "convex/values";
 import { toast } from "sonner";
 import { Label } from "./ui/label";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
 export function SignInWithPassword({
   provider,
@@ -23,6 +24,7 @@ export function SignInWithPassword({
   passwordRequirements?: string;
 }) {
   const { signIn } = useAuthActions();
+  const router = useRouter();
   const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
   const [submitting, setSubmitting] = useState(false);
   const t = useTranslations("UI");
@@ -35,6 +37,7 @@ export function SignInWithPassword({
         const formData = new FormData(event.currentTarget);
         signIn(provider ?? "password", formData)
           .then(() => {
+            router.replace("/");
             handleSent?.(formData.get("email") as string);
           })
           .catch((error) => {

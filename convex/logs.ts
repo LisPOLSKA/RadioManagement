@@ -1,5 +1,5 @@
 import { ConvexError, v } from "convex/values";
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
@@ -58,6 +58,22 @@ export const getLogs = query({
         page: page.page.filter(l =>
           (!args.targetTable || l.targetTable === args.targetTable) &&
           (!args.targetId || l.targetId === args.targetId)
+        ),
+      };
+    }
+
+    if(args.targetId){
+      const page = await ctx.db        .query("logs")
+        .withIndex("by_targetId", q => q.eq("targetId", args.targetId!))
+        .order("desc")
+        .paginate(args.paginationOpts);
+
+      return {
+        ...page,
+        page: page.page.filter(l =>
+          (!args.userId || l.createdBy === args.userId) &&
+          (!args.action || l.action === args.action) &&
+          (!args.targetTable || l.targetTable === args.targetTable)
         ),
       };
     }
@@ -151,5 +167,50 @@ export const getLogs = query({
         (!args.targetId || l.targetId === args.targetId)
       ),
     };
+  },
+});
+
+export const deleteLogsOlderThan = mutation({
+  args: {
+    olderThanDays: v.union(
+      v.literal(15),
+      v.literal(30),
+      v.literal(60),
+      v.literal(90)
+    ),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+    const id = await getAuthUserId(ctx);
+    if (!id) throw new ConvexError("UNAUTHENTICATED");
+    const user = await ctx.db.get(id);
+
+    if (!user || user.role < 4) {
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+    }
+
+    const cutoff = Date.now() - args.olderThanDays * 24 * 60 * 60 * 1000;
+    let deletedCount = 0;
+
+    while (true) {
+      const oldLogs = await ctx.db
+        .query("logs")
+        .withIndex("by_createdAt", q => q.lt("createdAt", cutoff))
+        .order("asc")
+        .take(100);
+
+      if (oldLogs.length === 0) {
+        break;
+      }
+
+      for (const log of oldLogs) {
+        await ctx.db.delete(log._id);
+        deletedCount += 1;
+      }
+    }
+
+    return { deletedCount };
   },
 });

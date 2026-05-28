@@ -11,7 +11,9 @@ import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
 
 const Pause = () => {
-  const players = useQuery(api.players.getPlayers);
+  const currentUser = useQuery(api.users.getCurrentUser);
+  const canManagePlayers = currentUser?.role !== undefined && currentUser.role >= 1;
+  const players = useQuery(api.players.getPlayers, canManagePlayers ? {} : "skip");
   const setPaused = useMutation(api.players.setPaused);
 
   const t = useTranslations("Errors");
@@ -45,6 +47,10 @@ const Pause = () => {
 
   // Status graczy
   let statusElement: React.ReactNode = <p className="text-sm text-muted-foreground">{tUI("loadingPlayers")}</p>;
+
+  if (currentUser && !canManagePlayers) {
+    statusElement = <p className="text-sm text-center font-medium text-muted-foreground">{tUI("unauthorized")}</p>;
+  }
 
   if (players) {
     const allPaused = players.every((p) => p.paused);
@@ -98,6 +104,7 @@ const Pause = () => {
         <Button
           className="w-full max-w-xs py-2 flex items-center justify-center gap-2"
           variant="outline"
+          disabled={!canManagePlayers}
           onClick={handleStart}
         >
           <Play className="w-4 h-4" />
@@ -107,6 +114,7 @@ const Pause = () => {
         <Button
           className="w-full max-w-xs py-2 flex items-center justify-center gap-2"
           variant="destructive"
+          disabled={!canManagePlayers}
           onClick={handleStop}
         >
           <Square className="w-4 h-4" />

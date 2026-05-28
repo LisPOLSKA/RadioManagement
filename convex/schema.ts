@@ -37,13 +37,15 @@ export default defineSchema({
     title: v.string(),
     songs: v.array(v.id("songs")),
     description: v.optional(v.string()),
+    sourcePlaylistId: v.optional(v.string()),
     createdBy: v.id("users"),
   })
     .searchIndex("search_by_title_createdBy", {
       searchField: "title",
       filterFields: ["createdBy"],
     })
-    .index("by_createdBy", ["createdBy"]),
+    .index("by_createdBy", ["createdBy"])
+    .index("by_createdBy_sourcePlaylistId", ["createdBy", "sourcePlaylistId"]),
   selectedPlaylists: defineTable({
     playlistId: v.array(v.id("playlists")),
     priority: v.number(),

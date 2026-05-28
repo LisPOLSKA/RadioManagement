@@ -7,6 +7,7 @@ import isoWeek from "dayjs/plugin/isoWeek"
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { Doc, Id } from "./_generated/dataModel";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -166,7 +167,9 @@ export const deletePlaylist = mutation({
 
 export const importPlaylistFromYoutube = mutation({
   args: {
+    category: v.string(),
     playlist: v.object({
+      sourcePlaylistId: v.string(),
       title: v.string(),
       description: v.optional(v.string()),
       author: v.optional(v.string()),
@@ -199,7 +202,7 @@ export const importPlaylistFromYoutube = mutation({
         throw new ConvexError("PLAYLIST_EMPTY");
       }
 
-      const importedSongs = [];
+      const importedSongs: Id<"songs">[] = [];
 
       for (const item of youtubePlaylist.items) {
         const existingSong = await ctx.db
@@ -208,6 +211,26 @@ export const importPlaylistFromYoutube = mutation({
           .first();
 
         if (existingSong) {
+          await ctx.db.patch(existingSong._id, {
+            title: item.title.trim() || item.id,
+            artist: item.author || youtubePlaylist.author || "Unknown",
+            category: args.category,
+            searchKey: `${item.title} ${item.author || youtubePlaylist.author || "Unknown"} ${args.category} ${item.url}`,
+          });
+
+          await ctx.runMutation(internal.logs.logAdminAction, {
+            userId: user._id,
+            action: "UPDATE_SONG",
+            targetTable: "songs",
+            targetId: existingSong._id,
+            details: JSON.stringify({
+              title: item.title.trim() || item.id,
+              artist: item.author || youtubePlaylist.author || "Unknown",
+              category: args.category,
+              ytLink: item.url,
+            }),
+          });
+
           importedSongs.push(existingSong._id);
           continue;
         }
@@ -215,10 +238,10 @@ export const importPlaylistFromYoutube = mutation({
         const songData = {
           title: item.title.trim() || item.id,
           artist: item.author || youtubePlaylist.author || "Unknown",
-          category: "Other",
+          category: args.category,
           ytLink: item.url,
           createdBy: user._id,
-          searchKey: `${item.title} ${item.author || youtubePlaylist.author || "Unknown"} Other ${item.url}`,
+          searchKey: `${item.title} ${item.author || youtubePlaylist.author || "Unknown"} ${args.category} ${item.url}`,
         };
 
         const songId = await ctx.db.insert("songs", songData);
@@ -237,23 +260,52 @@ export const importPlaylistFromYoutube = mutation({
         title: youtubePlaylist.title || "Imported playlist",
         songs: importedSongs,
         description: youtubePlaylist.description || undefined,
+        sourcePlaylistId: youtubePlaylist.sourcePlaylistId,
         createdBy: user._id,
       };
 
-      const playlistId = await ctx.db.insert("playlists", playlistData);
-      const playlist = await ctx.db.get(playlistId);
+      const existingPlaylist = await ctx.db
+        .query("playlists")
+        .withIndex("by_createdBy_sourcePlaylistId", (q) =>
+          q.eq("createdBy", user._id).eq("sourcePlaylistId", youtubePlaylist.sourcePlaylistId)
+        )
+        .first();
 
-      await ctx.runMutation(internal.logs.logAdminAction, {
-        userId: user._id,
-        action: "CREATE_PLAYLIST",
-        targetTable: "playlists",
-        targetId: playlistId,
-        details: JSON.stringify({
-          source: youtubePlaylist.title,
-          importedSongs: importedSongs.length,
-          ...playlistData,
-        }),
-      });
+      let playlistId: Id<"playlists">;
+      let playlist: Doc<"playlists"> | null | undefined;
+
+      if (existingPlaylist) {
+        playlistId = existingPlaylist._id;
+        await ctx.db.patch(existingPlaylist._id, playlistData);
+        playlist = await ctx.db.get(existingPlaylist._id);
+
+        await ctx.runMutation(internal.logs.logAdminAction, {
+          userId: user._id,
+          action: "UPDATE_PLAYLIST",
+          targetTable: "playlists",
+          targetId: existingPlaylist._id,
+          details: JSON.stringify({
+            source: youtubePlaylist.title,
+            importedSongs: importedSongs.length,
+            ...playlistData,
+          }),
+        });
+      } else {
+        playlistId = await ctx.db.insert("playlists", playlistData);
+        playlist = await ctx.db.get(playlistId);
+
+        await ctx.runMutation(internal.logs.logAdminAction, {
+          userId: user._id,
+          action: "CREATE_PLAYLIST",
+          targetTable: "playlists",
+          targetId: playlistId,
+          details: JSON.stringify({
+            source: youtubePlaylist.title,
+            importedSongs: importedSongs.length,
+            ...playlistData,
+          }),
+        });
+      }
 
       return playlist;
     } catch (error) {

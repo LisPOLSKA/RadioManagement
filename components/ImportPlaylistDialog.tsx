@@ -11,10 +11,12 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
+import CategoryDropdown from "@/components/CategoryDropdown";
 
 export default function ImportPlaylistDialog() {
   const [open, setOpen] = useState(false);
   const [playlistUrl, setPlaylistUrl] = useState("");
+  const [category, setCategory] = useState("Other");
   const [isImporting, setIsImporting] = useState(false);
 
   const fetchYoutubePlaylist = useAction(api.youtube.fetchYoutubePlaylist);
@@ -34,9 +36,10 @@ export default function ImportPlaylistDialog() {
     try {
       setIsImporting(true);
       const youtubePlaylist = await fetchYoutubePlaylist({ playlistUrl: playlistUrl.trim() });
-      const playlist = await importPlaylist({ playlist: youtubePlaylist });
+      const playlist = await importPlaylist({ playlist: youtubePlaylist, category });
       toast.success(`${tUI("playlistImported")}: ${playlist?.title || tUI("playlists")}`);
       setPlaylistUrl("");
+      setCategory("Other");
       setOpen(false);
     } catch (error) {
       if (error instanceof ConvexError) {
@@ -75,6 +78,8 @@ export default function ImportPlaylistDialog() {
               required
             />
           </div>
+
+          <CategoryDropdown selectedCategory={category} onChange={setCategory} />
 
           <DialogFooter>
             <Button type="submit" disabled={isImporting}>

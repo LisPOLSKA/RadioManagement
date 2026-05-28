@@ -9,13 +9,18 @@ export const fetchYoutubePlaylist = action({
     playlistUrl: v.string(),
   },
   handler: async (_ctx, args) => {
-    if (!ytpl.validateID(args.playlistUrl)) {
+    let sourcePlaylistId: string;
+
+    try {
+      sourcePlaylistId = await ytpl.getPlaylistID(args.playlistUrl);
+    } catch {
       throw new ConvexError("INVALID_YOUTUBE_PLAYLIST_URL");
     }
 
-    const playlist = await ytpl(args.playlistUrl);
+    const playlist = await ytpl(sourcePlaylistId);
 
     return {
+      sourcePlaylistId,
       title: playlist.title,
       description: playlist.description || undefined,
       author: playlist.author?.name || undefined,

@@ -19,20 +19,21 @@ const AuthorizationProvider = ({children}: {children: React.ReactNode}) => {
     if(!isLoading && !isAuthenticated){
         router.replace("/sign-in");
     }
-    if (!isLoading && (!isAuthenticated || user === null || (user?.role !== undefined && user.role <= 0))){
-        console.log(user === null, !isAuthenticated, isLoading, (!isAuthenticated || (user?.role !== undefined && user.role <= 0)) && !isLoading);
+    const isUserLoading = isAuthenticated && user === undefined;
+
+    if (isUserLoading || isLoading) {
         return (
-            <div className='w-screen h-screen flex items-center justify-center flex-col gap-4'>
-                <h1 className='text-red-500 text-6xl'>{t("unauthorized")}</h1>
-                <SignOutButton />
+            <div className='w-screen h-screen flex items-center justify-center'>
+                <h1 className='text-6xl'>{t("loading")}</h1>
             </div>
         )
     }
 
-    if(isLoading){
+    if (!isAuthenticated || user === null || (user?.role !== undefined && user.role <= 0)){
         return (
-            <div className='w-screen h-screen flex items-center justify-center'>
-                <h1 className='text-6xl'>{t("loading")}</h1>
+            <div className='w-screen h-screen flex items-center justify-center flex-col gap-4'>
+                <h1 className='text-red-500 text-6xl'>{t("unauthorized")}</h1>
+                <SignOutButton />
             </div>
         )
     }

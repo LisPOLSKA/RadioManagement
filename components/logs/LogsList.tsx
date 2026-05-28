@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useConvexAuth, usePaginatedQuery, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 import {
@@ -15,12 +15,21 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import ActionSelect from "./ActionSelect";
 import TargetTableSelect from "./TargetTableSelect";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { ConvexError } from "convex/values";
 
 export default function LogsList() {
   const [action, setAction] = useState<string | undefined>();
@@ -28,6 +37,7 @@ export default function LogsList() {
   const [targetId, setTargetId] = useState("");
   const [userInput, setUserInput] = useState(""); 
   const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | undefined>();
+  const [cleanupDays, setCleanupDays] = useState<15 | 30 | 60 | 90>(30);
   const [filtersOpen, setFiltersOpen] = useState(true); // collapse toggle
 
   const { isAuthenticated } = useConvexAuth();
@@ -43,6 +53,7 @@ export default function LogsList() {
   }
 
   const t = useTranslations("UI");
+  const deleteOldLogs = useMutation(api.logs.deleteLogsOlderThan);
 
   const {
     results: logs,
@@ -65,9 +76,49 @@ export default function LogsList() {
     return <h1 className="text-red-500">{t("unauthorized")}</h1>;
   }
 
+  async function handleCleanupLogs() {
+    if (!confirm(t("deleteLogsConfirm", { days: cleanupDays }))) {
+      return;
+    }
+
+    try {
+      const result = await deleteOldLogs({ olderThanDays: cleanupDays });
+      toast.success(`${t("logsDeleted")}: ${result.deletedCount}`);
+    } catch (error) {
+      if (error instanceof ConvexError) {
+        toast.error(t(error.data));
+      } else {
+        toast.error("Failed to delete old logs");
+        console.error(error);
+      }
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">{t("logs")}</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h1 className="text-2xl font-semibold">{t("logs")}</h1>
+
+        {user?.role === 4 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <Select value={String(cleanupDays)} onValueChange={(value) => setCleanupDays(Number(value) as 15 | 30 | 60 | 90)}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder={t("deleteLogsOlderThan")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15">15 {t("days")}</SelectItem>
+                <SelectItem value="30">30 {t("days")}</SelectItem>
+                <SelectItem value="60">60 {t("days")}</SelectItem>
+                <SelectItem value="90">90 {t("days")}</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button variant="destructive" onClick={handleCleanupLogs}>
+              {t("deleteOldLogs")}
+            </Button>
+          </div>
+        )}
+      </div>
 
       {/* Filters panel */}
       <div className="border rounded-md p-2">
