@@ -198,8 +198,13 @@ http.route({
         return new Response("Missing or invalid Authorization header", { status: 400 });
       }
       const apiToken = authHeader.replace("Bearer ", "");
-      const hashArray = await crypto
-        .subtle.digest("SHA-256", new TextEncoder().encode(apiToken))
+      const hashBuffer = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(apiToken)
+      );
+
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+
       const hash = hashArray
         .map(b => b.toString(16).padStart(2, "0"))
         .join("");
