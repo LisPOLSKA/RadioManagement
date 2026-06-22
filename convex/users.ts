@@ -240,3 +240,35 @@ export const getUserByEmail = internalQuery({
     return user ?? undefined;
   },
 });
+
+export const setTokenHash = mutation({
+  args: {
+    userId: v.id("users"),
+    apiTokenHash: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new ConvexError("UNAUTHENTICATED");
+
+    const id = await getAuthUserId(ctx);
+    if(!id) throw new ConvexError("UNAUTHENTICATED");
+    const me = await ctx.db.get(id);
+
+    if (!me || me.role < 3) {
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+    }
+
+    const target = await ctx.db.get(args.userId);
+    if (!target) {
+      throw new ConvexError("USER_NOT_FOUND");
+    }
+
+    if(target.role >= 3 && me.role < 4){
+      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+    }
+
+    await ctx.db.patch(args.userId, {
+      apiTokenHash: args.apiTokenHash,
+    });
+  }
+});

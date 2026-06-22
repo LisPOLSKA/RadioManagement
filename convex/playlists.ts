@@ -1,5 +1,5 @@
 import { ConvexError, v } from "convex/values";
-import { internalQuery, mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
 import dayjs from "dayjs";
@@ -165,8 +165,9 @@ export const deletePlaylist = mutation({
     },
   });
 
-export const importPlaylistFromYoutube = mutation({
+export const importPlaylistFromYoutube = internalMutation({
   args: {
+    apiTokenHash: v.string(),
     category: v.string(),
     playlist: v.object({
       sourcePlaylistId: v.string(),
@@ -184,18 +185,22 @@ export const importPlaylistFromYoutube = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("UNAUTHENTICATED");
-
-    const id = await getAuthUserId(ctx);
-    if (!id) throw new ConvexError("UNAUTHENTICATED");
-    const user = await ctx.db.get(id);
-
-    if (!user || user.role <= 0) {
-      throw new ConvexError("INSUFFICIENT_PERMISSIONS");
-    }
-
     try {
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_apiTokenHash", (q) =>
+          q.eq("apiTokenHash", args.apiTokenHash)
+        )
+        .unique();
+
+      if (!user) throw new ConvexError("UNAUTHORIZED");
+      if ( user.role < 1 ) throw new ConvexError("INSUFFICIENT_PERMISSIONS");
+
+      const now = Date.now();
+      if (user.lastRequestAt && now - user.lastRequestAt < 60000) {
+        throw new ConvexError("REQUEST_TOO_FREQUENT");
+      }
+
       const youtubePlaylist = args.playlist;
 
       if (!youtubePlaylist.items.length) {
@@ -306,6 +311,10 @@ export const importPlaylistFromYoutube = mutation({
           }),
         });
       }
+
+      await ctx.db.patch(user._id, {
+        lastRequestAt: now
+      });
 
       return playlist;
     } catch (error) {

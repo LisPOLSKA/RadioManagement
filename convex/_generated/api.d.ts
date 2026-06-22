@@ -21,7 +21,6 @@ import type * as songs from "../songs.js";
 import type * as users from "../users.js";
 import type * as utils_hash from "../utils/hash.js";
 import type * as utils_requireDevice from "../utils/requireDevice.js";
-import type * as youtube from "../youtube.js";
 
 import type {
   ApiFromModules,
@@ -43,7 +42,6 @@ declare const fullApi: ApiFromModules<{
   users: typeof users;
   "utils/hash": typeof utils_hash;
   "utils/requireDevice": typeof utils_requireDevice;
-  youtube: typeof youtube;
 }>;
 
 /**

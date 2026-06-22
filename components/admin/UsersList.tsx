@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, usePaginatedQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import crypto from "crypto";
 
 import {
   Table,
@@ -64,6 +65,7 @@ export default function UsersList() {
   );
 
   const setRole = useMutation(api.users.setUserRole);
+  const setTokenHash = useMutation(api.users.setTokenHash);
 
   const tUI = useTranslations("UI");
 
@@ -88,6 +90,20 @@ export default function UsersList() {
   function copyId(id: string) {
     navigator.clipboard.writeText(id);
     toast.success(tUI("userIdCopied"));
+  }
+
+  async function generateSetAndCopyToken(userId: Doc<"users">["_id"]) {
+    try{
+      const token = crypto.randomBytes(32).toString("hex");
+      navigator.clipboard.writeText(token);
+      toast.success(tUI("apiTokenCopied"));
+
+      await setTokenHash({ userId, apiTokenHash: crypto.createHash("sha256").update(token).digest("hex") });
+    }catch(e){
+      toast.error("Failed to generate API token");
+      console.error(e);
+    }
+    
   }
 
   if(me === undefined) {
@@ -138,13 +154,14 @@ export default function UsersList() {
               <TableHead>{tUI("comment")}</TableHead>
               <TableHead>{tUI("role")}</TableHead>
               <TableHead>{tUI("userId")}</TableHead>
+              <TableHead>{tUI("generateApiTokenHead")}</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {status === "LoadingFirstPage" && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={6} className="text-center">
                   {tUI("loadingUsers")}
                 </TableCell>
               </TableRow>
@@ -152,7 +169,7 @@ export default function UsersList() {
 
             {status !== "LoadingFirstPage" && users.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={6} className="text-center">
                   {tUI("noUsersFound")}
                 </TableCell>
               </TableRow>
@@ -215,6 +232,15 @@ export default function UsersList() {
                       {tUI("copyId")}
                     </Button>
                   </div>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => generateSetAndCopyToken(user._id)}
+                  >
+                    {tUI("generateApiToken")}
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

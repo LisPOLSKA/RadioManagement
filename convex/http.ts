@@ -6,6 +6,13 @@ import { api, internal } from "./_generated/api";
 import { requireDeviceFromRequest } from "./utils/requireDevice";
 import { auth } from "./auth";
 
+const ERROR_STATUS: Record<string, number> = {
+  UNAUTHORIZED: 401,
+  INSUFFICIENT_PERMISSIONS: 403,
+  PLAYLIST_EMPTY: 422,
+  REQUEST_TOO_FREQUENT: 429,
+};
+
 const http = httpRouter();
 
 auth.addHttpRoutes(http);
@@ -180,6 +187,44 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/playlists/import-from-youtube",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    try {
+      const body = await req.json();
+      const authHeader = req.headers.get("Authorization") || "";
+      if(!authHeader.startsWith("Bearer ")) {
+        return new Response("Missing or invalid Authorization header", { status: 400 });
+      }
+      const apiToken = authHeader.replace("Bearer ", "");
+      const hashArray = await crypto
+        .subtle.digest("SHA-256", new TextEncoder().encode(apiToken))
+      const hash = hashArray
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+      if (!hash || !apiToken) return new Response("Missing apiTokenHash", { status: 400 });
+
+      const result = await ctx.runMutation(
+        internal.playlists.importPlaylistFromYoutube,
+        { ...body, apiTokenHash: hash }
+      );
+
+      return Response.json(result);
+    } catch (err: any) {
+      const code = err?.data;
+
+      if (code) {
+        return Response.json(
+          { error: code },
+          { status: ERROR_STATUS[code] ?? 400 }
+        );
+      }
+
+      return new Response("Internal error", { status: 500 });
+    }
+  }),
+});
 
 // async function validateRequest(req: Request): Promise<WebhookEvent | null> {
 //   const payloadString = await req.text();

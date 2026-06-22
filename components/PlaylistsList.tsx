@@ -76,7 +76,7 @@ export default function PlaylistsList() {
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-semibold">{tUI("playlists")}</h1>
                 <div className="flex items-center gap-2">
-                    <ImportPlaylistDialog />
+                    {/*<ImportPlaylistDialog /> nie dziala */}
                     <PlaylistDialog />
                 </div>
             </div>

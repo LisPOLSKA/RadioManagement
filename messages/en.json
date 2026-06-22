@@ -397,6 +397,9 @@
     "InvalidPassword": "Invalid password - check the requirements and try again.",
     "AccountExists": "Account already exists.",
     "CouldNotSignIn": "Could not sign in, did you mean to sign up?",
-    "CouldNotSignUp": "Could not sign up, did you mean to sign in?"
+    "CouldNotSignUp": "Could not sign up, did you mean to sign in?",
+    "generateApiToken": "Generate API Token",
+    "generateApiTokenHead": "API Token",
+    "apiTokenCopied": "API token copied to clipboard"
   }
 }

@@ -393,6 +393,9 @@
     "InvalidPassword": "Nieprawidłowe hasło – sprawdź wymagania i spróbuj ponownie.",
     "AccountExists": "Konto już istnieje.",
     "CouldNotSignIn": "Nie można się zalogować, czy chciałeś się zarejestrować?",
-    "CouldNotSignUp": "Nie można się zarejestrować, czy chciałeś się zalogować?"
+    "CouldNotSignUp": "Nie można się zarejestrować, czy chciałeś się zalogować?",
+    "generateApiToken": "Generuj token API",
+    "generateApiTokenHead": "Token API",
+    "apiTokenCopied": "Token API skopiowany do schowka"
   }
 }

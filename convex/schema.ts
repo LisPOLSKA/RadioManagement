@@ -13,11 +13,14 @@ export default defineSchema({
     deviceId: v.optional(v.id("devices")),
     //type: v.optional(v.union(v.literal("player"), v.literal("user"))),
     comment: v.optional(v.string()),
+    apiTokenHash: v.optional(v.string()),
+    lastRequestAt: v.optional(v.number()),
   })
     //.index("by_clerkId", ["clerkId"])
     .index("by_email", ["email"])
     .index("by_displayName", ["displayName"])
-    .index("by_searchKey", ["searchKey"]),
+    .index("by_searchKey", ["searchKey"])
+    .index("by_apiTokenHash", ["apiTokenHash"]),
   songs: defineTable({
     title: v.string(),
     artist: v.string(),
