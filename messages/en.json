@@ -400,6 +400,11 @@
     "CouldNotSignUp": "Could not sign up, did you mean to sign in?",
     "generateApiToken": "Generate API Token",
     "generateApiTokenHead": "API Token",
-    "apiTokenCopied": "API token copied to clipboard"
+    "apiTokenCopied": "API token copied to clipboard",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "forgotPassword": "Forgot your password?",
+    "dontHaveAccount": "Don't have an account? Sign up",
+    "alreadyHaveAccount": "Already have an account? Sign in"
   }
 }

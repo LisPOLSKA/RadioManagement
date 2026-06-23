@@ -47,8 +47,7 @@ export function SignInWithPassword({
               error instanceof ConvexError &&
               error.data === "INVALID_PASSWORD"
             ) {
-              toastTitle =
-                "Invalid password - check the requirements and try again.";
+              toastTitle = t("InvalidPassword");
             } else {
                const msg = (error as Error).message;
                const accountExistsPattern = /Account .* already exists/i;
@@ -93,7 +92,7 @@ export function SignInWithPassword({
             variant="link"
             onClick={handlePasswordReset}
           >
-            Forgot your password?
+            {t("forgotPassword")}
           </Button>
         ) : null}
       </div>
@@ -111,7 +110,7 @@ export function SignInWithPassword({
       {flow === "signUp" && customSignUp}
       <input name="flow" value={flow} type="hidden" />
       <Button type="submit" disabled={submitting} className="mt-4">
-        {flow === "signIn" ? "Sign in" : "Sign up"}
+        {flow === "signIn" ? t("signIn") : t("signUp")}
       </Button>
       <Button
         variant="link"
@@ -121,8 +120,8 @@ export function SignInWithPassword({
         }}
       >
         {flow === "signIn"
-          ? "Don't have an account? Sign up"
-          : "Already have an account? Sign in"}
+          ? t("dontHaveAccount")
+          : t("alreadyHaveAccount")}
       </Button>
     </form>
   );

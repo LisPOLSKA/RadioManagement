@@ -396,6 +396,11 @@
     "CouldNotSignUp": "Nie można się zarejestrować, czy chciałeś się zalogować?",
     "generateApiToken": "Generuj token API",
     "generateApiTokenHead": "Token API",
-    "apiTokenCopied": "Token API skopiowany do schowka"
+    "apiTokenCopied": "Token API skopiowany do schowka",
+    "signIn": "Zaloguj się",
+    "signUp": "Zarejestruj się",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "dontHaveAccount": "Nie masz konta? Zarejestruj się",
+    "alreadyHaveAccount": "Masz już konto? Zaloguj się"
   }
 }
