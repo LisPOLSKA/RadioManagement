@@ -31,7 +31,9 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
 
     const token = await convexAuthNextjsToken();
 
-    const user = await fetchQuery(api.users.getCurrentUser, {}, {token: token});
+    const user = token
+        ? await fetchQuery(api.users.getCurrentUser, {}, {token: token})
+        : null;
 
     isAdmin = !!user && user.role >= 3;
     isSupervisor = !!user && user.role >= 2;
